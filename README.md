@@ -9,7 +9,8 @@ Provide an high performance and a distributed key-value-store accessible via an 
 Lucid is currently in developement and we plan to implement some logics, like authentication, ACLs, encryption on the fly, and data streaming through API (websocket).
 
 ## Command Line Interface
-```
+
+```bash
   _   _   _  ___ ___ ___  _
  | | | | | |/ __|_ _|   \| |
  | |_| |_| | (__ | || |) |_|
@@ -34,6 +35,10 @@ SUBCOMMANDS:
     server      Run an instance as server
     settings    Configure the instance
 ```
+
+## Web Interface (UI)
+
+Lucid want to propose an humain interface to manage objects, clusters and configuration.
 
 ## About the Author
 
