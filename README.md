@@ -44,4 +44,4 @@ Lucid want to propose an humain interface to manage objects, clusters and config
 
 Lucid is powered by [Clint.Network](https://twitter.com/clint_network) and published under the [MIT License](LICENSE.md).
 
-If you want to make a little donation (or bigger), use this Bitcoin address: 3NKHzncjpJmXzgEbAUy8hgCNpr4eVzcajZ
+If you want to make a little donation (or bigger), use this Bitcoin address: 3NhdjiGrpzH5geVrDHa173EuXxnAVhghtZ
