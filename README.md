@@ -3,7 +3,7 @@
 An High performance and distributed KV ledger. Written in Rust
 
 [![Build Status](https://travis-ci.com/clintnetwork/lucid.svg?branch=developement)](https://travis-ci.com/clintnetwork/lucid)
-[![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)]
+[![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)](https://www.rust-lang.org/)
 [![Clint.Network](https://img.shields.io/badge/Powered%20by-Clint.Network-blue.svg)](https://twitter.com/clint_network)
 
 ## Introduction
