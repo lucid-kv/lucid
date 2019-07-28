@@ -1,10 +1,14 @@
-# Lucid
+# About Lucid
 
 An High performance and distributed KV ledger. Written in Rust
 
 ## Introduction
 
-## Command Line Tool
+Provide an high performance and a distributed key-value-store accessible via an REST API is the mission of Lucid.
+
+Lucid is currently in developement and we plan to implement some logics, like authentication, ACLs, encryption on the fly, and data streaming through API (websocket).
+
+## Command Line Interface
 ```
   _   _   _  ___ ___ ___  _
  | | | | | |/ __|_ _|   \| |
