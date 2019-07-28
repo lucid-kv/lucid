@@ -33,6 +33,6 @@ SUBCOMMANDS:
 
 ## About the Author
 
-Lucid is powered by `Clint.Network <https://twitter.com/clint_network>`_ and published under the `MIT License <LICENSE.md>`_.
+Lucid is powered by [Clint.Network](https://twitter.com/clint_network) and published under the [MIT License](LICENSE.md).
 
 If you want to make a little donation (or bigger), use this Bitcoin address: 3NKHzncjpJmXzgEbAUy8hgCNpr4eVzcajZ
