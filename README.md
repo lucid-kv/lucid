@@ -10,7 +10,7 @@ Lucid is currently in developement and we plan to implement some logics, like au
 
 ## Command Line Interface
 
-```bash
+```console
   _   _   _  ___ ___ ___  _
  | | | | | |/ __|_ _|   \| |
  | |_| |_| | (__ | || |) |_|
