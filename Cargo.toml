@@ -1,9 +1,17 @@
 [package]
 name = "lucid"
+description = "High performance and distributed KV ledger."
 version = "0.1.0"
 authors = ["Clint.Network <me@clint.network>"]
 edition = "2018"
+keywords = ["kv", "distributed", "ledger", "kv-store", "key-value"]
+repository = "https://github.com/clintnetwork/lucid"
+license = "https://github.com/clintnetwork/lucid/blob/master/LICENSE"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+clap = "*"
+nickel = "*"
+serde = "*"
+serde_json = "*"
