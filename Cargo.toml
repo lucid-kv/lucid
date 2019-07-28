@@ -6,7 +6,7 @@ authors = ["Clint.Network <me@clint.network>"]
 edition = "2018"
 keywords = ["kv", "distributed", "ledger", "kv-store", "key-value"]
 repository = "https://github.com/clintnetwork/lucid"
-license = "https://github.com/clintnetwork/lucid/blob/master/LICENSE"
+license = "https://github.com/clintnetwork/lucid/blob/master/LICENSE.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
