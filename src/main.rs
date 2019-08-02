@@ -1,4 +1,4 @@
 fn main()
 {
-    // Here we go
+    // Do amazing stuff
 }
