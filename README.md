@@ -16,6 +16,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 
 - Private Keys Storing (for a wallet by example)
 - IoT: collect and save statistics data
+- A distributed cache for an application
 - Service Discovery
 - Distributed Configuration
 
