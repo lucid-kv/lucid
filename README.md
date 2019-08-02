@@ -10,9 +10,14 @@ An High performance and distributed KV ledger accessible through HTTP API. Writt
 
 ## Introduction
 
-Provide an high performance and a distributed key-value-store accessible via an REST API is the mission of Lucid.
+Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through a HTTP API, we also want to propose persistence, encryption, websocket streaming, replication and a lots of features.
 
-Lucid is currently in developement and we plan to implement some logics, like authentication, ACLs, encryption on the fly, and data streaming through API (websocket).
+## Some Use Cases
+
+- Private Keys Storing (for a wallet by example)
+- IoT: collect and save statistics data
+- Service Discovery
+- Distributed Configuration
 
 ## Command Line Interface
 
@@ -33,12 +38,13 @@ FLAGS:
     -V, --version    Prints version information
 
 SUBCOMMANDS:
-    auth        Manage credentials of the instance
     cli         Spawn to the command line interface
     help        Prints this message or the help of the given subcommand(s)
     members     Manage members of the cluster
-    monitor     controls testing features
-    server      Run an instance as server
+    monitor     Display logs in realtime.
+    server      Run a Lucid server instance
+    token       Manage JWT tokens issuing
+    store       Play with the KV store (get/set)
     settings    Configure the instance
 ```
 
@@ -50,4 +56,4 @@ Lucid want to propose an humain interface to manage objects, clusters and config
 
 Lucid is powered by [Clint.Network](https://twitter.com/clint_network) and published under the [MIT License](LICENSE.md).
 
-If you want to make a little donation (or bigger), use this Bitcoin address: 3NhdjiGrpzH5geVrDHa173EuXxnAVhghtZ
+If you want to make a little donation, use this Bitcoin address: 3NhdjiGrpzH5geVrDHa173EuXxnAVhghtZ or my [Patreon](https://www.patreon.com/clintnetwork).
