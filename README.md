@@ -1,5 +1,7 @@
 # About Lucid
 
+<ins>__**Warning: Empty project for now, the development is ensured in the [development](https://github.com/clintnetwork/lucid/tree/developement) branch.**__</ins>
+
 An High performance and distributed KV ledger accessible through HTTP API. Written in Rust.
 
 [![Build Status](https://travis-ci.com/clintnetwork/lucid.svg?branch=developement)](https://travis-ci.com/clintnetwork/lucid)
