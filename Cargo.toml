@@ -1,0 +1,13 @@
+[package]
+name = "lucid"
+description = "A Fast, Secure and Distributed KV ledger accessible through HTTP API."
+version = "0.1.0"
+authors = ["Clint.Network <me@clint.network>"]
+edition = "2018"
+keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "http", "swagger", "websocket"]
+repository = "https://github.com/clintnetwork/lucid"
+license = "https://github.com/clintnetwork/lucid/blob/master/LICENSE.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
