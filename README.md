@@ -51,7 +51,7 @@ SUBCOMMANDS:
 
 ## Web Interface (UI)
 
-Lucid want to propose an humain interface to manage objects, clusters and configuration.
+Lucid want to propose an web UI to manage data, issue tokens, organize nodes and configure instances.
 
 ## About the Author
 
