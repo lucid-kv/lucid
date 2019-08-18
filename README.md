@@ -11,29 +11,31 @@ Lucid is currently in developement and we plan to implement some logics, like au
 ## Command Line Interface
 
 ```
-  _   _   _  ___ ___ ___  _
- | | | | | |/ __|_ _|   \| |
- | |_| |_| | (__ | || |) |_|
- |____\___/ \___|___|___/(_)
+ ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
+ ██║    ██║   ██║██╔════╝██║██╔══██╗    ██║ ██╔╝██║   ██║
+ ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
+ ██████╗╚██████╔╝╚██████╗██║██████╔╝    ██║  ██╗ ╚████╔╝
+ ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
 
-High performance and distributed KV ledger.
-Written in Rust by Clint.Network
+A Fast, Secure and Distributed KV store with a HTTP API.
+Written in Rust by Clint.Network (twitter.com/clint_network)
 
 USAGE:
     lucid.exe [SUBCOMMAND]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Prints help informations
+    -v, --version    Print version information
 
 SUBCOMMANDS:
-    auth        Manage credentials of the instance
     cli         Spawn to the command line interface
     help        Prints this message or the help of the given subcommand(s)
+    init        Initialize the Lucid cluster and generate configuration file
     members     Manage members of the cluster
-    monitor     controls testing features
-    server      Run an instance as server
-    settings    Configure the instance
+    server      Run a new Lucid server instance
+    settings    Manage Lucid configuration file
+    store       Play with the KV store (get/set)
+    tokens      Manage JWT Tokens (issue, revoke etc.)
 ```
 
 ## Web Interface (UI)
