@@ -2,7 +2,7 @@
 
 <ins>__**Warning: Empty project for now, the development is ensured in the [development](https://github.com/clintnetwork/lucid/tree/developement) branch.**__</ins>
 
-An High performance and distributed KV ledger accessible through HTTP API. Written in Rust. 🦀
+An High performance and distributed KV store accessible through a HTTP API. Written in Rust. 🦀
 
 [![Build Status](https://travis-ci.com/clintnetwork/lucid.svg?branch=developement)](https://travis-ci.com/clintnetwork/lucid)
 [![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)](https://www.rust-lang.org/)
