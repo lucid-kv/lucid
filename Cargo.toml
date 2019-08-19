@@ -16,6 +16,8 @@ nickel = "*"
 serde = "*"
 serde_json = "*"
 rustflake = "*"
+chrono = "*"
+include_dir = "*"
 
 [dependencies.clap]
 version = "*"
