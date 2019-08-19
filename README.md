@@ -1,12 +1,22 @@
 # About Lucid
 
-An High performance and distributed KV ledger. Written in Rust
+An High performance and distributed KV store accessible through a HTTP API. Written in Rust. 🦀
+
+[![Build Status](https://travis-ci.com/clintnetwork/lucid.svg?branch=developement)](https://travis-ci.com/clintnetwork/lucid)
+[![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)](https://www.rust-lang.org/)
+[![Clint.Network](https://img.shields.io/badge/Powered%20by-Clint.Network-blue.svg)](https://twitter.com/clint_network)
 
 ## Introduction
 
-Provide an high performance and a distributed key-value-store accessible via an REST API is the mission of Lucid.
+Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through a HTTP API, we also want to propose persistence, encryption, websocket streaming, replication and a lots of features.
 
-Lucid is currently in developement and we plan to implement some logics, like authentication, ACLs, encryption on the fly, and data streaming through API (websocket).
+## Some Use Cases
+
+- Private Keys Storing (for a wallet by example)
+- IoT: collect and save statistics data
+- A distributed cache for an application
+- Service Discovery
+- Distributed Configuration
 
 ## Command Line Interface
 
@@ -40,10 +50,10 @@ SUBCOMMANDS:
 
 ## Web Interface (UI)
 
-Lucid want to propose an humain interface to manage objects, clusters and configuration.
+Lucid want to propose an web UI to manage data, issue tokens, organize nodes and configure instances.
 
 ## About the Author
 
 Lucid is powered by [Clint.Network](https://twitter.com/clint_network) and published under the [MIT License](LICENSE.md).
 
-If you want to make a little donation (or bigger), use this Bitcoin address: 3NhdjiGrpzH5geVrDHa173EuXxnAVhghtZ
+If you want to make a little donation, use this Bitcoin address: 3NhdjiGrpzH5geVrDHa173EuXxnAVhghtZ or my [Patreon](https://www.patreon.com/clintnetwork).

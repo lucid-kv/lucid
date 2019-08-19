@@ -1,17 +1,22 @@
 [package]
 name = "lucid"
-description = "High performance and distributed KV ledger."
+description = "A Fast, Secure and Distributed KV store with a HTTP API."
 version = "0.1.0"
 authors = ["Clint.Network <me@clint.network>"]
 edition = "2018"
-keywords = ["kv", "distributed", "ledger", "kv-store", "key-value"]
+keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "distributed key-value"]
 repository = "https://github.com/clintnetwork/lucid"
 license = "https://github.com/clintnetwork/lucid/blob/master/LICENSE.md"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[badges]
+travis-ci = { repository = "clintnetwork/lucid", branch = "master" }
 
 [dependencies]
-clap = "*"
 nickel = "*"
 serde = "*"
 serde_json = "*"
+rustflake = "*"
+
+[dependencies.clap]
+version = "*"
+features = ["yaml"]

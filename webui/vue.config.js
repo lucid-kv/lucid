@@ -12,5 +12,4 @@ module.exports = {
     },
     // assetsDir: '../../assets/',
     indexPath: 'index.tpl'
-    // outputDir: '../main/resources/',
 }

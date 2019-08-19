@@ -4,14 +4,14 @@
  * Date: 28/07/2019
 */
 
-#[macro_use] extern crate nickel;
+#[macro_use]
+extern crate clap;
 
 mod lucid;
 use lucid::Lucid;
 
-fn main()
+fn main() -> Result<(), String>
 {
-    Lucid::init()
-        .banner()
-        .commandline();
+    let lucid = Lucid::new();
+    lucid.init()
 }
