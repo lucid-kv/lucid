@@ -12,6 +12,17 @@ An High performance and distributed KV store accessible through a HTTP API. Writ
 
 Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through a HTTP API, we also want to propose persistence, encryption, websocket streaming, replication and a lots of features.
 
+## Works Progress
+
+- [ ] Minimum viable KV Store
+- [ ] WebUI in VueJS
+- [ ] HTTPS Support
+- [ ] JWT Authentication
+- [ ] Persistence
+- [ ] Encryption on the Fly
+- [ ] Access Control List (ACL)
+- [ ] WebSocket or Event Source (SSE)
+
 ## Some Use Cases
 
 - Private Keys Storing (for a wallet by example)
