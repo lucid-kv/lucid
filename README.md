@@ -19,7 +19,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 - [ ] HTTPS Support
 - [ ] JWT Authentication
 - [ ] Persistence
-- [ ] Encryption on the Fly
+- [ ] Encryption on the Fly (AES-256)
 - [ ] Access Control List (ACL)
 - [ ] WebSocket or Event Source (SSE)
 
