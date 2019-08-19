@@ -4,8 +4,10 @@ use nickel::status::StatusCode::NotFound;
 // use nickel::{Nickel, HttpRouter, Request, Response, MiddlewareResult, NickelError, Action, Halt, Continue};
 use nickel::*;
 
+include!("../logger.rs");
+
 fn logger<'a, D>(request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
-    println!("logging request: {:?}", request.origin.uri);
+    log_event(format!("{}", request.origin.uri));
     response.next_middleware()
 }
 
@@ -45,6 +47,7 @@ impl Server {
     
     fn router_api(&self) -> nickel::Router {
         let mut router = Nickel::router();
+        router.post("/api/**", middleware!("You call API [post]"));
         router.get("/api/**", middleware!("You call API"));
         router
     }
@@ -52,6 +55,8 @@ impl Server {
     pub fn run(&self) -> Result<ListeningServer, Box<dyn std::error::Error>> {
         // TODO: move into struct
         let mut daemon = Nickel::new();
+        
+        daemon.options = Options::default().output_on_listen(false);
 
         daemon.utilize(logger);
 
@@ -71,7 +76,7 @@ impl Server {
 
     fn where_to_bind(&self) -> String
     {
-        // env::var("PORT").unwrap_or("6767".to_string()).parse().unwrap()
+        // env::var("PORT").unwrap_or("7221".to_string()).parse().unwrap()
         // TODO: implement configuration 
         return format!("127.0.0.1:{}", self.port);
     }
