@@ -32,15 +32,12 @@ impl Lucid {
             .name(crate_description!())
             .bin_name(get_binary());
 
-        match self.parse_cli(&mut commands)
+        if self.parse_cli(&mut commands).is_none()
         {
-            Some(_) => { },
-            None => {
-                self.banner();
-                commands.print_help().unwrap();
-                println!("\n");
-            }
-        };
+            self.banner();
+            commands.print_help().unwrap();
+            println!("\n");
+        }
 
         Ok(())
     }
@@ -60,7 +57,9 @@ impl Lucid {
                 Some("server") => {
                     match self.sever_instance.run()
                     {
-                        Ok(_) => { },
+                        Ok(server) => {
+                            println!("Running Lucid server on {}", server.socket());
+                        },
                         Err(e) => {
                             println!("Unable to launch Lucid server.\n{}", e);
                         }
