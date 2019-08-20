@@ -3,6 +3,9 @@ use std::collections::HashMap;
 use nickel::status::StatusCode::NotFound;
 // use nickel::{Nickel, HttpRouter, Request, Response, MiddlewareResult, NickelError, Action, Halt, Continue};
 use nickel::*;
+use yaml_rust::YamlLoader;
+use std::fs::File;
+use std::io::prelude::*;
 
 include!("../logger.rs");
 
@@ -30,19 +33,41 @@ fn handler_vuejs<'a> (_: &mut Request, res: Response<'a>) -> MiddlewareResult<'a
 }
 
 pub struct Server {
-    port: i32,
+    endpoint: String,
+    configuration_file: Option<String>
 }
 
 impl Server {
     pub fn new() -> Server {
         Server {
-            port: 7021
+            endpoint: String::from("127.0.0.1:7021"),
+            configuration_file: None
         }
     }
 
-    pub fn set_configuration_file(&self, _configuration_file: String)
+    pub fn set_configuration_file(&mut self, _configuration_file: String)
     {
-        // self.port = 2048;
+        self.configuration_file = Some(_configuration_file);
+    }
+
+    pub fn has_configuration_file(&mut self) -> bool {
+        self.configuration_file.is_some()
+    }
+
+    pub fn load_configuration(&mut self) {
+        if let Some(configuration_file) = &self.configuration_file {
+            if let Ok(mut file) = File::open(configuration_file) {
+                let mut lucid_yml = String::new();
+                file.read_to_string(&mut lucid_yml).unwrap();
+                let docs = YamlLoader::load_from_str(lucid_yml.as_str()).unwrap();
+                let doc = &docs[0];
+                match doc["endpoint"].as_str()
+                {
+                    Some(endpoint) => { self.endpoint = String::from(endpoint); }
+                    None => ()
+                }
+            }
+        }
     }
     
     fn router_webui(&self) -> nickel::Router {
@@ -76,14 +101,7 @@ impl Server {
         daemon.handle_error(custom_handler);
 
         // TODO: Implement HTTPS (https://github.com/nickel-org/nickel.rs/blob/master/examples/https.rs)
-        daemon.listen(self.where_to_bind())
+        daemon.listen(self.endpoint.to_owned())
         // daemon.listen(("0.00.0", self.where_to_bind()))
-    }
-
-    fn where_to_bind(&self) -> String
-    {
-        // env::var("PORT").unwrap_or("7221".to_string()).parse().unwrap()
-        // TODO: implement configuration 
-        return format!("127.0.0.1:{}", self.port);
     }
 }

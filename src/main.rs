@@ -15,6 +15,6 @@ use lucid::Lucid;
 
 fn main() -> Result<(), String>
 {
-    let lucid = Lucid::new();
+    let mut lucid = Lucid::new();
     lucid.default()
 }

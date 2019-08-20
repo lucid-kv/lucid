@@ -40,6 +40,9 @@ subcommands:
             - revoke:
                 about: Revoke a JWT Token
                 args:
+                - token:
+                    help: Token to revoke
+                    index: 1
             - issue:
                 about: Issue a new JWT Token
                 args:

@@ -22,7 +22,11 @@ include_dir = "*"
 jsonwebtoken = "*"
 app_dirs = "*"
 colored = "*"
-yaml-rust = "0.4.3"
+yaml-rust = "*"
+rust-crypto = "*"
+uuid = "*"
+rand = "*"
+#reqwest = "*"
 
 [dependencies.clap]
 version = "*"

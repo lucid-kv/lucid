@@ -4,6 +4,7 @@ use chrono::*;
 use clap::{App};
 use app_dirs::*;
 use jsonwebtoken::*;
+use crypto::digest::Digest;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct JwtClaims {
@@ -30,7 +31,7 @@ pub struct Lucid {
 impl Lucid {
     pub fn new() -> Lucid {
         Lucid {
-            sever_instance: server::Server::new(),
+            sever_instance: server::Server::new()
         }
     }
 
@@ -50,7 +51,7 @@ impl Lucid {
     }
 
 
-    pub fn default(&self) -> Result<(), String> {
+    pub fn default(&mut self) -> Result<(), String> {
         let yaml = load_yaml!("cli.yml");
         let mut commands = App::from_yaml(yaml)
             .name(crate_description!())
@@ -64,26 +65,22 @@ impl Lucid {
             print!("\n\n");
         }
         else {
-            print!("\n");
+            println!();
         }
         
         Ok(())
     }
 
-    pub fn parse_cli(&self, commands: &mut App) -> Option<()>
+    pub fn parse_cli(&mut self, commands: &mut App) -> Option<()>
     {
         match commands.get_matches_from_safe_borrow(::std::env::args_os())
         {
             Ok(cli) => {
                 if cli.is_present("version") {
                     self.show_description();
-                    println!("Lucid Version {}", crate_version!());
+                    display_error(LucidError::Information, format!("Lucid Version {}", crate_version!()));
                     return Some(());
                 }
-
-                // else if cli.is_present("help") {
-                //     return Some(());
-                // }
 
                 if let Some(matches) = cli.subcommand_matches("cli") {
                     self.show_description();
@@ -117,7 +114,7 @@ impl Lucid {
                         let mut input = String::new();
                         loop {
                             // TODO: Display the good endpoint
-                            print!("{}> ", "127.0.0.1:7221");
+                            print!("{}> ", "127.0.0.1:7021");
                             io::stdout().flush().unwrap();
                             match io::stdin().read_line(&mut input) {
                                 Ok(_) => {
@@ -134,7 +131,7 @@ impl Lucid {
                                             display_error(LucidError::Error, format!("Unknown command '{}'", input.trim()));
                                         }
                                     }
-                                    println!("");
+                                    println!();
                                     input.clear();
                                 }
                                 Err(_) => {}
@@ -146,12 +143,17 @@ impl Lucid {
 
                 if let Some(matches) = cli.subcommand_matches("init") {
                     self.show_description();
-                    // TODO: Generate Key
-                    let mut secret_key = "mdr";
+                    
+                    use rand::Rng;
+                    use crypto::sha2::Sha256;
+                    let mut hasher = Sha256::new();
+                    hasher.input(&rand::thread_rng().gen::<[u8; 32]>());
+                    let mut secret_key = hasher.result_str();
+                    
                     match matches.value_of("secret")
                     {
                         Some(secret) => {
-                            secret_key = secret;
+                            secret_key = secret.to_owned();
                         },
                         None => { }
                     }
@@ -163,7 +165,7 @@ impl Lucid {
                             display_error(LucidError::Information, format!("Root Token: {}", init_configuration.root_token));
                         },
                         Err(e) => {
-                            display_error(LucidError::Error, String::from("Unable to initialize Lucid"));
+                            display_error(LucidError::Error, String::from("Unable to initialize Lucid."));
                             display_error(LucidError::Error, e);
                         }
                     }
@@ -174,16 +176,37 @@ impl Lucid {
                     self.show_description();
                     if let Some(configuration_file) = matches.value_of("config")
                     {
+                        use std::path::Path;
+                        if !Path::new(&configuration_file).exists()
+                        {
+                            display_error(LucidError::Error, format!("Unable to found the configuration file '{}'.", &configuration_file));
+                            return Some(());
+                        }
                         self.sever_instance.set_configuration_file(configuration_file.to_owned());
+                    }
+
+                    if !self.sever_instance.has_configuration_file()
+                    {
+                        match self.get_default_configuratin_file()
+                            {
+                                Ok(configuration_file) => {
+                                    self.sever_instance.set_configuration_file(String::from(&configuration_file));
+                                    self.sever_instance.load_configuration();
+                                    display_error(LucidError::Warning, format!("No configuration file specified, default file used: {}", &configuration_file));
+                                },
+                                Err(_) => ()
+                            }
                     }
                     match self.sever_instance.run()
                     {
                         Ok(server) => {
-                            display_error(LucidError::Information, format!("Running Lucid server on {}", server.socket()));
+                            display_error(LucidError::Information, format!("Running Lucid server on {endpoint} | PID: {pid}", endpoint=server.socket(), pid=std::process::id()));
+                            display_error(LucidError::Information, format!("Lucid API Endpoint: {scheme}://{endpoint}/api/", scheme="https", endpoint=server.socket()));
                             display_error(LucidError::Information, String::from("Use Ctrl+C to stop the server."));
                         },
-                        Err(_) => {
+                        Err(e) => {
                             display_error(LucidError::Error, String::from("Unable to launch Lucid server."));
+                            display_error(LucidError::Error, String::from(e.to_string()));
                         }
                     }
                     return Some(());
@@ -194,25 +217,19 @@ impl Lucid {
                     match matches.subcommand_name()
                     {
                         Some("issue") => {
-
+                            return Some(());
                         },
-                        None => {}
+                        Some("revoke") => {
+                            if let Some(token) = matches.value_of("token")
+                            {
+                                println!("lol{}", token);
+                            }
+                            return Some(());
+                        },
+                        None => {},
+                        _ => {}
                     }
-                    if let Some(mdr) = matches.subcommand_matches("issue")
-                    {
-                        println!("mdr");
-                    }
-                    // if matches.is_present("secret") {
-                    //     match matches.value_of("secret")
-                    //     {
-                    //         Some(secret) => {
-                    //             secret_key = secret;
-                    //         },
-                    //         None => { }
-                    //     }
-                    // }
-                    // do
-                    return Some(());
+                    return None;
                 }
             },
             Err(e) => {
@@ -223,14 +240,28 @@ impl Lucid {
         return None;
     }
 
-    fn init(&self, secret_key: &str) -> Result<InitConfiguration, String>
+    fn get_default_configuratin_file(&self) -> Result<String, ()> {
+        const APP_INFO: AppInfo = AppInfo{name: "Lucid", author: "Lucid"};
+        match get_app_root(AppDataType::UserConfig, &APP_INFO)
+        {
+            Ok(app_root) => {
+                let mut configuration_file = app_root;
+                configuration_file.push("lucid.yml");
+                return Ok(format!("{}", &configuration_file.into_os_string().into_string().unwrap()));
+            },
+            Err(_) => {}
+        }
+        return Err(());
+    }
+
+    fn init(&self, secret_key: String) -> Result<InitConfiguration, String>
     {
         const APP_INFO: AppInfo = AppInfo{name: "Lucid", author: "Lucid"};
         match app_root(AppDataType::UserConfig, &APP_INFO)
         {
             Ok(app_root) => {
                 let mut configuration_file = app_root;
-                configuration_file.push("lucid.yaml");
+                configuration_file.push("lucid.yml");
                 
                 let lucid_root_claims = JwtClaims
                 {
@@ -244,23 +275,29 @@ impl Lucid {
                     Ok(root_token) => {
                         use std::fs::*;
                         use std::io::prelude::*;
-                        
-                        let file = File::create(&configuration_file);
-                        if file.is_ok()
+
+                        use std::path::Path;
+                        if Path::new(&configuration_file).exists()
+                        {
+                            return Err(format!("The Lucid configuration file already exist: {}", &configuration_file.into_os_string().into_string().unwrap()));
+                        }
+
+                        let lucid_yml = File::create(&configuration_file);
+                        if lucid_yml.is_ok()
                         {
                             use yaml_rust::{YamlLoader, YamlEmitter};
                             let docs = YamlLoader::load_from_str(&format!("
-bind: 127.0.0.1:{port}
+endpoint: 127.0.0.1:7021
 root_token: {token}
 secret_key: {secret}
-", port=7021, token=root_token, secret=secret_key)[..]).unwrap();
+", token=root_token, secret=secret_key)[..]).unwrap();
                             let doc = &docs[0];
 
                             let mut lucid_conf = String::new();
                             let mut emitter = YamlEmitter::new(&mut lucid_conf);
                             emitter.dump(doc).unwrap();
 
-                            if file.unwrap().write_all(lucid_conf.as_bytes()).is_ok() {
+                            if lucid_yml.unwrap().write_all(lucid_conf.as_bytes()).is_ok() {
                                 return Ok(InitConfiguration
                                 {
                                     configuration_file: configuration_file.into_os_string().into_string().unwrap(),
