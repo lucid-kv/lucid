@@ -13,8 +13,7 @@ extern crate serde_derive;
 mod lucid;
 use lucid::Lucid;
 
-fn main() -> Result<(), String>
-{
+fn main() -> Result<(), String> {
     let mut lucid = Lucid::new();
     lucid.default()
 }
