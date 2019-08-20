@@ -14,7 +14,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 
 <ins>__**Warning: Empty project for now, the development is ensured in the [development](https://github.com/clintnetwork/lucid/tree/developement) branch.**__</ins>
 
-- [x] Minimum Viable Application
+- [x] Minimum Viable Product (MVP)
   - [x] Initialization process
   - [x] Configuration files handling
   - [x] JWT token Issuing
