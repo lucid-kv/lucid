@@ -18,10 +18,10 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
   - [x] Initialization process
   - [x] Configuration files handling
   - [x] JWT token Issuing
+  - [ ] HTTPS Support
   - [ ] Rest API
+     - [ ] JWT Authentication
 - [ ] WebUI in VueJS
-- [ ] HTTPS Support
-- [ ] JWT Authentication
 - [ ] Persistence
 - [ ] Encryption on the Fly (AES-256)
 - [ ] Access Control List (ACL)
