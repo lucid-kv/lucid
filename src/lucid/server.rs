@@ -7,7 +7,7 @@ use nickel::*;
 include!("../logger.rs");
 
 fn logger<'a, D>(request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
-    log_event(format!("{}", request.origin.uri));
+    log_event(LucidError::Information, format!("{}", request.origin.uri), format!("{}", request.origin.method));
     response.next_middleware()
 }
 
@@ -15,6 +15,7 @@ fn handler_error_404<'a>(err: &mut NickelError, _request: &mut Request) -> Actio
     if let Some(ref mut res) = err.stream {
         if res.status() == NotFound {
             // TODO: display vuejs error page
+            log_event(LucidError::Warning, format!("{}", _request.origin.uri), format!("{}", _request.origin.method));
             res.write_all(b"404 Not Found").expect("Unable to write in the stream");
             return Halt(())
         }
@@ -35,8 +36,13 @@ pub struct Server {
 impl Server {
     pub fn new() -> Server {
         Server {
-            port: 7221
+            port: 7021
         }
+    }
+
+    pub fn set_configuration_file(&self, _configuration_file: String)
+    {
+        // self.port = 2048;
     }
     
     fn router_webui(&self) -> nickel::Router {

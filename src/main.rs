@@ -7,11 +7,14 @@
 #[macro_use]
 extern crate clap;
 
+#[macro_use]
+extern crate serde_derive;
+
 mod lucid;
 use lucid::Lucid;
 
 fn main() -> Result<(), String>
 {
     let lucid = Lucid::new();
-    lucid.init()
+    lucid.default()
 }

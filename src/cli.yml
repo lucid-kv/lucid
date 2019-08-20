@@ -3,36 +3,51 @@ author: Written in Rust by Clint.Network (twitter.com/clint_network)
 subcommands:
     - cli:
         about: Spawn to the command line interface
-    - init:
-        about: Initialize the Lucid cluster and generate configuration file
-    - members:
-        about: Manage members of the cluster
-    - server:
-        about: Run a new Lucid server instance
-    - settings:
-        about: Manage Lucid configuration file
-    - store:
-        about: Play with the KV store (get/set)
-    - tokens:
-        about: Manage JWT Tokens (issue, revoke etc.)
-    - server:
-        about: Run a new Lucid server instance
+        author: Written in Rust by Clint.Network (twitter.com/clint_network)
         args:
           - help:
-              help: Prints help information
+              help: Prints CLI help information
               short: h
               long: help
-              # index: 1
-              # required: true
-              takes_value: false
-          - scopt:
-              short: B
-              multiple: true
-              help: example subcommand option
+    - init:
+        about: Initialize Lucid and generate configuration file
+        author: Written in Rust by Clint.Network (twitter.com/clint_network)
+        args:
+          - secret:
+              help: Set the JWT secret
+              short: s
+              long: secret
               takes_value: true
-          - scpos1:
-              help: example subcommand positional
-              index: 1
+    - server:
+        about: Run a new Lucid server instance
+        author: Written in Rust by Clint.Network (twitter.com/clint_network)
+        args:
+          - config:
+              help: Specify the Lucid configuration file
+              short: c
+              long: config
+              takes_value: true
+    - settings:
+        about: Manage Lucid configuration file
+        author: Written in Rust by Clint.Network (twitter.com/clint_network)
+    - store:
+        about: Play with the KV store (get/set)
+        author: Written in Rust by Clint.Network (twitter.com/clint_network)
+    - tokens:
+        about: Manage JWT Tokens (issue, revoke etc.)
+        author: Written in Rust by Clint.Network (twitter.com/clint_network)
+        subcommands:
+            - revoke:
+                about: Revoke a JWT Token
+                args:
+            - issue:
+                about: Issue a new JWT Token
+                args:
+                - expiration:
+                    help: Specify the expiration date of the JWT Token (timestamp)
+                    short: e
+                    long: expiration
+                    takes_value: true
 args:
     - help:
         help: Prints help information
