@@ -15,8 +15,8 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 ## Works Progress
 
 - [ ] Minimum Viable Application
-  - [ ] Initialization process
-  - [ ] Configuration files handling
+  - [x] Initialization process
+  - [x] Configuration files handling
   - [ ] JWT token Issuing
   - [ ] Rest API
 - [ ] WebUI in VueJS
