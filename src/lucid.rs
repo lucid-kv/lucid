@@ -1,24 +1,24 @@
 //use lucid::Lucid;
 
-mod logger;
-use lucid::logger::Logger;
+use crate::logger::Logger;
+use crate::server::Server;
 
 pub struct Lucid {
     server_instance: i32,
-    configuration_file: String
+    configuration_file: String,
 }
 
 impl Lucid {
     pub fn default() -> Lucid {
         Lucid {
             server_instance: 25,
-            configuration_file: String::from("nothing")
+            configuration_file: String::from("nothing"),
         }
     }
 
     pub fn init(&self) -> Result<(), String> {
         println!("mdr");
-        self.mdr();
+        // self.mdr();
         Ok(())
     }
 }
