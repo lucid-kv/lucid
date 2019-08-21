@@ -23,6 +23,12 @@ impl Lucid {
     }
 }
 
+impl Logger for Lucid {
+    fn log(&self) {
+        println!("fn de noob");
+    }
+}
+
 //use app_dirs::*;
 //use chrono::*;
 //use clap::App;
