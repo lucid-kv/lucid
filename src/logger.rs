@@ -10,5 +10,5 @@
 //}
 
 pub trait Logger {
-    fn mdr(&self);
+    fn log(&self);
 }
