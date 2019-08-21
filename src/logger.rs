@@ -9,15 +9,6 @@
 //    display_error(status, format!("{} [INFO] lucid: [{}] Requested page: {}" , now.format("%Y/%m/%d %H:%M:%S"), method, message));
 //}
 
-use lucid::Lucid;
-
 pub trait Logger {
     fn mdr(&self);
-}
-
-impl Logger for Lucid {
-    fn mdr(&self)
-    {
-        println!("lol")
-    }
 }
