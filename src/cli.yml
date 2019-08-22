@@ -1,0 +1,91 @@
+name: Lucid
+author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
+subcommands:
+  -
+    cli:
+      about: 'Spawn to the command line interface'
+      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
+      args:
+        -
+          help:
+            help: 'Prints CLI help information'
+            short: h
+            long: help
+  -
+    init:
+      about: 'Initialize Lucid and generate configuration file'
+      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
+      args:
+        -
+          secret:
+            help: 'Set the JWT secret'
+            short: s
+            long: secret
+            takes_value: true
+        -
+          force:
+            help: 'Initialize Lucid and overwrite existing configuration file'
+            short: f
+            long: force
+            takes_value: false
+        -
+          config:
+            help: 'Specify the Lucid configuration file location'
+            short: c
+            long: config
+            takes_value: true
+  -
+    server:
+      about: 'Run a new Lucid server instance'
+      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
+      args:
+        -
+          config:
+            help: 'Specify the Lucid configuration file'
+            short: c
+            long: config
+            takes_value: true
+  -
+    settings:
+      about: 'Manage Lucid configuration file'
+      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
+  -
+    store:
+      about: 'Play with the KV store (get/set)'
+      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
+  -
+    tokens:
+      about: 'Manage JWT Tokens (issue, revoke etc.)'
+      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
+      subcommands:
+        -
+          revoke:
+            about: 'Revoke a JWT Token'
+            args:
+              -
+                token:
+                  help: 'Token to revoke'
+                  index: 1
+        -
+          issue:
+            about: 'Issue a new JWT Token'
+            args:
+              -
+                expiration:
+                  help: 'Specify the expiration date of the JWT Token (timestamp)'
+                  short: e
+                  long: expiration
+                  takes_value: true
+args:
+  -
+    help:
+      help: 'Prints help information'
+      short: h
+      long: help
+      takes_value: false
+  -
+    version:
+      help: 'Prints version information'
+      short: v
+      long: version
+      takes_value: false
