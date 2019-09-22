@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    Hello {{ name }}!
+    Lucid is Running :D
   </div>
 </template>
 
