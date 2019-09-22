@@ -24,6 +24,11 @@ fn handler_vuejs<'a>(_: &mut Request, res: Response<'a>) -> MiddlewareResult<'a>
     res.render("webui/dist/index.tpl", &data)
 }
 
+fn handler_logger<'a, D>(request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
+    crate::logger::print(&LogLevel::Information, format!("{} {}", request.origin.method, request.origin.uri).as_ref());
+    response.next_middleware()
+}
+
 impl Server
 {
     pub fn default() -> Server  //address: &str, port: i32
@@ -55,7 +60,7 @@ impl Server
     pub fn run(&self) {
         let mut server = Nickel::with_options(Options::default().output_on_listen(false));
 
-//        server.utilize(self.logger);
+        server.utilize(handler_logger);
 
         server.utilize(StaticFilesHandler::new("assets/"));
         server.utilize(StaticFilesHandler::new("webui/dist"));
@@ -69,8 +74,12 @@ impl Server
         match server.listen(&self.endpoint) {
             Ok(instance) => {
                 // TODO: try using server.log and getting owner
+                let scheme = match self.use_tls {
+                    true => "https",
+                    false => "http"
+                };
                 &self.log(LogLevel::Information, format!("Running Lucid server on {endpoint} | PID: {pid}", endpoint = instance.socket(), pid = std::process::id()).as_str(), None);
-                &self.log(LogLevel::Information, format!("Lucid API Endpoint: {scheme}://{endpoint}/api/", scheme = "https", endpoint = instance.socket()).as_str(), None);
+                &self.log(LogLevel::Information, format!("Lucid API Endpoint: {scheme}://{endpoint}/api/", scheme = scheme, endpoint = instance.socket()).as_str(), None);
                 &self.log(LogLevel::Information, "Use Ctrl+C to stop the server.", None);
             }
             Err(err) => {
@@ -84,10 +93,10 @@ impl Server
         }
     }
 
-    fn logger<'a, D>(&self, request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
-        // request.origin.uri
-        response.next_middleware()
-    }
+//    fn logger<'a, D>(&self, request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
+//        // request.origin.uri
+//        response.next_middleware()
+//    }
 
     fn handler_error_404<'a>(&self, err: &mut NickelError, _request: &mut Request) -> Action {
         if let Some(ref mut res) = err.stream {
