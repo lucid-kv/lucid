@@ -82,7 +82,11 @@ impl Lucid {
                 self.show_help(&mut commands);
             }
             Some(usage) => {
-                println!("{}\n", usage);
+                let l = usage.to_owned();
+                println!("{}{}", usage, match usage.to_owned().contains("USAGE") {
+                    true => "\n",
+                    false => ""
+                });
             }
         }
 
@@ -102,9 +106,60 @@ impl Lucid {
                 }
 
                 if let Some(matches) = cli.subcommand_matches("cli") {
-                    // Boucle pour le cli - pas besoin de configuration
-                    unimplemented!("Not implemented");
+                    fn display_cli_help() {
+                        crate::logger::print(&LogLevel::Information, "This is all the available commands:");
+                        println!(" - set       [key] - Set an object");
+                        println!(" - get       [key] - Get an object");
+                        println!(" - lock      [key] - Lock an object");
+                        println!(" - unlock    [key] - Unlock an object");
+                        println!(" - expire    [key] - Set an object expiration date");
+                        println!(" - increment [key] - Increment the value of an object");
+                        println!(" - decrement [key] - Decrement the value of an object");
+                        println!(" - drop      [key] - Drop an object");
+                    }
+
+                    if matches.is_present("help") {
+                        println!("Welcome to the Lucid Command Line Interface (CLI)\n");
+                        display_cli_help();
+                        return Some("");
+                    } else {
+                        use std::io;
+                        use std::io::Write;
+
+                        println!("Welcome to the Lucid Command Line Interface (CLI)\nType 'help' to display all commands.\n");
+
+                        // TODO: Try to connect to the remote endpoint
+                        // TODO: Use env var to set remote endpoint
+
+                        let mut input = String::new();
+                        loop {
+                            // TODO: Display the good endpoint
+                            print!("{}> ", "127.0.0.1:7021");
+                            io::stdout().flush().unwrap();
+                            match io::stdin().read_line(&mut input) {
+                                Ok(_) => {
+                                    match input.trim().as_ref() {
+                                        "exit" | "quit" => {
+                                            crate::logger::print(&LogLevel::Information, "Exiting Lucid CLI");
+                                            break;
+                                        }
+                                        "help" | "?" | "-h" | "/?" => {
+                                            display_cli_help();
+                                        }
+                                        _ => {
+                                            crate::logger::print(&LogLevel::Error, format!("Unknown command '{}'", input.trim()).as_ref());
+                                        }
+                                    }
+                                    println!();
+                                    input.clear();
+                                }
+                                _ => ()
+                            }
+                        }
+                        std::process::exit(0);
+                    }
                 }
+
                 if let Some(matches) = cli.subcommand_matches("init") {
                     use crypto::sha2::Sha256;
                     use rand::Rng;
@@ -135,6 +190,7 @@ impl Lucid {
                     }
                     return Some("");
                 }
+
                 if let Some(matches) = cli.subcommand_matches("server") {
                     // Configure instance if --config args is passed
                     &mut self.configure(matches.value_of("config"));
@@ -152,12 +208,15 @@ impl Lucid {
                     };
                     return Some("");
                 }
+
                 if let Some(matches) = cli.subcommand_matches("settings") {
                     unimplemented!("Not implemented");
                 }
+
                 if let Some(matches) = cli.subcommand_matches("store") {
                     unimplemented!("Not implemented");
                 }
+
                 if let Some(matches) = cli.subcommand_matches("tokens") {
                     unimplemented!("Not implemented");
                 }
