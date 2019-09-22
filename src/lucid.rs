@@ -12,6 +12,8 @@ use crate::configuration::Configuration;
 use crate::logger::{Logger, LogLevel};
 use crate::server::Server;
 
+include!("crossplatform.rs");
+
 #[derive(Debug, Serialize, Deserialize)]
 struct JwtClaims {
     sub: &'static str,
@@ -67,21 +69,11 @@ impl Lucid {
         println!("\n");
     }
 
-    #[cfg(target_os = "windows")]
-    fn get_binary(&self) -> &'static str {
-        "lucid.exe"
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    fn get_binary(&self) -> &'static str {
-        "./lucid"
-    }
-
     pub fn initialize(&mut self) -> Result<(), std::io::Error> {
         let cli_yaml = load_yaml!("cli.yml");
         let mut commands = App::from_yaml(cli_yaml)
             .name(crate_description!())
-            .bin_name(self.get_binary());
+            .bin_name(get_binary());
 
         self.show_banner();
 
