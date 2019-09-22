@@ -31,7 +31,7 @@ fn handler_logger<'a, D>(request: &mut Request<D>, response: Response<'a, D>) ->
 
 impl Server
 {
-    pub fn default() -> Server  //address: &str, port: i32
+    pub fn default() -> Server
     {
         Server {
             endpoint: format!("{}:7021", Ipv4Addr::LOCALHOST),
@@ -46,7 +46,7 @@ impl Server
 
     fn router_webui(&self) -> nickel::Router {
         let mut router = Nickel::router();
-        router.get("/", handler_vuejs);
+        router.get("/**", handler_vuejs);
         router
     }
 
@@ -74,12 +74,11 @@ impl Server
         match server.listen(&self.endpoint) {
             Ok(instance) => {
                 // TODO: try using server.log and getting owner
-                let scheme = match self.use_tls {
+                &self.log(LogLevel::Information, format!("Running Lucid server on {endpoint} | PID: {pid}", endpoint = instance.socket(), pid = std::process::id()).as_str(), None);
+                &self.log(LogLevel::Information, format!("Lucid API Endpoint: {scheme}://{endpoint}/api/", scheme = match self.use_tls {
                     true => "https",
                     false => "http"
-                };
-                &self.log(LogLevel::Information, format!("Running Lucid server on {endpoint} | PID: {pid}", endpoint = instance.socket(), pid = std::process::id()).as_str(), None);
-                &self.log(LogLevel::Information, format!("Lucid API Endpoint: {scheme}://{endpoint}/api/", scheme = scheme, endpoint = instance.socket()).as_str(), None);
+                }, endpoint = instance.socket()).as_str(), None);
                 &self.log(LogLevel::Information, "Use Ctrl+C to stop the server.", None);
             }
             Err(err) => {
@@ -93,11 +92,6 @@ impl Server
         }
     }
 
-//    fn logger<'a, D>(&self, request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
-//        // request.origin.uri
-//        response.next_middleware()
-//    }
-
     fn handler_error_404<'a>(&self, err: &mut NickelError, _request: &mut Request) -> Action {
         if let Some(ref mut res) = err.stream {
             if res.status() == NotFound {
@@ -108,17 +102,6 @@ impl Server
         }
         Continue(())
     }
-
-//    fn handler_error_404<'a>(&self, err: &mut NickelError, _request: &mut Request) -> Action {
-//        if let Some(ref mut res) = err.stream {
-//            if res.status() == NotFound {
-//                // TODO: display vuejs error page
-//                res.write_all(b"404 Not Found");
-//                return Halt(());
-//            }
-//        }
-//        Continue(())
-//    }
 
     pub fn dispose(&self) {
         self.log(LogLevel::Information, "Stopping the Lucid server", None);
