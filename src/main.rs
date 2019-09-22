@@ -3,14 +3,14 @@ extern crate clap;
 #[macro_use]
 extern crate serde_derive;
 
+use lucid::Lucid;
+
 mod lucid;
 mod logger;
 mod server;
+mod configuration;
 
-use lucid::Lucid;
-
-fn main() -> Result<(), String> {
+fn main() -> Result<(), std::io::Error> {
     let mut lucid = Lucid::default();
-    lucid.initialize_cli();
-    Ok(())
+    return lucid.initialize();
 }
