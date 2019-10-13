@@ -1,4 +1,4 @@
-# About Lucid
+# About Lucid ᵏᵛ
 
 An High performance and distributed KV store accessible through a HTTP API. Written in Rust. 🦀
 
