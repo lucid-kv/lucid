@@ -1,6 +1,6 @@
 # About Lucid ᵏᵛ
 
-An High performance and distributed KV store accessible through a HTTP API. Written in Rust. 🦀
+High performance and distributed KV store accessible through an HTTP API. Written in Rust. 🦀
 
 [![Build Status](https://travis-ci.com/clintnetwork/lucid.svg)](https://travis-ci.com/clintnetwork/lucid)
 [![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)](https://www.rust-lang.org/)
@@ -9,7 +9,7 @@ An High performance and distributed KV store accessible through a HTTP API. Writ
 
 ## Introduction
 
-Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through a HTTP API, we also want to propose persistence, encryption, websocket streaming, replication and a lots of features.
+Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
 
 ## Works Progress
 
@@ -46,7 +46,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
  ██████╗╚██████╔╝╚██████╗██║██████╔╝    ██║  ██╗ ╚████╔╝
  ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
 
-A Fast, Secure and Distributed KV store with a HTTP API.
+A Fast, Secure and Distributed KV store with an HTTP API.
 Written in Rust by Clint.Network (twitter.com/clint_network)
 
 USAGE:
@@ -69,7 +69,7 @@ SUBCOMMANDS:
 
 ## Web Interface (UI)
 
-Lucid want to propose an web UI to manage data, issue tokens, organize nodes and configure instances.
+Lucid wants to propose a web UI to manage data, issue tokens, organize nodes and configure instances.
 
 ## About the Author
 
