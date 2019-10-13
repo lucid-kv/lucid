@@ -35,6 +35,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 - A distributed cache for an application
 - Service Discovery
 - Distributed Configuration
+- Blob Storage
 
 ## Command Line Interface
 
