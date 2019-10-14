@@ -75,8 +75,6 @@ Lucid wants to propose a web UI to manage data, issue tokens, organize nodes and
 
 Lucid is powered by [Clint.Network](https://twitter.com/clint_network) and published under the [MIT License](LICENSE.md).
 
-If you want to make a little donation, use this Bitcoin address: 3NhdjiGrpzH5geVrDHa173EuXxnAVhghtZ or my [Patreon](https://www.patreon.com/clintnetwork).
-
 **Donate to Clint.Network**
 - ![Paypal](https://raw.githubusercontent.com/reek/anti-adblock-killer/gh-pages/images/paypal.png) Paypal: [Donate](http://paypal.me/clintnetwork)
 - ![btc](https://raw.githubusercontent.com/reek/anti-adblock-killer/gh-pages/images/bitcoin.png) Bitcoin: 3NhdjiGrpzH5geVrDHa173EuXxnAVhghtZ
