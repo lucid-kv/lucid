@@ -27,6 +27,8 @@ yaml-rust = "*"
 rust-crypto = "*"
 uuid = "*"
 rand = "*"
+warp = "*"
+pretty_env_logger = "*"
 #reqwest = "*"
 
 [dependencies.clap]
