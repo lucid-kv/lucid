@@ -5,16 +5,27 @@ use std::io::Write;
 use std::net::Ipv4Addr;
 use std::str::FromStr;
 
-use nickel::{*, Action, Continue, Halt, HttpRouter, Middleware, MiddlewareResult, Nickel, NickelError, Options, Request, Response, StaticFilesHandler};
+use nickel::{*, Action, Continue, Halt, HttpRouter, Middleware, MiddlewareResult, Nickel, NickelError, Options, Request, Response, StaticFilesHandler, JsonBody};
+use nickel::status::StatusCode;
 use nickel::status::StatusCode::NotFound;
 use yaml_rust::YamlLoader;
 
 use crate::configuration::Configuration;
 use crate::logger::{Logger, LogLevel};
+use nickel::hyper::method::Method;
+
+use crate::kvstore::KvStore;
 
 pub struct Server {
     endpoint: String,
     use_tls: bool,
+    store: KvStore
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct EntitySet {
+    value: String,
+    expiration:  i32,
 }
 
 // TODO: move into implementation
@@ -36,6 +47,7 @@ impl Server
         Server {
             endpoint: format!("{}:7021", Ipv4Addr::LOCALHOST),
             use_tls: false,
+            store: KvStore::default()
         }
     }
 
@@ -52,8 +64,73 @@ impl Server
 
     fn router_api(&self) -> nickel::Router {
         let mut router = Nickel::router();
-        router.post("/api/**", middleware!("You call API [post]"));
-        router.get("/api/**", middleware!("You call API"));
+
+        // SET/GET/EXIST
+        // LOCK/UNLOCK
+        // EXPIRE/UNEXPIRE
+        // INCREMENT/DECREMENT
+
+        // GET /api/kv/:key
+        // POST /api/kv/:key
+        // PUT /api/kv/:key
+        // DELETE /api/kv/:key
+
+        // SET (without key)
+        // router.add_route(Method::Put, "/api/kv", middleware! {|request, response|
+        //     "success"
+        // });
+
+        // SET (with key)
+        router.add_route(Method::Put, "/api/kv/:key", middleware! {|request, response|
+           match request.param("key") {
+               Some(key) => {
+                //    self.store.set(String::from("test"), String::from("test"));
+                   "success"
+               },
+               _ => {
+                   "error"
+               }  // TODO: return error, missing key parameter
+           }
+        });
+
+        // EXIST
+        router.add_route(Method::Head, "/api/kv/:key", middleware! {|request, response|
+            println!("{:#?}", request.param("key"));
+            "success"
+        });
+
+//        router.head("/api/kv/:key", middleware! {|request, response|
+//            "success" 
+//        });
+
+        // GET /api/kv/:key
+        // router.get("/api/kv/:key",  middleware!{ |request, response|
+        //     "success"
+//            let entity_set = request.json_as::<EntitySet>().unwrap();
+//            match request.param("key") {
+//                Some(key) => {
+//                    format!("{:?}", entity_set.value)
+//                },
+//                _ => format!("success")
+//            }
+        // });
+
+        // PUT /api/kv/:key
+        // router.put("/api/kv/:key",  middleware!{ |request, response|
+            // let entity_set = request.json_as::<EntitySet>().unwrap();
+            // match request.param("key") {
+            //     Some(key) => {
+            //         format!("{:?}", entity_set.value)
+            //     },
+            //     _ => format!("success")
+            // }
+        //     "error"
+        // });
+
+//        let mut data = HashMap::<&str, &str>::new();
+//        data.insert("name", "Alex");
+
+        //router.get("/api/**", middleware!("You call API"));
         router
     }
 
