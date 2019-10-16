@@ -7,6 +7,7 @@ use lucid::Lucid;
 
 mod lucid;
 mod logger;
+mod kvstore;
 mod server;
 mod configuration;
 
