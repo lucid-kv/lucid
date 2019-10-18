@@ -5,7 +5,7 @@ High performance and distributed KV store accessible through an HTTP API. Writte
 [![Build Status](https://travis-ci.com/clintnetwork/lucid.svg)](https://travis-ci.com/clintnetwork/lucid)
 [![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/clintnetwork/lucid/blob/master/LICENSE.md)
-[![Telegram](https://img.shields.io/badge/Telegram-clintnetwork-informational.svg)](https://t.me/clintnetwork)
+[![Telegram](https://img.shields.io/badge/t.me/-clintnetwork-informational.svg)](https://t.me/clintnetwork)
 [![Twitter](https://img.shields.io/twitter/follow/clint_network.svg?style=social)](https://twitter.com/intent/follow?screen_name=clint_network)
 
 ## Introduction
