@@ -69,7 +69,7 @@ impl Server
     fn hello_world<'mw>(&self, _req: &mut Request, res: Response<'mw>) -> MiddlewareResult<'mw> {
         match _req.param("key") {
             Some(key) => {
-//                self.store.set(String::from("test"), String::from("test"));
+    //                self.store.set(String::from("test"), String::from("test"));
             },
             _ => {
             }  // TODO: return error, missing key parameter
@@ -80,9 +80,9 @@ impl Server
     fn router_api(&self) -> nickel::Router {
         let mut router = Nickel::router();
         
-        let m = self.hello_world();
+        // let m = |req, res| self.hello_world(req, res);
 
-        router.add_route(Method::Head, "/api/kv/:key", || m);
+        // router.add_route(Method::Head, "/api/kv/:key", m);
 
         // SET/GET/EXIST
         // LOCK/UNLOCK
