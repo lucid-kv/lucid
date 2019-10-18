@@ -40,6 +40,10 @@ fn handler_logger<'a, D>(request: &mut Request<D>, response: Response<'a, D>) ->
     response.next_middleware()
 }
 
+fn hello_world<'mw>(_req: &mut Request, res: Response<'mw>) -> MiddlewareResult<'mw> {
+    res.send("Hello World")
+}
+
 impl Server
 {
     pub fn default() -> Server
@@ -62,8 +66,23 @@ impl Server
         router
     }
 
+    fn hello_world<'mw>(&self, _req: &mut Request, res: Response<'mw>) -> MiddlewareResult<'mw> {
+        match _req.param("key") {
+            Some(key) => {
+//                self.store.set(String::from("test"), String::from("test"));
+            },
+            _ => {
+            }  // TODO: return error, missing key parameter
+        }
+        res.send("Hello World")
+    }
+
     fn router_api(&self) -> nickel::Router {
         let mut router = Nickel::router();
+        
+        let m = self.hello_world();
+
+        router.add_route(Method::Head, "/api/kv/:key", || m);
 
         // SET/GET/EXIST
         // LOCK/UNLOCK
@@ -81,23 +100,22 @@ impl Server
         // });
 
         // SET (with key)
-        router.add_route(Method::Put, "/api/kv/:key", middleware! {|request, response|
-           match request.param("key") {
-               Some(key) => {
-                //    self.store.set(String::from("test"), String::from("test"));
-                   "success"
-               },
-               _ => {
-                   "error"
-               }  // TODO: return error, missing key parameter
-           }
-        });
-
-        // EXIST
-        router.add_route(Method::Head, "/api/kv/:key", middleware! {|request, response|
+        // router.add_route(Method::Put, "/api/kv/:key", middleware! {|request, response|
+        //    match request.param("key") {
+        //        Some(key) => {
+        //            self.store.set(String::from("test"), String::from("test"));
+        //            "success"
+        //        },
+        //        _ => {
+        //            "error"
+        //        }  // TODO: return error, missing key parameter
+        //    }
+        // });
+        
+         /*middleware! {|request, response|
             println!("{:#?}", request.param("key"));
             "success"
-        });
+        });*/
 
 //        router.head("/api/kv/:key", middleware! {|request, response|
 //            "success" 
