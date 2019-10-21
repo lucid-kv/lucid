@@ -17,10 +17,10 @@ pub struct Server {
     use_tls: bool
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct EntitySet {
-    value: String,
-    expiration:  i32,
+#[derive(Serialize, Deserialize, Debug)]
+struct ErrorMessage {
+    message: String,
+    details: Option<String>
 }
 
 // TODO: move into implementation
@@ -31,6 +31,8 @@ fn handler_vuejs<'a>(_: &mut Request, res: Response<'a>) -> MiddlewareResult<'a>
 }
 
 fn handler_logger<'a, D>(request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
+//    let r = request.origin.;
+//    println!("{}", 5);
     crate::logger::print(&LogLevel::Information, format!("{} {}", request.origin.method, request.origin.uri).as_ref());
     response.next_middleware()
 }
@@ -55,18 +57,18 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                     },
                     None => {
                         res.set(StatusCode::NotFound).set(MediaType::Json);
-                        res.send("{'message': 'MThe specified key does not exists.'}")   // TODO: format json
+                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key does not exists.".to_string(), details: None }).unwrap())
                     }
                 },
                 _ => {
                     res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send("{'message': 'Missing key parameter.'}")   // TODO: format json
+                    res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
                 }
             },
             Method::Put => {
                 if body_size == 0 {
                     res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    return res.send("{'message': 'Missing request body.'}");   // TODO: format json
+                    return res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing request body.".to_string(), details: None }).unwrap());
                 }
                 match req.param("key") {
                     Some(key) => {
@@ -76,7 +78,7 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                     },
                     _ => {
                         res.set(StatusCode::BadRequest).set(MediaType::Json);
-                        res.send("{'message': 'Missing key parameter.'}")   // TODO: format json
+                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
                     }
                 }
             },
@@ -87,13 +89,13 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                         res.send(value)
                     },
                     None => {
-                        res.set(StatusCode::NotFound);
-                        res.send("")
+                        res.set(StatusCode::NotFound).set(MediaType::Json);
+                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key does not exists.".to_string(), details: None }).unwrap())
                     }
                 },
                 _ => {
                     res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send("{'message': 'Missing key parameter.'}")   // TODO: format json
+                    res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
                 }
             },
             Method::Delete => match req.param("key") {
@@ -104,12 +106,12 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                 },
                 _ => {
                     res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send("{'message': 'Missing key parameter.'}")   // TODO: format json
+                    res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
                 }
             },
             _ => {
-                res.set(StatusCode::MethodNotAllowed);
-                res.send("")
+                res.set(StatusCode::MethodNotAllowed).set(MediaType::Json);
+                res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Method not allowed, maybe in the future :)".to_string(), details: None }).unwrap())
             }
         }
     }
