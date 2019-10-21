@@ -29,7 +29,9 @@ uuid = "*"
 rand = "*"
 warp = "*"
 pretty_env_logger = "*"
+chashmap = "*"
 #reqwest = "*"
+plugin = "*"
 
 [dependencies.clap]
 version = "*"

@@ -1,25 +1,20 @@
 use std::collections::HashMap;
-use std::fs::File;
 use std::io::prelude::*;
-use std::io::Write;
 use std::net::Ipv4Addr;
-use std::str::FromStr;
+use std::sync::Arc;
+use std::sync::RwLock;
 
-use nickel::{*, Action, Continue, Halt, HttpRouter, Middleware, MiddlewareResult, Nickel, NickelError, Options, Request, Response, StaticFilesHandler, JsonBody};
+use nickel::{*, Action, Continue, FormBody, Halt, HttpRouter, JsonBody, Middleware, MiddlewareResult, Nickel, NickelError, Options, Request, Response, StaticFilesHandler};
+use nickel::hyper::method::Method;
 use nickel::status::StatusCode;
-use nickel::status::StatusCode::NotFound;
-use yaml_rust::YamlLoader;
 
 use crate::configuration::Configuration;
-use crate::logger::{Logger, LogLevel};
-use nickel::hyper::method::Method;
-
 use crate::kvstore::KvStore;
+use crate::logger::{Logger, LogLevel};
 
 pub struct Server {
     endpoint: String,
-    use_tls: bool,
-    store: KvStore
+    use_tls: bool
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -40,18 +35,93 @@ fn handler_logger<'a, D>(request: &mut Request<D>, response: Response<'a, D>) ->
     response.next_middleware()
 }
 
-fn hello_world<'mw>(_req: &mut Request, res: Response<'mw>) -> MiddlewareResult<'mw> {
-    res.send("Hello World")
+struct KvStoreMiddleware {
+    method: hyper::method::Method,
+    store: Arc<RwLock<KvStore>>,
+}
+
+impl<D> Middleware<D> for KvStoreMiddleware {
+    fn invoke<'mw, 'conn>(&self, req: &mut Request<'mw, 'conn, D>, mut res: Response<'mw, D>) -> MiddlewareResult<'mw, D> {
+        // TODO: validate JWT token
+        let store = &*self.store.write().unwrap();
+        let mut buffer = String::new();
+        let body_size = req.origin.read_to_string(&mut buffer).unwrap();
+        match self.method {
+            Method::Head => match req.param("key") {
+                Some(key) => match &store.get(key.to_string()) {
+                    Some(_) => {
+                        res.set(StatusCode::Ok);
+                        res.send("")
+                    },
+                    None => {
+                        res.set(StatusCode::NotFound).set(MediaType::Json);
+                        res.send("{'message': 'MThe specified key does not exists.'}")   // TODO: format json
+                    }
+                },
+                _ => {
+                    res.set(StatusCode::BadRequest).set(MediaType::Json);
+                    res.send("{'message': 'Missing key parameter.'}")   // TODO: format json
+                }
+            },
+            Method::Put => {
+                if body_size == 0 {
+                    res.set(StatusCode::BadRequest).set(MediaType::Json);
+                    return res.send("{'message': 'Missing request body.'}");   // TODO: format json
+                }
+                match req.param("key") {
+                    Some(key) => {
+                        store.set(key.to_string(), buffer);
+                        res.set(StatusCode::Ok);
+                        res.send("")
+                    },
+                    _ => {
+                        res.set(StatusCode::BadRequest).set(MediaType::Json);
+                        res.send("{'message': 'Missing key parameter.'}")   // TODO: format json
+                    }
+                }
+            },
+            Method::Get => match req.param("key") {
+                Some(key) => match store.get(key.to_string()) {
+                    Some(value) => {
+                        res.set(StatusCode::Ok);
+                        res.send(value)
+                    },
+                    None => {
+                        res.set(StatusCode::NotFound);
+                        res.send("")
+                    }
+                },
+                _ => {
+                    res.set(StatusCode::BadRequest).set(MediaType::Json);
+                    res.send("{'message': 'Missing key parameter.'}")   // TODO: format json
+                }
+            },
+            Method::Delete => match req.param("key") {
+                Some(key) => {
+                    store.drop(key.to_string());
+                    res.set(StatusCode::Ok);
+                    res.send("")
+                },
+                _ => {
+                    res.set(StatusCode::BadRequest).set(MediaType::Json);
+                    res.send("{'message': 'Missing key parameter.'}")   // TODO: format json
+                }
+            },
+            _ => {
+                res.set(StatusCode::MethodNotAllowed);
+                res.send("")
+            }
+        }
+    }
 }
 
 impl Server
 {
-    pub fn default() -> Server
+    pub fn new() -> Server
     {
         Server {
             endpoint: format!("{}:7021", Ipv4Addr::LOCALHOST),
             use_tls: false,
-            store: KvStore::default()
         }
     }
 
@@ -62,109 +132,30 @@ impl Server
 
     fn router_webui(&self) -> nickel::Router {
         let mut router = Nickel::router();
-        router.get("/**", handler_vuejs);
-        router
-    }
-
-    fn hello_world<'mw>(&self, _req: &mut Request, res: Response<'mw>) -> MiddlewareResult<'mw> {
-        match _req.param("key") {
-            Some(key) => {
-    //                self.store.set(String::from("test"), String::from("test"));
-            },
-            _ => {
-            }  // TODO: return error, missing key parameter
-        }
-        res.send("Hello World")
-    }
-
-    fn router_api(&self) -> nickel::Router {
-        let mut router = Nickel::router();
-        
-        // let m = |req, res| self.hello_world(req, res);
-
-        // router.add_route(Method::Head, "/api/kv/:key", m);
-
-        // SET/GET/EXIST
-        // LOCK/UNLOCK
-        // EXPIRE/UNEXPIRE
-        // INCREMENT/DECREMENT
-
-        // GET /api/kv/:key
-        // POST /api/kv/:key
-        // PUT /api/kv/:key
-        // DELETE /api/kv/:key
-
-        // SET (without key)
-        // router.add_route(Method::Put, "/api/kv", middleware! {|request, response|
-        //     "success"
-        // });
-
-        // SET (with key)
-        // router.add_route(Method::Put, "/api/kv/:key", middleware! {|request, response|
-        //    match request.param("key") {
-        //        Some(key) => {
-        //            self.store.set(String::from("test"), String::from("test"));
-        //            "success"
-        //        },
-        //        _ => {
-        //            "error"
-        //        }  // TODO: return error, missing key parameter
-        //    }
-        // });
-        
-         /*middleware! {|request, response|
-            println!("{:#?}", request.param("key"));
-            "success"
-        });*/
-
-//        router.head("/api/kv/:key", middleware! {|request, response|
-//            "success" 
-//        });
-
-        // GET /api/kv/:key
-        // router.get("/api/kv/:key",  middleware!{ |request, response|
-        //     "success"
-//            let entity_set = request.json_as::<EntitySet>().unwrap();
-//            match request.param("key") {
-//                Some(key) => {
-//                    format!("{:?}", entity_set.value)
-//                },
-//                _ => format!("success")
-//            }
-        // });
-
-        // PUT /api/kv/:key
-        // router.put("/api/kv/:key",  middleware!{ |request, response|
-            // let entity_set = request.json_as::<EntitySet>().unwrap();
-            // match request.param("key") {
-            //     Some(key) => {
-            //         format!("{:?}", entity_set.value)
-            //     },
-            //     _ => format!("success")
-            // }
-        //     "error"
-        // });
-
-//        let mut data = HashMap::<&str, &str>::new();
-//        data.insert("name", "Alex");
-
-        //router.get("/api/**", middleware!("You call API"));
+        router.get("/", handler_vuejs);
         router
     }
 
     pub fn run(&self) {
         let mut server = Nickel::with_options(Options::default().output_on_listen(false));
 
+        let store = Arc::new(RwLock::new(KvStore::default()));
+
         server.utilize(handler_logger);
 
         server.utilize(StaticFilesHandler::new("assets/"));
         server.utilize(StaticFilesHandler::new("webui/dist"));
 
-        server.utilize(self.router_api());
         server.utilize(self.router_webui());
 
-//        let custom_handler: fn(&self, &mut NickelError, &mut Request) -> Action = &self.handler_error_404;
-//        server.handle_error(custom_handler);
+        // API Endpoints
+        server.add_route(Method::Head, "/api/kv/:key", KvStoreMiddleware { method: Method::Head, store: store.clone() });
+        server.put("/api/kv/:key", KvStoreMiddleware { method: Method::Put, store: store.clone() });
+        server.get("/api/kv/:key", KvStoreMiddleware { method: Method::Get, store: store.clone() });
+        server.patch("/api/kv/:key", KvStoreMiddleware { method: Method::Patch, store: store.clone() });
+        server.delete("/api/kv/:key", KvStoreMiddleware { method: Method::Delete, store: store.clone() });
+
+        // TODO: Implement HTTPS (https://github.com/nickel-org/nickel.rs/blob/master/examples/https.rs)
 
         match server.listen(&self.endpoint) {
             Ok(instance) => {
@@ -181,21 +172,9 @@ impl Server
             }
         }
 
-        if self.use_tls {
-            // TODO: Implement HTTPS (https://github.com/nickel-org/nickel.rs/blob/master/examples/https.rs)
+//        if self.use_tls {
 //            server.listen_https()
-        }
-    }
-
-    fn handler_error_404<'a>(&self, err: &mut NickelError, _request: &mut Request) -> Action {
-        if let Some(ref mut res) = err.stream {
-            if res.status() == NotFound {
-                // TODO: display vuejs error page
-                res.write_all(b"404 Not Found").expect("Unable to write in the stream");
-                return Halt(());
-            }
-        }
-        Continue(())
+//        }
     }
 
     pub fn dispose(&self) {

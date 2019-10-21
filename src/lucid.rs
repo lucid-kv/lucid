@@ -198,7 +198,7 @@ impl Lucid {
                     // Run server if the instance is successfully configured
                     match &self.configuration {
                         Some(config) => {
-                            let mut lucid_server = Server::default();
+                            let mut lucid_server = Server::new();
                             lucid_server.configure(&config);
                             lucid_server.run();
                         },
