@@ -1,14 +1,33 @@
-# About Lucid
+# About Lucid ᵏᵛ
 
-An High performance and distributed KV store accessible through a HTTP API. Written in Rust. 🦀
+High performance and distributed KV store accessible through an HTTP API. Written in Rust. 🦀
 
-[![Build Status](https://travis-ci.com/clintnetwork/lucid.svg?branch=developement)](https://travis-ci.com/clintnetwork/lucid)
+[![Build Status](https://travis-ci.com/clintnetwork/lucid.svg)](https://travis-ci.com/clintnetwork/lucid)
 [![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)](https://www.rust-lang.org/)
-[![Clint.Network](https://img.shields.io/badge/Powered%20by-Clint.Network-blue.svg)](https://twitter.com/clint_network)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/clintnetwork/lucid/blob/master/LICENSE.md)
+[![Telegram](https://img.shields.io/badge/t.me-clintnetwork-informational.svg)](https://t.me/clintnetwork)
+[![Twitter](https://img.shields.io/twitter/follow/clint_network.svg?style=social)](https://twitter.com/intent/follow?screen_name=clint_network)
 
 ## Introduction
 
-Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through a HTTP API, we also want to propose persistence, encryption, websocket streaming, replication and a lots of features.
+Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
+
+## Works Progress
+
+<ins>__**Warning: Empty project for now, the development is ensured in the [development](https://github.com/clintnetwork/lucid/tree/development) branch.**__</ins>
+
+- [x] Minimum Viable Product (MVP)
+  - [x] Initialization process
+  - [x] Configuration files handling
+  - [x] JWT token Issuing
+  - [ ] HTTPS Support
+  - [ ] Rest API
+     - [ ] JWT Authentication
+- [ ] WebUI in VueJS
+- [ ] Persistence
+- [ ] Encryption on the Fly (AES-256)
+- [ ] Access Control List (ACL)
+- [ ] WebSocket or Event Source (SSE)
 
 ## Some Use Cases
 
@@ -17,6 +36,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 - A distributed cache for an application
 - Service Discovery
 - Distributed Configuration
+- Blob Storage
 
 ## Command Line Interface
 
@@ -27,7 +47,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
  ██████╗╚██████╔╝╚██████╗██║██████╔╝    ██║  ██╗ ╚████╔╝
  ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
 
-A Fast, Secure and Distributed KV store with a HTTP API.
+A Fast, Secure and Distributed KV store with an HTTP API.
 Written in Rust by Clint.Network (twitter.com/clint_network)
 
 USAGE:
@@ -50,10 +70,12 @@ SUBCOMMANDS:
 
 ## Web Interface (UI)
 
-Lucid propose a Web UI to manage objects, issue tokens, organize nodes and configure instances.
+Lucid wants to propose a web UI to manage data, issue tokens, organize nodes and configure instances.
 
 ## About the Author
 
 Lucid is powered by [Clint.Network](https://twitter.com/clint_network) and published under the [MIT License](LICENSE.md).
 
-If you want to make a little donation, use this Bitcoin address: 3NhdjiGrpzH5geVrDHa173EuXxnAVhghtZ or my [Patreon](https://www.patreon.com/clintnetwork).
+**Donate to Clint.Network**
+- ![Paypal](https://raw.githubusercontent.com/reek/anti-adblock-killer/gh-pages/images/paypal.png) Paypal: [Donate](http://paypal.me/clintnetwork)
+- ![btc](https://raw.githubusercontent.com/reek/anti-adblock-killer/gh-pages/images/bitcoin.png) Bitcoin: 3AEqgvpiHC2LzPDunf6PBPBLeT98YruKmg
