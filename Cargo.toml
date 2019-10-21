@@ -4,7 +4,7 @@ description = "A Fast, Secure and Distributed KV store with a HTTP API."
 version = "0.1.0"
 authors = ["Clint.Network <me@clint.network>"]
 edition = "2018"
-keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "distributed key-value"]
+keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "http", "swagger", "websocket"]
 repository = "https://github.com/clintnetwork/lucid"
 license = "https://github.com/clintnetwork/lucid/blob/master/LICENSE.md"
 
@@ -28,9 +28,7 @@ rust-crypto = "*"
 uuid = "*"
 rand = "*"
 warp = "*"
-pretty_env_logger = "*"
 chashmap = "*"
-#reqwest = "*"
 plugin = "*"
 
 [dependencies.clap]
