@@ -4,7 +4,8 @@ use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::sync::RwLock;
 
-use nickel::{*, Action, Continue, FormBody, Halt, HttpRouter, JsonBody, Middleware, MiddlewareResult, Nickel, NickelError, Options, Request, Response, StaticFilesHandler};
+use hyper::header::{*};
+use nickel::{*, HttpRouter, JsonBody, Middleware, MiddlewareResult, Nickel, NickelError, Options, Request, Response, StaticFilesHandler};
 use nickel::hyper::method::Method;
 use nickel::status::StatusCode;
 
@@ -45,9 +46,15 @@ struct KvStoreMiddleware {
 impl<D> Middleware<D> for KvStoreMiddleware {
     fn invoke<'mw, 'conn>(&self, req: &mut Request<'mw, 'conn, D>, mut res: Response<'mw, D>) -> MiddlewareResult<'mw, D> {
         // TODO: validate JWT token
+
+        // Get the request body and retrieve the KV store
         let store = &*self.store.write().unwrap();
         let mut buffer = String::new();
         let body_size = req.origin.read_to_string(&mut buffer).unwrap();
+
+        // Define some response headers
+        res.set(Server("Lucid 0.1.0".to_string()));
+
         match self.method {
             Method::Head => match req.param("key") {
                 Some(key) => match &store.get(key.to_string()) {
@@ -56,8 +63,8 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                         res.send("")
                     },
                     None => {
-                        res.set(StatusCode::NotFound).set(MediaType::Json);
-                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key does not exists.".to_string(), details: None }).unwrap())
+                        res.set(StatusCode::NotFound);
+                        res.send("")
                     }
                 },
                 _ => {
@@ -139,7 +146,11 @@ impl Server
     }
 
     pub fn run(&self) {
-        let mut server = Nickel::with_options(Options::default().output_on_listen(false));
+        let server_options = Options::default()
+            .thread_count(None) // TODO: [Optimisation] improve this
+            .output_on_listen(false);
+
+        let mut server = Nickel::with_options(server_options);
 
         let store = Arc::new(RwLock::new(KvStore::default()));
 
