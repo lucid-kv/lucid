@@ -5,7 +5,7 @@ use std::sync::Arc;
 use std::sync::RwLock;
 
 use hyper::header::{*};
-use nickel::{*, HttpRouter, JsonBody, Middleware, MiddlewareResult, Nickel, NickelError, Options, Request, Response, StaticFilesHandler};
+use nickel::{*, HttpRouter, Middleware, MiddlewareResult, Nickel, Options, Request, Response, StaticFilesHandler};
 use nickel::hyper::method::Method;
 use nickel::status::StatusCode;
 
@@ -54,6 +54,7 @@ impl<D> Middleware<D> for KvStoreMiddleware {
 
         // Define some response headers
         res.set(Server("Lucid 0.1.0".to_string()));
+//        res.set(ContentType("application/binary".parse().unwrap()));
 
         match self.method {
             Method::Head => match req.param("key") {
@@ -188,9 +189,5 @@ impl Server
 //        if self.use_tls {
 //            server.listen_https()
 //        }
-    }
-
-    pub fn dispose(&self) {
-        self.log(LogLevel::Information, "Stopping the Lucid server", None);
     }
 }

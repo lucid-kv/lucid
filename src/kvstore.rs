@@ -31,8 +31,4 @@ impl KvStore
     pub fn drop(&self, key: String) {
         &self.container.remove(&key);
     }
-
-    pub fn clear(&self) {
-        &self.container.clear();
-    }
 }

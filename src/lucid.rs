@@ -1,12 +1,10 @@
 use std::io::{Error, ErrorKind};
-use std::path::PathBuf;
 
 use app_dirs::*;
 use chrono::*;
 use clap::App;
 use crypto::digest::Digest;
 use jsonwebtoken::*;
-use serde::{Deserialize, Serialize};
 
 use crate::configuration::Configuration;
 use crate::logger::{Logger, LogLevel};
@@ -33,14 +31,12 @@ struct ConfigurationFile {
 const LUCID_INFO: AppInfo = AppInfo { name: "Lucid", author: "Clint.Network" };
 
 pub struct Lucid {
-    server_instance: i32,
     configuration: Option<Configuration>
 }
 
 impl Lucid {
     pub fn default() -> Lucid {
         Lucid {
-            server_instance: 25,
             configuration: None
         }
     }
@@ -53,11 +49,6 @@ impl Lucid {
  ██████╗╚██████╔╝╚██████╗██║██████╔╝    ██║  ██╗ ╚████╔╝
  ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
  "###);
-    }
-
-    fn show_description(&self) {
-        println!("A Fast, Secure and Distributed KV store with a HTTP API.");
-        println!("Written in Rust by Clint.Network (twitter.com/clint_network)\n");
     }
 
     fn show_version(&self) {
@@ -74,22 +65,16 @@ impl Lucid {
         let mut commands = App::from_yaml(cli_yaml)
             .name(crate_description!())
             .bin_name(get_binary());
-
         self.show_banner();
-
         match self.handle_cli(&mut commands) {
-            None => {
-                self.show_help(&mut commands);
-            }
+            None => self.show_help(&mut commands),
             Some(usage) => {
-                let l = usage.to_owned();
                 println!("{}{}", usage, match usage.to_owned().contains("USAGE") {
                     true => "\n",
                     false => ""
                 });
             }
         }
-
         return Ok(());
     }
 
@@ -147,7 +132,7 @@ impl Lucid {
                                             display_cli_help();
                                         }
                                         _ => {
-                                            crate::logger::print(&LogLevel::Error, format!("Unknown command '{}'", input.trim()).as_ref());
+                                            crate::logger::print(&LogLevel::Warning, format!("Unknown command '{}'", input.trim()).as_ref());
                                         }
                                     }
                                     println!();
@@ -181,8 +166,8 @@ impl Lucid {
                     }
 
                     match &mut self.initialize_node(has_configuration_file, secret_key, matches.is_present("force")) {
-                        Ok(t) => {
-                            &self.log(LogLevel::Information, "Lucid successfully initialized.", None);
+                        Ok(_) => {
+                            &self.log(LogLevel::Success, "Lucid successfully initialized.", None);
                         },
                         Err(e) => {
                             &self.log(LogLevel::Error, "Unable to initialize Lucid node.", Some(e.get_ref().unwrap().description()));
@@ -203,21 +188,21 @@ impl Lucid {
                             lucid_server.run();
                         },
                         None => {
-                            &self.log(LogLevel::Error, "The Lucid node is not successfully configured.", None);
+                            &self.log(LogLevel::Warning, "The Lucid node is not successfully configured.", None);
                         }
                     };
                     return Some("");
                 }
 
-                if let Some(matches) = cli.subcommand_matches("settings") {
+                if let Some(_matches) = cli.subcommand_matches("settings") {
                     unimplemented!("Not implemented");
                 }
 
-                if let Some(matches) = cli.subcommand_matches("store") {
+                if let Some(_matches) = cli.subcommand_matches("store") {
                     unimplemented!("Not implemented");
                 }
 
-                if let Some(matches) = cli.subcommand_matches("tokens") {
+                if let Some(_matches) = cli.subcommand_matches("tokens") {
                     unimplemented!("Not implemented");
                 }
             }
@@ -230,19 +215,15 @@ impl Lucid {
 
     // Initialize the node by creating a lucid.yml configuration file
     fn initialize_node(&mut self, configuration_file: Option<&str>, secret_key: String, force: bool) -> Result<&str, std::io::Error> {
-        let mut lucid_yml = match configuration_file {
-            Some(custom_configuration_file) => {
-                String::from(custom_configuration_file)
-            },
-            None => {
-                match app_root(AppDataType::SharedConfig, &LUCID_INFO) {
-                    Ok(mut appdata_root) => {
-                        &appdata_root.push("lucid.yml");
-                        appdata_root.clone().into_os_string().into_string().unwrap()
-                    },
-                    Err(e) => {
-                        return Err(Error::new(ErrorKind::Interrupted, "Unable to get the Lucid configuration folder."));
-                    }
+        let lucid_yml = match configuration_file {
+            Some(custom_configuration_file) => String::from(custom_configuration_file),
+            None => match app_root(AppDataType::SharedConfig, &LUCID_INFO) {
+                Ok(mut appdata_root) => {
+                    &appdata_root.push("lucid.yml");
+                    appdata_root.clone().into_os_string().into_string().unwrap()
+                },
+                Err(_e) => {
+                    return Err(Error::new(ErrorKind::Interrupted, "Unable to get the Lucid configuration folder."));
                 }
             }
         };
@@ -274,12 +255,12 @@ impl Lucid {
                             }
                             return Err(Error::new(ErrorKind::Interrupted, "Holly shit."));
                         },
-                        Err(e) => {
+                        Err(_e) => {
                             return Err(Error::new(ErrorKind::Interrupted, "Unable to create the JWT root token."));
                         }
                     }
                 },
-                Err(e) => {
+                Err(_e) => {
                     return Err(Error::new(ErrorKind::Interrupted, "Unable to create the Lucid configuration file."));
                 }
             }
@@ -289,15 +270,13 @@ impl Lucid {
     // Configure the current instance with the default or a specific configuration file
     fn configure(&mut self, configuration_file: Option<&str>) -> Result<(), std::io::Error> {
         let lucid_yml = match configuration_file {
-            None => {
-                match app_root(AppDataType::SharedConfig, &LUCID_INFO) {
-                    Ok(mut appdata_root) => {
-                        &appdata_root.push("lucid.yml");
-                        appdata_root.into_os_string().into_string().unwrap()
-                    },
-                    Err(e) => {
-                        return Err(Error::new(ErrorKind::Interrupted, "Unable to get the Lucid configuration folder."));
-                    }
+            None => match app_root(AppDataType::SharedConfig, &LUCID_INFO) {
+                Ok(mut appdata_root) => {
+                    &appdata_root.push("lucid.yml");
+                    appdata_root.into_os_string().into_string().unwrap()
+                },
+                Err(_) => {
+                    return Err(Error::new(ErrorKind::Interrupted, "Unable to get the Lucid configuration folder."));
                 }
             },
             Some(conf) => {
@@ -306,7 +285,6 @@ impl Lucid {
         };
 
         use std::path::Path;
-        use std::env;
         use std::fs;
         if Path::new(&lucid_yml).exists() {
             match fs::read_to_string(&lucid_yml) {
@@ -319,17 +297,12 @@ impl Lucid {
                     });
                     return Ok(());
                 },
-                Err(e) => {
+                Err(_e) => {
                     return Err(Error::new(ErrorKind::Interrupted, "Unable to read the Lucid configuration file."));
                 }
             }
         } else {
             return Err(Error::new(ErrorKind::Interrupted, "Not initialized Lucid node."));
         }
-    }
-
-    /// Properly exit the process
-    pub fn dispose(&self) {
-        std::process::exit(0);
     }
 }
