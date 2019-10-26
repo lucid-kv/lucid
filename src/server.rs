@@ -1,12 +1,10 @@
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::BufReader;
-use std::io::prelude::*;
+use std::io::Read;
 use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::sync::RwLock;
 
-use hyper::header::{*};
+use hyper::header::*;
 use nickel::{*, HttpRouter, Middleware, MiddlewareResult, Nickel, Options, Request, Response, StaticFilesHandler};
 use nickel::hyper::method::Method;
 use nickel::status::StatusCode;
@@ -20,9 +18,18 @@ pub struct Server {
     use_tls: bool
 }
 
+/*
+101 : MISSING_REQUEST_BODY
+102 : MISSING_KEY_PARAMETER
+103 : DENIED_REQUEST_SIZE
+104 : KEY_DOES_NOT_EXISTS
+105 : METHOD_NOT_ALLOWED
+*/
+
 #[derive(Serialize, Deserialize, Debug)]
 struct ErrorMessage {
-    message: String,
+    code: i32,
+    message: &'static str,
     details: Option<String>
 }
 
@@ -69,13 +76,13 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                 },
                 _ => {
                     res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
+                    res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
                 }
             },
             Method::Put => {
                 if body_size == 0 {
                     res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    return res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing request body.".to_string(), details: None }).unwrap());
+                    return res.send(serde_json::to_string_pretty(&ErrorMessage { code: 101, message: "Missing request body.", details: None }).unwrap());
                 }
                 match req.param("key") {
                     Some(key) => if buffer.len() < 7340032 {
@@ -84,11 +91,11 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                         res.send("")
                     } else {
                         res.set(StatusCode::BadRequest).set(MediaType::Json);
-                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The maximum allowed value size is 7 Mb.".to_string(), details: None }).unwrap())
+                        res.send(serde_json::to_string_pretty(&ErrorMessage { code: 103, message: "The maximum allowed value size is 7 Mb.", details: None }).unwrap())
                     },
                     _ => {
                         res.set(StatusCode::BadRequest).set(MediaType::Json);
-                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
+                        res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
                     }
                 }
             },
@@ -100,12 +107,12 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                     },
                     None => {
                         res.set(StatusCode::NotFound).set(MediaType::Json);
-                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key does not exists.".to_string(), details: None }).unwrap())
+                        res.send(serde_json::to_string_pretty(&ErrorMessage { code: 104, message: "The specified key does not exists.", details: None }).unwrap())
                     }
                 },
                 _ => {
                     res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
+                    res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
                 }
             },
             Method::Delete => match req.param("key") {
@@ -116,12 +123,12 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                 },
                 _ => {
                     res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
+                    res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
                 }
             },
             _ => {
                 res.set(StatusCode::MethodNotAllowed).set(MediaType::Json);
-                res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Method not allowed, maybe in the future :)".to_string(), details: None }).unwrap())
+                res.send(serde_json::to_string_pretty(&ErrorMessage { code: 105, message: "Method not allowed, maybe in the future :)", details: None }).unwrap())
             }
         }
     }
