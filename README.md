@@ -23,7 +23,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
   - [ ] HTTPS Support
   - [x] Rest API
      - [x] KV-Base, HashMap-based
-     - [ ] JWT Authentication
+     - [x] JWT Authentication
 - [ ] WebUI in VueJS
 - [ ] Persistence
 - [ ] Encryption on the Fly (AES-256)

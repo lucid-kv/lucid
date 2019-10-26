@@ -5,6 +5,7 @@ use std::sync::Arc;
 use std::sync::RwLock;
 
 use hyper::header::*;
+use jsonwebtoken::{decode, Validation};
 use nickel::{*, HttpRouter, Middleware, MiddlewareResult, Nickel, Options, Request, Response, StaticFilesHandler};
 use nickel::hyper::method::Method;
 use nickel::status::StatusCode;
@@ -13,12 +14,8 @@ use crate::configuration::Configuration;
 use crate::kvstore::KvStore;
 use crate::logger::{Logger, LogLevel};
 
-pub struct Server {
-    endpoint: String,
-    use_tls: bool
-}
-
 /*
+100 : JWT_TOKEN_ERROR
 101 : MISSING_REQUEST_BODY
 102 : MISSING_KEY_PARAMETER
 103 : DENIED_REQUEST_SIZE
@@ -26,11 +23,24 @@ pub struct Server {
 105 : METHOD_NOT_ALLOWED
 */
 
+pub struct Server {
+    endpoint: String,
+    use_tls: bool,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 struct ErrorMessage {
     code: i32,
     message: &'static str,
     details: Option<String>
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Claims {
+    sub: String,
+    iss: String,
+    iat: i64,
+    exp: i64,
 }
 
 // TODO: move into implementation
@@ -46,14 +56,12 @@ fn handler_logger<'a, D>(request: &mut Request<D>, response: Response<'a, D>) ->
 }
 
 struct KvStoreMiddleware {
-    method: hyper::method::Method,
+    http_verb: hyper::method::Method,
     store: Arc<RwLock<KvStore>>,
 }
 
 impl<D> Middleware<D> for KvStoreMiddleware {
     fn invoke<'mw, 'conn>(&self, req: &mut Request<'mw, 'conn, D>, mut res: Response<'mw, D>) -> MiddlewareResult<'mw, D> {
-        // TODO: validate JWT token
-
         // Get the request body and retrieve the KV store
         let store = &*self.store.write().unwrap();
         let mut buffer = Vec::new();
@@ -62,73 +70,88 @@ impl<D> Middleware<D> for KvStoreMiddleware {
         // Define some response headers
         res.set(Server("Lucid 0.1.0".to_string()));
 
-        match self.method {
-            Method::Head => match req.param("key") {
-                Some(key) => match &store.get(key.to_string()) {
-                    Some(_) => {
-                        res.set(StatusCode::Ok);
-                        res.send("")
+        match req.origin.headers.get::<Authorization<Bearer>>() {
+            // TODO: get secret from configuration file
+            Some(header) => match decode::<Claims>(&header.token, "0cccdfddd23f9f740c9620a094daf1b260436059924cec32622f0e7ebc99bbe5".as_ref(), &Validation::default()) {
+                Ok(_bearer) => match self.http_verb {
+                    Method::Head => match req.param("key") {
+                        Some(key) => match &store.get(key.to_string()) {
+                            Some(_) => {
+                                res.set(StatusCode::Ok);
+                                res.send("")
+                            },
+                            None => {
+                                res.set(StatusCode::NotFound);
+                                res.send("")
+                            }
+                        },
+                        None => {
+                            res.set(StatusCode::BadRequest).set(MediaType::Json);
+                            res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
+                        }
                     },
-                    None => {
-                        res.set(StatusCode::NotFound);
-                        res.send("")
-                    }
-                },
-                _ => {
-                    res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
-                }
-            },
-            Method::Put => {
-                if body_size == 0 {
-                    res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    return res.send(serde_json::to_string_pretty(&ErrorMessage { code: 101, message: "Missing request body.", details: None }).unwrap());
-                }
-                match req.param("key") {
-                    Some(key) => if buffer.len() < 7340032 {
-                        store.set(key.to_string(), buffer);
-                        res.set(StatusCode::Ok);
-                        res.send("")
-                    } else {
-                        res.set(StatusCode::BadRequest).set(MediaType::Json);
-                        res.send(serde_json::to_string_pretty(&ErrorMessage { code: 103, message: "The maximum allowed value size is 7 Mb.", details: None }).unwrap())
+                    Method::Put => {
+                        if body_size == 0 {
+                            res.set(StatusCode::BadRequest).set(MediaType::Json);
+                            return res.send(serde_json::to_string_pretty(&ErrorMessage { code: 101, message: "Missing request body.", details: None }).unwrap());
+                        }
+                        match req.param("key") {
+                            Some(key) => if buffer.len() < 7340032 {
+                                store.set(key.to_string(), buffer);
+                                res.set(StatusCode::Ok);
+                                res.send("")
+                            } else {
+                                res.set(StatusCode::BadRequest).set(MediaType::Json);
+                                res.send(serde_json::to_string_pretty(&ErrorMessage { code: 103, message: "The maximum allowed value size is 7 Mb.", details: None }).unwrap())
+                            },
+                            None => {
+                                res.set(StatusCode::BadRequest).set(MediaType::Json);
+                                res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
+                            }
+                        }
+                    },
+                    Method::Get => match req.param("key") {
+                        // TODO: check query string, for getting metadata
+
+                        Some(key) => match store.get(key.to_string()) {
+                            Some(value) => {
+                                res.set(StatusCode::Ok).set(MediaType::Txt);
+                                res.send(value)
+                            },
+                            None => {
+                                res.set(StatusCode::NotFound).set(MediaType::Json);
+                                res.send(serde_json::to_string_pretty(&ErrorMessage { code: 104, message: "The specified key does not exists.", details: None }).unwrap())
+                            }
+                        },
+                        None => {
+                            res.set(StatusCode::BadRequest).set(MediaType::Json);
+                            res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
+                        }
+                    },
+                    Method::Delete => match req.param("key") {
+                        Some(key) => {
+                            store.drop(key.to_string());
+                            res.set(StatusCode::Ok);
+                            res.send("")
+                        },
+                        None => {
+                            res.set(StatusCode::BadRequest).set(MediaType::Json);
+                            res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
+                        }
                     },
                     _ => {
-                        res.set(StatusCode::BadRequest).set(MediaType::Json);
-                        res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
-                    }
-                }
-            },
-            Method::Get => match req.param("key") {
-                Some(key) => match store.get(key.to_string()) {
-                    Some(value) => {
-                        res.set(StatusCode::Ok).set(MediaType::Txt);
-                        res.send(value)
-                    },
-                    None => {
-                        res.set(StatusCode::NotFound).set(MediaType::Json);
-                        res.send(serde_json::to_string_pretty(&ErrorMessage { code: 104, message: "The specified key does not exists.", details: None }).unwrap())
+                        res.set(StatusCode::MethodNotAllowed).set(MediaType::Json);
+                        res.send(serde_json::to_string_pretty(&ErrorMessage { code: 105, message: "Method not allowed, maybe in the future :)", details: None }).unwrap())
                     }
                 },
-                _ => {
-                    res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
+                Err(e) => {
+                    res.set(StatusCode::Unauthorized).set(MediaType::Json);
+                    return res.send(serde_json::to_string_pretty(&ErrorMessage { code: 100, message: "Unable to decrypt JWT token.", details: Some(e.to_string()) }).unwrap());
                 }
             },
-            Method::Delete => match req.param("key") {
-                Some(key) => {
-                    store.drop(key.to_string());
-                    res.set(StatusCode::Ok);
-                    res.send("")
-                },
-                _ => {
-                    res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "Missing key parameter.", details: None }).unwrap())
-                }
-            },
-            _ => {
-                res.set(StatusCode::MethodNotAllowed).set(MediaType::Json);
-                res.send(serde_json::to_string_pretty(&ErrorMessage { code: 105, message: "Method not allowed, maybe in the future :)", details: None }).unwrap())
+            None => {
+                res.set(StatusCode::Unauthorized).set(MediaType::Json);
+                return res.send(serde_json::to_string_pretty(&ErrorMessage { code: 100, message: "Missing JWT token.", details: None }).unwrap());
             }
         }
     }
@@ -172,11 +195,12 @@ impl Server
         server.utilize(self.router_webui());
 
         // API Endpoints
-        server.add_route(Method::Head, "/api/kv/:key", KvStoreMiddleware { method: Method::Head, store: store.clone() });
-        server.put("/api/kv/:key", KvStoreMiddleware { method: Method::Put, store: store.clone() });
-        server.get("/api/kv/:key", KvStoreMiddleware { method: Method::Get, store: store.clone() });
-        server.patch("/api/kv/:key", KvStoreMiddleware { method: Method::Patch, store: store.clone() });
-        server.delete("/api/kv/:key", KvStoreMiddleware { method: Method::Delete, store: store.clone() });
+        // TODO: change to server.head() (https://github.com/nickel-org/nickel.rs/issues/444)
+        server.add_route(Method::Head, "/api/kv/:key", KvStoreMiddleware { http_verb: Method::Head, store: store.clone() });
+        server.put("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Put, store: store.clone() });
+        server.get("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Get, store: store.clone() });
+        server.patch("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Patch, store: store.clone() });
+        server.delete("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Delete, store: store.clone() });
 
         // TODO: Implement HTTPS (https://github.com/nickel-org/nickel.rs/blob/master/examples/https.rs)
 
