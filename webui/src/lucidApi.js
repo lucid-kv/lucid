@@ -42,7 +42,7 @@ export const apiCall = async (key, method = 'GET', body, headers = {}) => {
 /**
  * Lucid API wrapper
  */
-export const api = {
+export const lucidApi = {
   /**
    * Retrieve the content associated with a key
    *
