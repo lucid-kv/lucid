@@ -23,6 +23,7 @@ use crate::logger::{Logger, LogLevel};
 105 : METHOD_NOT_ALLOWED
 */
 
+// TODO: passing configuration to Server
 pub struct Server {
     endpoint: String,
     use_tls: bool,
@@ -44,13 +45,13 @@ struct Claims {
 }
 
 // TODO: move into implementation
-fn handler_vuejs<'a>(_: &mut Request, res: Response<'a>) -> MiddlewareResult<'a> {
+fn middleware_webui<'a>(_: &mut Request, res: Response<'a>) -> MiddlewareResult<'a> {
     let mut data = HashMap::<&str, &str>::new();
     data.insert("name", "Alex");
     res.render("webui/dist/index.tpl", &data)
 }
 
-fn handler_logger<'a, D>(request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
+fn middleware_logging<'a, D>(request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
     crate::logger::print(&LogLevel::Information, format!("{} {}", request.origin.method, request.origin.uri).as_ref());
     response.next_middleware()
 }
@@ -145,7 +146,7 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                     }
                 },
                 Err(e) => {
-                    res.set(StatusCode::Unauthorized).set(MediaType::Json);
+                    res.set(StatusCode::InternalServerError).set(MediaType::Json);
                     return res.send(serde_json::to_string_pretty(&ErrorMessage { code: 100, message: "Unable to decrypt JWT token.", details: Some(e.to_string()) }).unwrap());
                 }
             },
@@ -172,12 +173,6 @@ impl Server
         self.use_tls = configuration.use_tls;
     }
 
-    fn router_webui(&self) -> nickel::Router {
-        let mut router = Nickel::router();
-        router.get("/", handler_vuejs);
-        router
-    }
-
     pub fn run(&self) {
         let server_options = Options::default()
             .thread_count(None) // TODO: [Optimisation] improve this
@@ -187,12 +182,12 @@ impl Server
 
         let store = Arc::new(RwLock::new(KvStore::default()));
 
-        server.utilize(handler_logger);
+        server.utilize(middleware_logging);
 
         server.utilize(StaticFilesHandler::new("assets/"));
         server.utilize(StaticFilesHandler::new("webui/dist"));
 
-        server.utilize(self.router_webui());
+        server.get("/", middleware_webui);
 
         // API Endpoints
         // TODO: change to server.head() (https://github.com/nickel-org/nickel.rs/issues/444)
@@ -204,23 +199,28 @@ impl Server
 
         // TODO: Implement HTTPS (https://github.com/nickel-org/nickel.rs/blob/master/examples/https.rs)
 
-        match server.listen(&self.endpoint) {
-            Ok(instance) => {
-                // TODO: try using server.log and getting owner
-                &self.log(LogLevel::Information, format!("Running Lucid server on {endpoint} | PID: {pid}", endpoint = instance.socket(), pid = std::process::id()).as_str(), None);
-                &self.log(LogLevel::Information, format!("Lucid API Endpoint: {scheme}://{endpoint}/api/", scheme = match self.use_tls {
-                    true => "https",
-                    false => "http"
-                }, endpoint = instance.socket()).as_str(), None);
-                &self.log(LogLevel::Information, "Use Ctrl+C to stop the server.", None);
-            }
-            Err(err) => {
-                &self.log(LogLevel::Error, "Unable to run Lucid server", Some(Box::leak(err).description()));
-            }
+        match self.use_tls {
+            true => {
+//                use hyper::Server;
+//                use hyper_openssl::OpensslServer;
+//                let ssl = Openssl::with_cert_and_key("examples/assets/self_signed.crt", "examples/assets/key.pem").unwrap();
+//                server.listen_https("127.0.0.1:7021", ssl);
+            },
+            false => match server.listen(&self.endpoint) {
+                Ok(instance) => {
+                    // TODO: move logging for using in https to
+                    // TODO: try using server.log and getting owner
+                    &self.log(LogLevel::Information, format!("Running Lucid server on {endpoint} | PID: {pid}", endpoint = instance.socket(), pid = std::process::id()).as_str(), None);
+                    &self.log(LogLevel::Information, format!("Lucid API Endpoint: {scheme}://{endpoint}/api/", scheme = match self.use_tls {
+                        true => "https",
+                        false => "http"
+                    }, endpoint = instance.socket()).as_str(), None);
+                    &self.log(LogLevel::Information, "Use Ctrl+C to stop the server.", None);
+                }
+                Err(err) => {
+                    &self.log(LogLevel::Error, "Unable to run Lucid server", Some(Box::leak(err).description()));
+                }
+            },
         }
-
-//        if self.use_tls {
-//            server.listen_https()
-//        }
     }
 }

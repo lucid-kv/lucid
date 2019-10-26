@@ -1,9 +1,11 @@
 use chashmap::CHashMap;
-use chrono::{DateTime, Utc};
+
+//use chrono::{DateTime, Utc};
 
 pub struct KvElement {
     data: Vec<u8>,
-    created: DateTime<Utc>,
+//    created: DateTime<Utc>,
+//    locked: bool
 }
 
 pub struct KvStore {
@@ -14,13 +16,15 @@ impl KvStore
 {
     pub fn default() -> KvStore
     {
+        // TODO: prepare looped persistence
         KvStore {
             container: CHashMap::new()
         }
     }
 
     pub fn set(&self, key: String, value: Vec<u8>) -> Option<KvElement> {
-        self.container.insert(key, KvElement { data: value, created: Utc::now() })
+        // TODO: prepare iterative persistence
+        self.container.insert(key, KvElement { data: value })
     }
 
     pub fn get(&self, key: String) -> Option<Vec<u8>> {
@@ -29,6 +33,8 @@ impl KvStore
             None => None
         }
     }
+
+    // TODO: implement Lock, Unlock, Increment, Decrement
 
     pub fn drop(&self, key: String) {
         &self.container.remove(&key);

@@ -3,6 +3,9 @@ extern crate clap;
 #[macro_use]
 extern crate serde_derive;
 
+//extern crate hyper;
+//extern crate hyper_openssl;
+
 use lucid::Lucid;
 
 mod lucid;

@@ -12,20 +12,20 @@ use crate::server::Server;
 
 include!("crossplatform.rs");
 
-#[derive(Debug, Serialize, Deserialize)]
-struct JwtClaims {
-    sub: &'static str,
-    // company: String,
-    iat: i64,
-    exp: i64,
-}
-
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct ConfigurationFile {
     endpoint: &'static str,
     root_token: String,
     secret_key: String,
     use_tls: bool
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Claims {
+    sub: String,
+    iss: String,
+    iat: i64,
+    exp: i64,
 }
 
 const LUCID_INFO: AppInfo = AppInfo { name: "Lucid", author: "Clint.Network" };
@@ -66,14 +66,13 @@ impl Lucid {
             .name(crate_description!())
             .bin_name(get_binary());
         self.show_banner();
+
         match self.handle_cli(&mut commands) {
-            None => self.show_help(&mut commands),
-            Some(usage) => {
-                println!("{}{}", usage, match usage.to_owned().contains("USAGE") {
-                    true => "\n",
-                    false => ""
-                });
-            }
+            Some(usage) => println!("{}{}", usage, match usage.to_owned().contains("USAGE") {
+                true => "\n",
+                false => ""
+            }),
+            None => self.show_help(&mut commands)
         }
         return Ok(());
     }
@@ -84,12 +83,10 @@ impl Lucid {
                 if cli.is_present("help") {
                     return None;
                 }
-
                 if cli.is_present("version") {
                     self.show_version();
                     return Some("")
                 }
-
                 if let Some(matches) = cli.subcommand_matches("cli") {
                     fn display_cli_help() {
                         crate::logger::print(&LogLevel::Information, "This is all the available commands:");
@@ -222,7 +219,7 @@ impl Lucid {
                     &appdata_root.push("lucid.yml");
                     appdata_root.clone().into_os_string().into_string().unwrap()
                 },
-                Err(_e) => {
+                Err(_) => {
                     return Err(Error::new(ErrorKind::Interrupted, "Unable to get the Lucid configuration folder."));
                 }
             }
@@ -235,22 +232,23 @@ impl Lucid {
             use std::fs::*;
             use std::io::prelude::*;
             match File::create(lucid_yml.clone()) {
-                Ok(mut f) => {
-                    let lucid_root_claims = JwtClaims {
-                        sub: "Lucid Root Token",
+                Ok(mut file_handle) => {
+                    let lucid_root_claims = Claims {
+                        sub: String::from("Lucid Root Token"),
+                        iss: String::from("https://127.0.0.1:7021/"), // TODO: check issuer, maybe set the proper uri
                         iat: Utc::now().timestamp(),
-                        exp: (Utc::now() + Duration::weeks(52 * 3)).timestamp(),
+                        exp: (Utc::now() + Duration::weeks(52 * 3)).timestamp(),    // TODO: look the expiration delay
                     };
-
                     match encode(&Header::default(), &lucid_root_claims, secret_key.as_ref()) {
                         Ok(root_token) => {
+                            // TODO: migrate to toml
                             let default_configuration = ConfigurationFile {
                                 endpoint: "127.0.0.1:7021",
                                 root_token,
                                 secret_key,
                                 use_tls: false,
                             };
-                            if f.write_all(serde_yaml::to_string(&default_configuration).unwrap().as_bytes()).is_ok() {
+                            if file_handle.write_all(serde_yaml::to_string(&default_configuration).unwrap().as_bytes()).is_ok() {
                                 return Ok(Box::leak(lucid_yml.into_boxed_str()));
                             }
                             return Err(Error::new(ErrorKind::Interrupted, "Holly shit."));
@@ -260,7 +258,7 @@ impl Lucid {
                         }
                     }
                 },
-                Err(_e) => {
+                Err(_) => {
                     return Err(Error::new(ErrorKind::Interrupted, "Unable to create the Lucid configuration file."));
                 }
             }
@@ -270,7 +268,7 @@ impl Lucid {
     // Configure the current instance with the default or a specific configuration file
     fn configure(&mut self, configuration_file: Option<&str>) -> Result<(), std::io::Error> {
         let lucid_yml = match configuration_file {
-            None => match app_root(AppDataType::SharedConfig, &LUCID_INFO) {
+            None => match app_root(AppDataType::SharedConfig, &LUCID_INFO) { // TODO: check app data location
                 Ok(mut appdata_root) => {
                     &appdata_root.push("lucid.yml");
                     appdata_root.into_os_string().into_string().unwrap()
@@ -279,9 +277,7 @@ impl Lucid {
                     return Err(Error::new(ErrorKind::Interrupted, "Unable to get the Lucid configuration folder."));
                 }
             },
-            Some(conf) => {
-                String::from(conf)
-            }
+            Some(conf) => String::from(conf)
         };
 
         use std::path::Path;
@@ -297,7 +293,7 @@ impl Lucid {
                     });
                     return Ok(());
                 },
-                Err(_e) => {
+                Err(_) => {
                     return Err(Error::new(ErrorKind::Interrupted, "Unable to read the Lucid configuration file."));
                 }
             }

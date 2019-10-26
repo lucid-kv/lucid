@@ -30,6 +30,8 @@ rand = "*"
 warp = "*"
 chashmap = "*"
 plugin = "*"
+#hyper = "*"
+#hyper-openssl = "*"
 
 [dependencies.clap]
 version = "*"
