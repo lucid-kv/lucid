@@ -12,8 +12,6 @@ Vue.use(BootstrapVue)
 import { Promised } from 'vue-promised'
 Vue.component('Promised', Promised)
 
-export const LUCID_SERVER_URI = process.env.LUCID_SERVER_URI || 'http://localhost:7091'
-
 Vue.config.productionTip = false
 
 new Vue({

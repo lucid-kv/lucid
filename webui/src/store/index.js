@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 
-import router from '../router'
+import router from '@/router'
+import { checkLucidToken } from '@/lucidApi'
 
 Vue.use(Vuex)
 
@@ -15,7 +16,19 @@ export default new Vuex.Store({
     token: null
   },
 
-  actions: {},
+  actions: {
+    async logIn({ commit }, token) {
+      // Check the provided token
+      await checkLucidToken(token)
+
+      commit('setLoggedIn', token)
+      router.push({ name: 'KvProofOfConcept' })
+    },
+    logOut({ commit }) {
+      commit('setLoggedOut')
+      router.push({ name: 'Home' })
+    }
+  },
 
   mutations: {
     setLoggedIn(state, token) {
@@ -24,7 +37,12 @@ export default new Vuex.Store({
     setLoggedOut(state) {
       const getDefault = defaultState()
       state.token = getDefault.token
-      router.push({ name: 'Home' })
+    }
+  },
+
+  getters: {
+    isLoggedIn(state) {
+      return !!state.token
     }
   },
 

@@ -1,8 +1,26 @@
-import { LUCID_SERVER_URI } from './main'
 import store from './store'
+
+/** Lucid server URI */
+export const LUCID_SERVER_URI = process.env.VUE_APP_LUCID_SERVER_URI || 'http://localhost:7091'
 
 /** Lucid kv endpoint */
 export const kv = `${LUCID_SERVER_URI}/api/kv`
+
+/**
+ * Check a Lucid JWT is valid
+ *
+ * @param {string} token Lucid JWT to check
+ * @returns {Promise<void>} Valid token
+ * @throws {Error} Invalid token
+ */
+export const checkLucidToken = token => fetch(`${kv}/hello_world`, { headers: { Authorization: `Bearer ${token}` } })
+  .then(async res => {
+    if (!res.ok) {
+      const error = await res.json()
+      throw new Error(`Error ${res.status} - ${error.message}`)
+    }
+    return res
+  })
 
 /**
  * Call the Lucid API
@@ -14,9 +32,9 @@ export const kv = `${LUCID_SERVER_URI}/api/kv`
  * @returns {Promise<Response>} Request response
  * @throws {Error} Not logged in - GET, DELETE, HEAD with body - Missing PUT body - Request error
  */
-export const apiCall = async (key, method = 'GET', body, headers = {}) => {
+export const lucidApiCall = async (key, method = 'GET', body, headers = {}) => {
   // Check logged in
-  if (!store.state.token) throw new Error('You must be logged in to request a key-value pair.')
+  if (!store.getters.isLoggedIn) throw new Error('You must be logged in to request a key-value pair.')
 
   // Check if trying to do a request with a body when not allowed to
   const noBodyMethods = ['GET', 'DELETE', 'HEAD']
@@ -32,10 +50,13 @@ export const apiCall = async (key, method = 'GET', body, headers = {}) => {
     body: body ? body : undefined,
     headers: {
       ...headers,
-      'Authorization': store.state.token
+      Authorization: `Bearer ${store.state.token}`
     }
   })
-  if (!res.ok) throw new Error(`Error ${res.status} - ${res.message}`)
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(`Error ${res.status} - ${error.message}`)
+  }
   return res
 }
 
@@ -51,7 +72,7 @@ export const lucidApi = {
    * @throws {Error} Key could not be found
    * @see https://clintnetwork.gitbook.io/lucid/docs/api
    */
-  getKey: key => apiCall(key),
+  getKey: key => lucidApiCall(key),
 
   /**
    * Delete a key-value pair
@@ -61,7 +82,7 @@ export const lucidApi = {
    * @throws {Error} Key could not be found
    * @see https://clintnetwork.gitbook.io/lucid/docs/api
    */
-  deleteKey: key => apiCall(key, 'DELETE'),
+  deleteKey: key => lucidApiCall(key, 'DELETE'),
 
   /**
    * Check a key-value pair exists
@@ -71,7 +92,7 @@ export const lucidApi = {
    * @throws {Error} Key could not be found
    * @see https://clintnetwork.gitbook.io/lucid/docs/api
    */
-  existsKey: key => apiCall(key, 'HEAD'),
+  existsKey: key => lucidApiCall(key, 'HEAD'),
 
   /**
    * Store any data in a key-value pair
@@ -82,7 +103,7 @@ export const lucidApi = {
    * @throws {Error} Key can't be updated
    * @see https://clintnetwork.gitbook.io/lucid/docs/api
    */
-  storeKeyDataAny: (key, data) => apiCall(key, 'PUT', data),
+  storeKeyDataAny: (key, data) => lucidApiCall(key, 'PUT', data),
 
   /**
    * Store JSON in a key-value pair
@@ -93,5 +114,5 @@ export const lucidApi = {
    * @throws {Error} Key can't be updated
    * @see https://clintnetwork.gitbook.io/lucid/docs/api
    */
-  storeKeyDataJson: (key, obj) => apiCall(key, 'PUT', JSON.stringify(obj), { 'Content-Type': 'application/json' })
+  storeKeyDataJson: (key, obj) => lucidApiCall(key, 'PUT', JSON.stringify(obj), { 'Content-Type': 'application/json' })
 }

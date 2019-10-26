@@ -19,12 +19,7 @@
         </template>
         <template v-slot="data">
           <b-form-group label="Value" label-for="value">
-            <b-form-textarea
-              id="value"
-              :value="data"
-              placeholder="Value"
-              readonly
-            />
+            <pre>{{ data }}</pre>
           </b-form-group>
         </template>
         <template v-slot:rejected="error">
@@ -48,7 +43,8 @@ export default {
   },
   props: {
     value: {
-      type: String
+      type: String,
+      required: true
     }
   },
   data() {
@@ -63,7 +59,7 @@ export default {
       this.loading = true
       this.error = null
       try {
-        this.valuePromise = lucidApi.getKey(this.value) .then(res => res.json())
+        this.valuePromise = lucidApi.getKey(this.value).then(res => res.json())
       }
       catch (error) {
         this.error = error.message
