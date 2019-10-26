@@ -56,6 +56,13 @@ fn middleware_logging<'a, D>(request: &mut Request<D>, response: Response<'a, D>
     response.next_middleware()
 }
 
+fn middleware_cors<'mw>(_req: &mut Request, mut res: Response<'mw>) -> MiddlewareResult<'mw> {
+    res.headers_mut().set_raw("Access-Control-Allow-Origin", vec![b"*".to_vec()]);
+    res.headers_mut().set_raw("Access-Control-Allow-Methods", vec![b"*".to_vec()]);
+    res.headers_mut().set_raw("Access-Control-Allow-Headers", vec![b"Origin, Authorization, X-Requested-With, Content-Type, Accept".to_vec()]);
+    res.next_middleware()
+}
+
 struct KvStoreMiddleware {
     http_verb: hyper::method::Method,
     store: Arc<RwLock<KvStore>>,
@@ -183,11 +190,15 @@ impl Server
         let store = Arc::new(RwLock::new(KvStore::default()));
 
         server.utilize(middleware_logging);
+        server.utilize(middleware_cors);
 
         server.utilize(StaticFilesHandler::new("assets/"));
         server.utilize(StaticFilesHandler::new("webui/dist"));
 
         server.get("/", middleware_webui);
+
+        // CORS
+        server.options("**", middleware!(""));
 
         // API Endpoints
         // TODO: change to server.head() (https://github.com/nickel-org/nickel.rs/issues/444)
