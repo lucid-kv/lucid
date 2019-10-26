@@ -631,7 +631,7 @@ dependencies = [
 
 [[package]]
 name = "lucid"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "app_dirs 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "chashmap 2.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
