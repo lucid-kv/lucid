@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::BufReader;
 use std::io::prelude::*;
 use std::net::Ipv4Addr;
 use std::sync::Arc;
@@ -32,8 +34,6 @@ fn handler_vuejs<'a>(_: &mut Request, res: Response<'a>) -> MiddlewareResult<'a>
 }
 
 fn handler_logger<'a, D>(request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
-//    let r = request.origin.;
-//    println!("{}", 5);
     crate::logger::print(&LogLevel::Information, format!("{} {}", request.origin.method, request.origin.uri).as_ref());
     response.next_middleware()
 }
@@ -49,12 +49,11 @@ impl<D> Middleware<D> for KvStoreMiddleware {
 
         // Get the request body and retrieve the KV store
         let store = &*self.store.write().unwrap();
-        let mut buffer = String::new();
-        let body_size = req.origin.read_to_string(&mut buffer).unwrap();
+        let mut buffer = Vec::new();
+        let body_size = req.origin.read_to_end(&mut buffer).unwrap();
 
         // Define some response headers
         res.set(Server("Lucid 0.1.0".to_string()));
-//        res.set(ContentType("application/binary".parse().unwrap()));
 
         match self.method {
             Method::Head => match req.param("key") {
@@ -79,10 +78,13 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                     return res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing request body.".to_string(), details: None }).unwrap());
                 }
                 match req.param("key") {
-                    Some(key) => {
+                    Some(key) => if buffer.len() < 7340032 {
                         store.set(key.to_string(), buffer);
                         res.set(StatusCode::Ok);
                         res.send("")
+                    } else {
+                        res.set(StatusCode::BadRequest).set(MediaType::Json);
+                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The maximum allowed value size is 7 Mb.".to_string(), details: None }).unwrap())
                     },
                     _ => {
                         res.set(StatusCode::BadRequest).set(MediaType::Json);
@@ -93,7 +95,7 @@ impl<D> Middleware<D> for KvStoreMiddleware {
             Method::Get => match req.param("key") {
                 Some(key) => match store.get(key.to_string()) {
                     Some(value) => {
-                        res.set(StatusCode::Ok);
+                        res.set(StatusCode::Ok).set(MediaType::Txt);
                         res.send(value)
                     },
                     None => {

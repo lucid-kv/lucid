@@ -1,7 +1,13 @@
 use chashmap::CHashMap;
+use chrono::{DateTime, Utc};
+
+pub struct KvElement {
+    data: Vec<u8>,
+    created: DateTime<Utc>,
+}
 
 pub struct KvStore {
-    container: CHashMap<String, String>
+    container: CHashMap<String, KvElement>
 }
 
 impl KvStore
@@ -13,18 +19,14 @@ impl KvStore
         }
     }
 
-    pub fn set(&self, key: String, value: String) -> Option<String> {
-        self.container.insert(key, value)
+    pub fn set(&self, key: String, value: Vec<u8>) -> Option<KvElement> {
+        self.container.insert(key, KvElement { data: value, created: Utc::now() })
     }
 
-    pub fn get(&self, key: String) -> Option<String> {
+    pub fn get(&self, key: String) -> Option<Vec<u8>> {
         match (&self.container).get(&key) {
-            Some(value) => {
-                Some(value.to_string())
-            },
-            None => {
-                None
-            }
+            Some(value) => Some((&value.data).clone()),
+            None => None
         }
     }
 
