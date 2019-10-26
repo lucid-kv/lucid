@@ -11,5 +11,5 @@ RUN cp target/release/lucid /output
 FROM alpine:latest
 COPY --from=build /output/lucid /
 WORKDIR /
-CMD ["./lucid", "init"]
-CMD ["./lucid", "server"]
+CMD ["lucid", "init"]
+CMD ["lucid", "server"]
