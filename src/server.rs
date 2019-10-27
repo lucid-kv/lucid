@@ -39,7 +39,7 @@ struct Claims {
 fn middleware_webui<'a>(_: &mut Request, res: Response<'a>) -> MiddlewareResult<'a> {
     let mut data = HashMap::<&str, &str>::new();
     data.insert("name", "Alex");
-    res.render("webui/dist/index.tpl", &data)
+    res.render("webui/dist/index.html", &data)
 }
 
 fn middleware_logging<'a, D>(request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
@@ -195,18 +195,17 @@ impl Server
 
         server.utilize(middleware_logging);
 
+        // CORS
+        server.utilize(middleware_cors);
+        server.options("**", middleware!(""));
+
         // Web UI
         server.utilize(self.router_webui());
         server.utilize(StaticFilesHandler::new("assets/"));
         server.utilize(StaticFilesHandler::new("webui/dist"));
 
-
         // Robots.txt
         server.get("/robots.txt", middleware!("User-agent: *\nDisallow: /"));
-
-        // CORS
-        server.utilize(middleware_cors);
-        server.options("**", middleware!(""));
 
         // API Endpoints
         // TODO: change to server.head() (https://github.com/nickel-org/nickel.rs/issues/444)
