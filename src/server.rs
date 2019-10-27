@@ -14,15 +14,6 @@ use crate::configuration::Configuration;
 use crate::kvstore::KvStore;
 use crate::logger::{Logger, LogLevel};
 
-/*
-100 : JWT_TOKEN_ERROR
-101 : MISSING_REQUEST_BODY
-102 : MISSING_KEY_PARAMETER
-103 : DENIED_REQUEST_SIZE
-104 : KEY_DOES_NOT_EXISTS
-105 : METHOD_NOT_ALLOWED
-*/
-
 // TODO: passing configuration to Server
 pub struct Server {
     endpoint: String,
@@ -127,6 +118,12 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                                 res.send(value)
                             },
                             None => {
+                                // TODO: found a better name / location
+                                if req.param("key").unwrap() == "check-token" {
+                                    res.set(StatusCode::Ok).set(MediaType::Json);
+                                    // TODO: change version
+                                    return res.send(serde_json::to_string_pretty(&ErrorMessage { code: 0, message: "Lucid Version 0.1.2", details: None }).unwrap());
+                                }
                                 res.set(StatusCode::NotFound).set(MediaType::Json);
                                 res.send(serde_json::to_string_pretty(&ErrorMessage { code: 104, message: "The specified key does not exists.", details: None }).unwrap())
                             }
@@ -180,6 +177,13 @@ impl Server
         self.use_tls = configuration.use_tls;
     }
 
+    fn router_webui(&self) -> nickel::Router {
+        let mut router = Nickel::router();
+        router.get("/", middleware_webui);
+        router.get("/api/ui/version", middleware!(format!("Lucid Version {}", crate_version!())));
+        router
+    }
+
     pub fn run(&self) {
         let server_options = Options::default()
             .thread_count(None) // TODO: [Optimisation] improve this
@@ -190,17 +194,18 @@ impl Server
         let store = Arc::new(RwLock::new(KvStore::default()));
 
         server.utilize(middleware_logging);
-        server.utilize(middleware_cors);
 
+        // Web UI
+        server.utilize(self.router_webui());
         server.utilize(StaticFilesHandler::new("assets/"));
         server.utilize(StaticFilesHandler::new("webui/dist"));
 
-        server.get("/", middleware_webui);
 
         // Robots.txt
         server.get("/robots.txt", middleware!("User-agent: *\nDisallow: /"));
 
         // CORS
+        server.utilize(middleware_cors);
         server.options("**", middleware!(""));
 
         // API Endpoints
