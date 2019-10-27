@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>KV Proof of Concept</h2>
+    <h1>KV Proof of Concept</h1>
 
     <GetKey v-model="lucidKey" />
   </div>

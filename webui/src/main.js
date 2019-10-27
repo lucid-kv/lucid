@@ -10,6 +10,10 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 Vue.use(BootstrapVue)
 
+// Import feather icons
+import VueFeather from 'vue-feather'
+Vue.use(VueFeather)
+
 // Import custom Bootstrap skin
 import './main.css'
 

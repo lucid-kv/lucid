@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Login</h2>
+    <h1>Login</h1>
     <b-form @submit.prevent="onSubmit">
       <b-form-group label="Targetted key" label-for="key">
         <b-form-input

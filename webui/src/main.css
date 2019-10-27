@@ -1,3 +1,8 @@
+#app {
+  display: flex;
+  justify-content: space-between;
+}
+
 body {
   background-color: #192039;
   color: #838aa0;
@@ -5,16 +10,6 @@ body {
   font-size: .875rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
-
-body.modal-open > :not(.modal) {
-  background: transparent;
-  filter: blur(3px);
-}
-
-.modal-content  {
-  border-radius: 0px !important; 
-}
-
 h1 {
   margin-bottom: .5rem;
   font-weight: 500;
@@ -22,83 +17,9 @@ h1 {
   color: #ffffff;
   line-height: 1.2;
 }
-
 p {
   font-weight: 500;
   font-size: .825rem;
-}
-
-#container {
-  display: flex;
-  justify-content: space-between;
-  height: 100vh;
-}
-
-#sidebar {
-  background: #161d33;
-  flex: 0 0 215px;
-  padding-top: 10px;
-}
-
-#sidebar .list-group,
-#sidebar .list-group-item {
-  background: transparent;
-  box-shadow: none;
-  border: 0pt none;
-  border-radius: 0;
-}
-
-#sidebar .list-group-item {
-  padding: .80rem 1.25rem;
-}
-
-
-#sidebar .list-group-item-action {
-  line-height: 1.125rem;
-  color: #b9c0d3;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-#sidebar .list-group-item-action.heading {
-  color: #838aa0;
-  font-size: 12px;
-  padding-bottom: 5px;
-}
-
-#sidebar .list-group-item-action.logo {
-  padding-bottom: 20px;
-}
-
-
-#sidebar .list-group-item.logo .feather {
-  vertical-align: top;
-  margin-right: 3px;
-  width: 22px;
-  height: 22px;
-}
-
-#sidebar .list-group-item-action.active {
-  color: #448bff;
-}
-
-#sidebar .list-group-item-action .feather {
-  margin-right: 18px;
-  vertical-align: top;
-  opacity: 0.7;
-  width: 16px;
-  height: 16px;
-  vertical-align: text-bottom;
-}
-
-#sidebar .github {
-  display: none !important;
-  bottom: 5px;
-  font-size: .725rem;
-  color: #838aa0;
-}
-#sidebar .github .feather {
-  width: 14px;
 }
 
 .indicator {
@@ -106,56 +27,27 @@ p {
   height: 7px;
   border-radius: 50%;
 }
-
-[role="main"] {
-  flex: 1;
-  padding: 30px;
-}
-
 .bg-danger {
   background-color: #f54394 !important;
 }
-
 .bg-warning {
   background-color: #f4c414 !important
 }
-
 .bg-success {
   background-color: #31c971 !important;
 }
-
 .bg-info {
   background-color: #14bae4 !important;
 }
-
 .text-danger {
   color: #f54394 !important;
 }
-
 .text-warning {
   color: #f4c414 !important
 }
-
 .text-success {
   color: #31c971 !important;
 }
-
 .text-info {
   color: #14bae4 !important;
-}
-
-.watermark {
-  text-align: center;
-  font-weight: 700;
-  font-size: 180pt;
-  opacity: 0.05;
-  height: 90vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 215px;
-  color: #626e98;
 }
