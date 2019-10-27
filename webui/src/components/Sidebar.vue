@@ -81,7 +81,7 @@
         </a>
         <a href="https://clintnetwork.gitbook.io/lucid/" target="_blank" rel="noopener" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
           <feather type="book-open" size="1rem" />
-          <span class="mr-auto">Official Documentation</span>
+          <span class="mr-auto">Lucid Documentation</span>
         </a>
       </ul>
     </nav>
@@ -134,6 +134,7 @@ a, a:hover, a:focus {
   transition: all 0.3s;
   overflow-y: auto;
   margin: 20px;
+  height: 100vh;
 }
 
 .navbar {

@@ -1,9 +1,23 @@
 <template>
-  <span id="spinner">
-    <feather type="triangle" animation="spin" animation-speed="fast" />
-    <p>Loading...</p>
-  </span>
+  <div class="my-3" :class="{ center }">
+    <div id="spinner">
+      <feather type="triangle" animation="spin" animation-speed="fast" />
+      <p>Loading...</p>
+    </div>
+  </div>
 </template>
+
+<script>
+export default {
+  props: {
+    center: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
+  }
+}
+</script>
 
 <style scoped>
 #spinner {
@@ -16,5 +30,13 @@
 }
 #spinner p {
   margin-top: 5px;
+}
+
+.center {
+  margin: 0 auto !important;
+  text-align: center !important;
+}
+.center #spinner {
+  width: 100% !important;
 }
 </style>

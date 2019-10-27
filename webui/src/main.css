@@ -2,7 +2,6 @@
   display: flex;
   justify-content: space-between;
 }
-
 body {
   background-color: #192039;
   color: #838aa0;
@@ -13,11 +12,31 @@ body {
 ::-webkit-scrollbar {
   width: 7px;
 }
-
 ::-webkit-scrollbar-thumb {
   background-color: #3f4d6e9d;
   border-radius: 5px;
 }
+
+/* ------------------
+UTILITY CLASSES
+------------------- */
+ 
+.container-sm {
+  width: 500px !important;
+}
+.pointer {
+  cursor: pointer !important;
+}
+
+.indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+/* ------------------
+LUCID THEME CLASSES
+------------------- */
 h1 {
   margin-bottom: .5rem;
   font-weight: 500;
@@ -28,12 +47,6 @@ h1 {
 p {
   font-weight: 500;
   font-size: .825rem;
-}
-
-.indicator {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
 }
 .bg-danger {
   background-color: #f54394 !important;
@@ -59,6 +72,32 @@ p {
 .text-info {
   color: #14bae4 !important;
 }
-.pointer {
-  cursor: pointer;
+input {
+  background-color: transparent !important;
+  color: white !important;
+  border-color: #39456f !important;
+}
+.card {
+  border-radius: .5rem !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05) !important;
+  color: #b9c0d3 !important;
+  background-color: #1c233f !important;
+}
+.btn-primary {
+  color: #fff;
+  background-color: #1c233f;
+  border-color: #39456f;
+}
+.btn-primary:hover {
+  color: #fff;
+  background-color: #2f3b65;
+  border-color: transparent;
+}
+.btn-primary.disabled {
+  color: #fff;
+  background-color: #7484bf;
+  border-color: #39456f;
+}
+pre {
+  color: #b9c0d3 !important;
 }
