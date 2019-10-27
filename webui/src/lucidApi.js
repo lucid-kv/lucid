@@ -1,10 +1,26 @@
 import store from './store'
 
 /** Lucid server URI */
-export const LUCID_SERVER_URI = process.env.VUE_APP_LUCID_SERVER_URI || 'http://localhost:7091'
+export const LUCID_SERVER_URI = process.env.VUE_APP_LUCID_SERVER_URI || 'http://localhost:7090'
 
-/** Lucid kv endpoint */
-export const kv = `${LUCID_SERVER_URI}/api/kv`
+/**
+ * Check a Lucid endpoint is valid
+ *
+ * @param {string} endpoint Lucid endpoint to check
+ * @returns {Promise<void>} Valid endpoint
+ * @throws {Error} Invalid endpoint
+ */
+export const checkLucidEndpoint = endpoint => fetch(`${endpoint}/ui/version`)
+  .then(async res => {
+    const err = new Error('Error - Endpoint could not be determined to be a Lucid endpoint.')
+    if (!res.ok) throw err
+    const version = await res.text()
+    if (!version.startsWith('Lucid Version')) throw err
+    return version
+  })
+  .catch(() => {
+    throw new Error('Error - The endpoint did not answer the request.')
+  })
 
 /**
  * Check a Lucid JWT is valid
@@ -13,12 +29,10 @@ export const kv = `${LUCID_SERVER_URI}/api/kv`
  * @returns {Promise<void>} Valid token
  * @throws {Error} Invalid token
  */
-export const checkLucidToken = token => fetch(`${kv}/hello_world`, { headers: { Authorization: `Bearer ${token}` } })
+export const checkLucidToken = token => fetch(`${store.getters.LUCID_KV_ENDPOINT}/check-token`,
+  { headers: { Authorization: `Bearer ${token}` } })
   .then(async res => {
-    if (!res.ok) {
-      const error = await res.json()
-      throw new Error(`Error ${res.status} - ${error.message}`)
-    }
+    if (!res.ok) throw new Error(`Error ${res.status} - ${(await res.json()).message}`)
     return res
   })
 
@@ -45,7 +59,7 @@ export const lucidApiCall = async (key, method = 'GET', body, headers = {}) => {
   if (method.toUpperCase() === 'PUT' && !body)
     throw new Error('A PUT HTTP method request should have a body.')
 
-  const res = await fetch(`${kv}/${key}`, {
+  const res = await fetch(`${store.getters.LUCID_KV_ENDPOINT}/${key}`, {
     method,
     body: body ? body : undefined,
     headers: {

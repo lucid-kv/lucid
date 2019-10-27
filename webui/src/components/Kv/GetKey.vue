@@ -11,6 +11,8 @@
         />
       </b-form-group>
 
+      <b-button @click="refreshValue" class="my-2" variant="primary" :disabled="loading || value === ''">Load</b-button>
+
       <Promised :promise="valuePromise" class="mt-2">
         <template v-slot:pending>
           <div class="text-center">
@@ -26,8 +28,6 @@
           <b-alert show variant="danger">{{ error.message }}</b-alert>
         </template>
       </Promised>
-
-      <b-button @click="refreshValue" variant="primary" :disabled="loading || value === ''">Refresh</b-button>
     </b-card>
   </div>
 </template>
@@ -42,6 +42,7 @@ export default {
     Loader
   },
   props: {
+    // Lucid key - value because `v-model` usage
     value: {
       type: String,
       required: true
@@ -60,6 +61,7 @@ export default {
       this.error = null
       try {
         this.valuePromise = lucidApi.getKey(this.value).then(res => res.json())
+        await this.valuePromise
       }
       catch (error) {
         this.error = error.message
