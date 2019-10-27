@@ -22,11 +22,11 @@ export default new Vuex.Store({
       await checkLucidToken(token)
 
       commit('setLoggedIn', token)
-      router.push({ name: 'KvProofOfConcept' })
+      router.push({ name: 'Home' })
     },
     logOut({ commit }) {
       commit('setLoggedOut')
-      router.push({ name: 'Home' })
+      router.push({ name: 'Login' })
     }
   },
 

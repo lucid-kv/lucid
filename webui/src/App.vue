@@ -1,30 +1,31 @@
 <template>
   <div id="app">
     <Sidebar>
-      <router-view />
+      <transition name="fade" mode="out-in">
+        <router-view />
+      </transition>
     </Sidebar>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
-
 import Sidebar from '@/components/Sidebar'
 
 export default {
   components: {
     Sidebar
-  },
-  data() {
-    return {
-      sidebarActive: false
-    }
-  },
-  computed: {
-    ...mapGetters(['isLoggedIn'])
-  },
-  methods: {
-    ...mapActions(['logOut'])
   }
 }
 </script>
+
+<style>
+.fade-enter-active, .fade-leave-active {
+  transition-duration: 0.2s;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+
+.fade-enter, .fade-leave-active {
+  opacity: 0
+}
+</style>

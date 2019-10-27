@@ -6,54 +6,72 @@
       </div>
 
       <ul class="list-unstyled components">
-        <a class="list-group-item list-group-item-action heading">Overview</a>
+        <template v-if="!isLoggedIn">
+          <a class="list-group-item list-group-item-action heading">Log in</a>
 
-        <router-link :to="{ name: 'Home' }" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-          <feather type="home" size="1rem" />
-          <span class="mr-auto">Dashboard</span>
-        </router-link>
+          <router-link :to="{ name: 'Login' }" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <feather type="log-in" size="1rem" />
+            <span class="mr-auto">Log in</span>
+          </router-link>
+        </template>
 
-        <a class="list-group-item list-group-item-action heading">Node</a>
+        <template v-else>
+          <a class="list-group-item list-group-item-action heading">Overview</a>
 
-        <router-link :to="{ name: 'KvProofOfConcept' }" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-          <feather type="database" class="text-info" size="1rem" />
-          <span class="mr-auto">Data storage</span>
-        </router-link>
-        <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
-          <feather type="key" class="text-muted text-success" size="1rem" />
-          <span class="mr-auto">Tokens issuing</span>
-        </router-link>
-        <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
-          <feather type="file-text" class="text-muted text-warning" size="1rem" />
-          <span class="mr-auto">Live logging</span>
-        </router-link>
-        <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
-          <feather type="settings" class="text-muted text-danger" size="1rem" />
-          <span class="mr-auto">Node settings</span>
-        </router-link>
+          <router-link :to="{ name: 'Home' }" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <feather type="home" size="1rem" />
+            <span class="mr-auto">Dashboard</span>
+          </router-link>
 
-        <a class="list-group-item list-group-item-action heading">Features</a>
+          <a class="list-group-item list-group-item-action heading">Node</a>
 
-        <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
-          <feather type="layers" size="1rem" />
-          <span class="mr-auto">Distributed</span>
-        </router-link>
-        <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
-          <feather type="activity" size="1rem" />
-          <span class="mr-auto">Monitoring</span>
-        </router-link>
-        <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
-          <feather type="shield" size="1rem" />
-          <span class="mr-auto">ACLs / CORS</span>
-        </router-link>
-        <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
-          <feather type="terminal" size="1rem" />
-          <span class="mr-auto">Command Line</span>
-        </router-link>
-        <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
-          <feather type="power" size="1rem" />
-          <span class="mr-auto">Stop / Restart</span>
-        </router-link>
+          <router-link :to="{ name: 'KvProofOfConcept' }" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <feather type="database" class="text-info" size="1rem" />
+            <span class="mr-auto">Data storage</span>
+          </router-link>
+          <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
+            <feather type="key" class="text-muted text-success" size="1rem" />
+            <span class="mr-auto">Tokens issuing</span>
+          </router-link>
+          <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
+            <feather type="file-text" class="text-muted text-warning" size="1rem" />
+            <span class="mr-auto">Live logging</span>
+          </router-link>
+          <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
+            <feather type="settings" class="text-muted text-danger" size="1rem" />
+            <span class="mr-auto">Node settings</span>
+          </router-link>
+
+          <a class="list-group-item list-group-item-action heading">Features</a>
+
+          <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
+            <feather type="layers" size="1rem" />
+            <span class="mr-auto">Distributed</span>
+          </router-link>
+          <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
+            <feather type="activity" size="1rem" />
+            <span class="mr-auto">Monitoring</span>
+          </router-link>
+          <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
+            <feather type="shield" size="1rem" />
+            <span class="mr-auto">ACLs / CORS</span>
+          </router-link>
+          <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
+            <feather type="terminal" size="1rem" />
+            <span class="mr-auto">Command Line</span>
+          </router-link>
+          <router-link to="/soon" exact-active-class="active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center disabled text-muted">
+            <feather type="power" size="1rem" />
+            <span class="mr-auto">Stop / Restart</span>
+          </router-link>
+
+          <a class="list-group-item list-group-item-action heading">Log out</a>
+
+          <a @click="logOut" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center pointer">
+            <feather type="log-out" size="1rem" />
+            <span class="mr-auto">Log out</span>
+          </a>
+        </template>
 
         <a class="list-group-item list-group-item-action heading">Other</a>
 
@@ -79,11 +97,19 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex'
+
 export default {
   data() {
     return {
       sidebarActive: false
     }
+  },
+  computed: {
+    ...mapGetters(['isLoggedIn'])
+  },
+  methods: {
+    ...mapActions(['logOut'])
   }
 }
 </script>

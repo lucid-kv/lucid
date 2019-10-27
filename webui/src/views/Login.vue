@@ -2,7 +2,7 @@
   <div>
     <h1>Login</h1>
     <b-form @submit.prevent="onSubmit">
-      <b-form-group label="Targetted key" label-for="key">
+      <b-form-group label="Lucid API key" label-for="key">
         <b-form-input
           id="key"
           v-model="token"
@@ -14,6 +14,10 @@
 
       <b-button type="submit" variant="primary" :disabled="loading">Log in</b-button>
 
+      <div class="my-2">
+        <Loader v-if="loading" />
+      </div>
+
       <b-alert :show="error" variant="danger" dismissible class="mt-3">{{ error }}</b-alert>
     </b-form>
   </div>
@@ -22,8 +26,13 @@
 <script>
 import { mapActions } from 'vuex'
 
+import Loader from '@/components/Loader'
+
 export default {
   name: 'Login',
+  components: {
+    Loader
+  },
   data() {
     return {
       token: null,
