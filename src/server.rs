@@ -197,6 +197,9 @@ impl Server
 
         server.get("/", middleware_webui);
 
+        // Robots.txt
+        server.get("/robots.txt", middleware!("User-agent: *\nDisallow: /"));
+
         // CORS
         server.options("**", middleware!(""));
 
