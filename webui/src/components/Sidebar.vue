@@ -1,8 +1,11 @@
 <template>
   <div class="wrapper">
     <nav id="sidebar" :class="{ active: sidebarActive }">
-      <div class="sidebar-header">
-        <router-link :to="{ name: 'Home' }" class="logo">Lucid ᵏᵛ</router-link>
+      <div class="sidebar-logo">
+        <router-link :to="{ name: 'Home' }" class="logo">
+          Lucid ᵏᵛ
+        </router-link>
+        <b-badge v-if="endpoint.version" :href="`https://github.com/clintnetwork/lucid/releases/tag/${endpoint.version}`" target="_blank" rel="noopener" class="version" pill variant="dark">v{{ endpoint.version }}</b-badge>
       </div>
 
       <ul class="list-unstyled components">
@@ -97,7 +100,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
   data() {
@@ -106,7 +109,8 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['isLoggedIn'])
+    ...mapGetters(['isLoggedIn']),
+    ...mapState(['endpoint'])
   },
   methods: {
     ...mapActions(['logOut'])
@@ -169,12 +173,24 @@ a, a:hover, a:focus {
   border-radius: 5px;
 }
 
-#sidebar .sidebar-header {
-  padding: 20px;
+#sidebar .sidebar-logo {
+  padding: 10px;
   font-weight: 500;
   font-size: 18px;
   color: #ffffff;
   line-height: 1.2;
+  text-align: center;
+}
+#sidebar .sidebar-logo .logo {
+  display: block;
+  margin-left: 17px;
+}
+#sidebar .sidebar-logo .version {
+  display: block;
+  font-size: 11px;
+  margin: 0 auto;
+  margin-top: 9px;
+  width: fit-content;
 }
 
 #sidebar .list-group-item-action .feather {

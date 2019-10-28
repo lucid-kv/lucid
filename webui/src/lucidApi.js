@@ -16,7 +16,7 @@ export const checkLucidEndpoint = endpoint => fetch(`${endpoint}/ui/version`)
     if (!res.ok) throw err
     const version = await res.text()
     if (!version.startsWith('Lucid Version')) throw err
-    return version.replace('Lucid Version ')
+    return version.replace('Lucid Version ', '')
   })
   .catch(() => {
     throw new Error('Error - The endpoint did not answer the request.')
