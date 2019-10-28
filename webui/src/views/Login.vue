@@ -9,7 +9,7 @@
               <b-form-input v-model="endpoint" id="endpoint" class="form-control text-center" placeholder="Endpoint" :disabled="loading" />
             </b-form-group>
             <b-form-group label="Lucid API token" label-for="token">
-              <b-form-input v-model="token" id="token" class="form-control text-center" placeholder="Token" :disabled="loading" />
+              <b-form-input v-model="token" id="token" type="password" class="form-control text-center" placeholder="Token" :disabled="loading" />
             </b-form-group>
 
             <b-form-checkbox v-model="rememberEndpoint">
@@ -51,6 +51,8 @@ export default {
     ...mapGetters(['LUCID_API_ENDPOINT'])
   },
   mounted() {
+    if (this.$route.query.error) this.error = this.$route.query.error
+
     if (this.LUCID_API_ENDPOINT) this.endpoint = this.LUCID_API_ENDPOINT
   },
   methods: {

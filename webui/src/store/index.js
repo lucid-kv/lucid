@@ -27,12 +27,31 @@ export default new Vuex.Store({
   },
 
   actions: {
+    // Check the Lucid API endpoint and token are still valid after page refresh
+    async pageRefreshCheck({ state, commit }) {
+      if (!state.token || !state.endpoint.apiUri) return
+      try {
+        const version = await checkLucidEndpoint(state.endpoint.apiUri)
+        // Update the Lucid endpoint version
+        commit('setLucidEndpoint', { version, endpoint: state.endpoint.apiUri, rememberEndpoint: state.endpoint.rememberEndpoint })
+        await checkLucidEndpoint(state.endpoint.apiUri)
+        await checkLucidToken(state.token)
+      }
+      catch (error) {
+        // One of the checks failed, clear the store and redirect with error
+        commit('setLoggedOut')
+        router.push({ name: 'Login', query: { error: `[Lucid API endpoint check] ${error.message}` } })
+      }
+    },
+
+    // Check then set the Lucid API endpoint
     async setEndpoint({ commit }, { endpoint, rememberEndpoint }) {
       // Check the provided endpoint
       const version = await checkLucidEndpoint(endpoint)
       commit('setLucidEndpoint', { endpoint, version, rememberEndpoint })
     },
 
+    // Check then set Lucid JWT
     async logIn({ commit }, token) {
       // Check the provided token
       await checkLucidToken(token)
@@ -41,6 +60,7 @@ export default new Vuex.Store({
       router.push({ name: 'Home' })
     },
 
+    // Logout
     logOut({ commit }) {
       commit('setLoggedOut')
       router.push({ name: 'Login' })

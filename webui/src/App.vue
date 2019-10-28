@@ -5,15 +5,40 @@
         <router-view />
       </transition>
     </Sidebar>
+
+    <transition v-if="pageRefreshCheckLoading" name="fade" mode="out-in">
+      <PageLoader />
+    </transition>
   </div>
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 import Sidebar from '@/components/Sidebar'
+import PageLoader from '@/components/PageLoader'
 
 export default {
   components: {
-    Sidebar
+    Sidebar,
+    PageLoader
+  },
+  data() {
+    return {
+      pageRefreshCheckLoading: false
+    }
+  },
+  async mounted() {
+    this.pageRefreshCheckLoading = true
+    try {
+      await this.pageRefreshCheck()
+    }
+    finally {
+      this.pageRefreshCheckLoading = false
+    }
+  },
+  methods: {
+    ...mapActions(['pageRefreshCheck'])
   }
 }
 </script>
