@@ -107,7 +107,7 @@ export default new Vuex.Store({
     },
     // Check the user is logged in
     isLoggedIn(state) {
-      return !!state.token
+      return !!state.token && !!state.endpoint.apiUri
     }
   },
 
