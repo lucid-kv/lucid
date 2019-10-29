@@ -13,6 +13,9 @@ const defaultState = () => JSON.parse(JSON.stringify({
     rememberEndpoint: null,
     apiUri: null,
     version: null
+  },
+  kv: {
+    isLoading: false
   }
 }))
 
@@ -23,6 +26,9 @@ export default new Vuex.Store({
       rememberEndpoint: null,
       apiUri: null,
       version: null
+    },
+    kv: {
+      isLoading: false
     }
   },
 
@@ -85,6 +91,10 @@ export default new Vuex.Store({
         state.endpoint.version = getDefault.endpoint.version
         state.endpoint.rememberEndpoint = getDefault.endpoint.rememberEndpointi
       }
+    },
+    // Register that the kv PoC is in a loading state or not
+    setKvLoading(state, isLoading) {
+      state.kv.isLoading = isLoading
     }
   },
 
@@ -108,9 +118,19 @@ export default new Vuex.Store({
     // Check the user is logged in
     isLoggedIn(state) {
       return !!state.token && !!state.endpoint.apiUri
+    },
+    // Check the kv PoC is in a loading state
+    isKvLoading(state) {
+      return state.kv.isLoading
     }
   },
 
   // Save Vuex state in LocalStorage
-  plugins: [createPersistedState({ key: 'lucid-webui-state' })]
+  plugins: [createPersistedState({
+    key: 'lucid-webui-state',
+    reducer: state => ({
+      token: state.token,
+      endpoint: state.endpoint
+    })
+  })]
 })
