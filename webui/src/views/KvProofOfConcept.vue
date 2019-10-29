@@ -14,10 +14,20 @@ export default {
   components: {
     GetKey
   },
+  props: {
+    lucidKeyProp: {
+      type: String,
+      required: false,
+      default: null
+    }
+  },
   data() {
     return {
       lucidKey: ''
     }
+  },
+  mounted() {
+    if (this.lucidKeyProp) this.lucidKey = this.lucidKeyProp
   }
 }
 </script>

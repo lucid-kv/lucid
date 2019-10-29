@@ -6,25 +6,26 @@ import Home from '@/views/Home.vue'
 
 Vue.use(VueRouter)
 
-const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/views/Login.vue')
-  },
-  {
-    path: '/kv',
-    name: 'KvProofOfConcept',
-    component: () => import('@/views/KvProofOfConcept.vue')
-  }
-]
-
-const router = new VueRouter({ routes })
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/',
+      name: 'Home',
+      component: Home
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: () => import('@/views/Login.vue')
+    },
+    {
+      path: '/kv/:lucidKeyProp?',
+      name: 'KvProofOfConcept',
+      component: () => import('@/views/KvProofOfConcept.vue'),
+      props: true
+    }
+  ]
+})
 
 // Restrict route navigation depending on logged in current state
 router.beforeEach((to, from, next) => {
