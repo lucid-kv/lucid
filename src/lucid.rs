@@ -3,7 +3,6 @@ use std::io::{Error, ErrorKind};
 use app_dirs::*;
 use chrono::*;
 use clap::App;
-use crypto::digest::Digest;
 use jsonwebtoken::*;
 
 use crate::configuration::Configuration;
@@ -143,11 +142,16 @@ impl Lucid {
                 }
 
                 if let Some(matches) = cli.subcommand_matches("init") {
-                    use crypto::sha2::Sha256;
+                    use ring::digest::SHA256;
                     use rand::Rng;
-                    let mut hasher = Sha256::new();
-                    hasher.input(&rand::thread_rng().gen::<[u8; 32]>());
-                    let mut secret_key = hasher.result_str();
+                    let secret_key_bytes = ring::digest::digest(&SHA256, &rand::thread_rng().gen::<[u8; 32]>());
+                    let mut secret_key = secret_key_bytes.as_ref().iter().fold(
+                        String::with_capacity(secret_key_bytes.as_ref().len() * 2),
+                        |mut acc, x| {
+                            acc.push_str(&format!("{:0>2x}", x));
+                            acc
+                        },
+                    );
 
                     match matches.value_of("secret") {
                         Some(secret) => {
