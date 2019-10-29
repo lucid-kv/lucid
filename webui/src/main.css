@@ -11,10 +11,17 @@ body {
 }
 ::-webkit-scrollbar {
   width: 7px;
+  background-color: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: #3f4d6e9d;
+  background-color: #3f4d69e1;
   border-radius: 5px;
+}
+::-webkit-scrollbar-corner {
+  background-color: transparent !important;
+}
+::-webkit-scrollbar-button {
+  background-color: transparent !important;
 }
 
 /* ------------------

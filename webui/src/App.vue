@@ -2,7 +2,7 @@
   <div id="app">
     <Sidebar>
       <transition name="fade" mode="out-in">
-        <router-view />
+        <router-view class="my-3" />
       </transition>
     </Sidebar>
 

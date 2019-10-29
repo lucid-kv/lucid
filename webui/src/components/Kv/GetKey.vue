@@ -1,17 +1,19 @@
 <template>
   <div>
     <b-card header="Targetted key">
-      <b-form-group label="Key" label-for="key">
-        <b-form-input
-          id="key"
-          :value="value"
-          @input="$emit('input', $event)"
-          placeholder="Key"
-          :disabled="loading"
-        />
-      </b-form-group>
+      <b-form @submit.prevent="refreshValue">
+        <b-form-group label="Key" label-for="key">
+          <b-form-input
+            id="key"
+            :value="value"
+            @input="$emit('input', $event)"
+            placeholder="Key"
+            :disabled="loading"
+          />
+        </b-form-group>
 
-      <b-button @click="refreshValue" class="my-2" variant="primary" :disabled="loading || value === ''">Load</b-button>
+        <b-button type="submit" class="my-2" variant="primary" :disabled="loading || value === ''">Load</b-button>
+      </b-form>
 
       <Promised :promise="valuePromise" class="mt-2">
         <template v-slot:pending>
@@ -20,9 +22,7 @@
           </div>
         </template>
         <template v-slot="data">
-          <b-form-group label="Value" label-for="value">
-            <pre>{{ data }}</pre>
-          </b-form-group>
+          <pre>{{ data }}</pre>
         </template>
         <template v-slot:rejected="error">
           <b-alert show variant="danger">{{ error.message }}</b-alert>
@@ -73,3 +73,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+pre {
+  height: 500px;
+}
+</style>

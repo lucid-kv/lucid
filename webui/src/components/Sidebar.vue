@@ -137,7 +137,7 @@ a, a:hover, a:focus {
 #content {
   transition: all 0.3s;
   overflow-y: auto;
-  margin: 20px;
+  margin: 0;
   height: 100vh;
 }
 
@@ -165,12 +165,13 @@ a, a:hover, a:focus {
 }
 
 #sidebar::-webkit-scrollbar {
-  width: 7px;
+  width: 7px !important;
+  background: none;
 }
 
 #sidebar::-webkit-scrollbar-thumb {
-  background-color: #232d469d;
-  border-radius: 5px;
+  background-color: #232d469d !important;
+  border-radius: 5px !important;
 }
 
 #sidebar .sidebar-logo {
