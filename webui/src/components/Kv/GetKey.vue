@@ -1,40 +1,28 @@
 <template>
   <div>
-    <b-card header="Targetted key">
-      <b-form @submit.prevent="refreshValue">
-        <b-form-group label="Key" label-for="key">
-          <b-form-input
-            id="key"
-            :value="value"
-            @input="$emit('input', $event)"
-            placeholder="Key"
-            :disabled="loading"
-          />
-        </b-form-group>
+    <b-card>
+      <Promised :promise="valuePromise" v-slot:combined="{ isPending, data, error }">
+        <b-button
+          @click="refreshValue"
+          variant="primary"
+          class="mb-3"
+          :disabled="isKvLoading || isPending || lucidKey === ''"
+        >
+          Load
+        </b-button>
 
-        <b-button type="submit" class="my-2" variant="primary" :disabled="loading || value === ''">Load</b-button>
-      </b-form>
-
-      <Promised :promise="valuePromise" class="mt-2">
-        <template v-slot:pending>
-          <div class="text-center">
-            <Loader />
-          </div>
-        </template>
-        <template v-slot="data">
-          <pre>{{ data }}</pre>
-        </template>
-        <template v-slot:rejected="error">
-          <b-alert show variant="danger">{{ error.message }}</b-alert>
-        </template>
+        <Loader v-if="isPending" />
+        <textarea v-else-if="data" v-text="data"></textarea>
+        <b-alert v-else-if="error" show variant="danger" v-text="error" />
       </Promised>
     </b-card>
   </div>
 </template>
 
 <script>
-import Loader from '@/components/Loader'
+import { mapMutations, mapGetters } from 'vuex'
 
+import Loader from '@/components/Loader'
 import { lucidApi } from '@/lucidApi'
 
 export default {
@@ -42,32 +30,33 @@ export default {
     Loader
   },
   props: {
-    // Lucid key - value because `v-model` usage
-    value: {
+    lucidKey: {
       type: String,
       required: true
     }
   },
   data() {
     return {
-      valuePromise: null,
-      loading: false,
-      error: null
+      valuePromise: Promise.resolve()
     }
   },
+  computed: {
+    ...mapGetters(['isKvLoading'])
+  },
   methods: {
+    ...mapMutations(['setKvLoading']),
+
     async refreshValue() {
-      this.loading = true
-      this.error = null
+      this.setKvLoading(true)
       try {
-        this.valuePromise = lucidApi.getKey(this.value).then(res => res.json())
+        this.valuePromise = lucidApi.getKey(this.lucidKey).then(res => res.json())
         await this.valuePromise
       }
       catch (error) {
-        this.error = error.message
+        this.valuePromise = Promise.reject(error.message)
       }
       finally {
-        this.loading = false
+        this.setKvLoading(false)
       }
     }
   }
@@ -75,7 +64,9 @@ export default {
 </script>
 
 <style scoped>
-pre {
-  height: 500px;
+textarea {
+  width: 100%;
+  max-height: 350px;
+  height: 100vh;
 }
 </style>
