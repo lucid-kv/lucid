@@ -1,14 +1,13 @@
 <template>
   <div id="app">
-    <Sidebar>
+    <transition v-if="pageRefreshCheckLoading" name="fade" mode="out-in">
+      <PageLoader text="Checking your Web UI configuration is still valid..." />
+    </transition>
+    <Sidebar v-else>
       <transition name="fade" mode="out-in">
         <router-view class="my-3" />
       </transition>
     </Sidebar>
-
-    <transition v-if="pageRefreshCheckLoading" name="fade" mode="out-in">
-      <PageLoader />
-    </transition>
   </div>
 </template>
 

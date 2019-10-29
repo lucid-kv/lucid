@@ -2,7 +2,7 @@
   <div v-if="show" class="full">
     <div class="overlay"></div>
     <div id="spinner">
-      <Loader />
+      <Loader :text="text" />
     </div>
   </div>
 </template>
@@ -13,6 +13,13 @@ import Loader from '@/components/Loader'
 export default {
   components: {
     Loader
+  },
+  props: {
+    text: {
+      type: String,
+      required: false,
+      default: 'Loading...'
+    }
   },
   data() {
     return {
@@ -58,6 +65,5 @@ export default {
   position: absolute;
   z-index: 98;
   background-color: #1f274491;
-  backdrop-filter: blur(4px);
 }
 </style>

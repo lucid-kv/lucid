@@ -2,7 +2,7 @@
   <div class="my-3" :class="{ center }">
     <div id="spinner">
       <feather type="triangle" animation="spin" animation-speed="fast" />
-      <p>Loading...</p>
+      <p>{{ text }}</p>
     </div>
   </div>
 </template>
@@ -10,6 +10,11 @@
 <script>
 export default {
   props: {
+    text: {
+      type: String,
+      required: false,
+      default: 'Loading...'
+    },
     center: {
       type: Boolean,
       required: false,

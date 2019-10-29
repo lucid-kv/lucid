@@ -79,7 +79,7 @@ p {
 .text-info {
   color: #14bae4 !important;
 }
-input {
+input, textarea {
   background-color: transparent !important;
   color: white !important;
   border-color: #39456f !important;
@@ -89,6 +89,7 @@ input {
   box-shadow: 0 1px 3px rgba(0,0,0,.05) !important;
   color: #b9c0d3 !important;
   background-color: #1c233f !important;
+  margin-bottom: 15px !important;
 }
 .btn-primary {
   color: #fff;
