@@ -35,12 +35,6 @@ pub struct Lucid {
 
 impl Lucid {
     pub fn default() -> Lucid {
-        println!("SharedConfig = {}", get_app_root(AppDataType::SharedConfig, &LUCID_INFO).unwrap().into_os_string().into_string().unwrap());
-        println!("SharedData = {}", get_app_root(AppDataType::SharedData, &LUCID_INFO).unwrap().into_os_string().into_string().unwrap());
-        println!("UserCache = {}", get_app_root(AppDataType::UserCache, &LUCID_INFO).unwrap().into_os_string().into_string().unwrap());
-        println!("UserConfig = {}", get_app_root(AppDataType::UserConfig, &LUCID_INFO).unwrap().into_os_string().into_string().unwrap());
-        println!("UserData = {}", get_app_root(AppDataType::UserData, &LUCID_INFO).unwrap().into_os_string().into_string().unwrap());
-
         Lucid {
             configuration: None
         }
