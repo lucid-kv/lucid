@@ -67,7 +67,7 @@ impl<D> Middleware<D> for KvStoreMiddleware {
         let body_size = req.origin.read_to_end(&mut buffer).unwrap();
 
         // Define some response headers
-        res.set(Server("Lucid 0.1.0".to_string()));
+        res.set(Server("Lucid 0.1.2".to_string()));
 
         match req.origin.headers.get::<Authorization<Bearer>>() {
             // TODO: get secret from configuration file
