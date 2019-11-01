@@ -23,7 +23,7 @@
 import { mapMutations, mapGetters } from 'vuex'
 
 import Loader from '@/components/Loader'
-import { lucidApi } from '@/lucidApi'
+import { Lucid } from '@/lucidApi'
 
 export default {
   components: {
@@ -49,7 +49,7 @@ export default {
     async refreshValue() {
       this.setKvLoading(true)
       try {
-        this.valuePromise = lucidApi.getKey(this.lucidKey).then(res => res.json())
+        this.valuePromise = Lucid.getKey(this.lucidKey).then(res => res.json())
         await this.valuePromise
       }
       catch (error) {

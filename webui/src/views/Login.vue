@@ -51,20 +51,25 @@ export default {
     ...mapGetters(['LUCID_API_ENDPOINT'])
   },
   mounted() {
+    // Show error notification passed by uri
     if (this.$route.query.error) this.error = this.$route.query.error
 
+    // Load remembered Lucid API endpoint in the form
     if (this.LUCID_API_ENDPOINT) this.endpoint = this.LUCID_API_ENDPOINT
   },
   methods: {
-    ...mapActions(['setEndpoint', 'logIn']),
+    ...mapActions(['logIn']),
 
     async onSubmit() {
       if (!this.endpoint || !this.token) return this.error = 'All fields are required.'
       this.loading = true
       this.error = null
       try {
-        await this.setEndpoint({ endpoint: this.endpoint, rememberEndpoint: this.rememberEndpoint})
-        await this.logIn(this.token)
+        await this.logIn({
+          endpoint: this.endpoint,
+          rememberEndpoint: this.rememberEndpoint,
+          token: this.token
+        })
       }
       catch (error) {
         console.error(error)
