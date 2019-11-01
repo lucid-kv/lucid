@@ -2,7 +2,7 @@
 
 High performance and distributed KV store accessible through an HTTP API. Written in Rust. 🦀
 
-[![Build Status](https://github.com/clintnetwork/lucid/workflows/Lucid/badge.svg)](https://github.com/clintnetwork/lucid/actions?workflow=Lucid)
+[![Build Status](https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg)](https://github.com/lucid-kv/lucid/actions?workflow=Lucid)
 [![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/clintnetwork/lucid/blob/master/LICENSE.md)
 [![Telegram](https://img.shields.io/badge/t.me-clintnetwork-informational.svg)](https://t.me/clintnetwork)
@@ -14,7 +14,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 
 ## Works Progress
 
-<ins>__**Warning: Empty project for now, the development is ensured in the [development](https://github.com/clintnetwork/lucid/tree/development) branch.**__</ins>
+<ins>__**Warning: Empty project for now, the development is ensured in the [development](https://github.com/lucid-kv/lucid/tree/development) branch.**__</ins>
 
 - [x] Minimum Viable Product (MVP)
   - [x] Initialization process
