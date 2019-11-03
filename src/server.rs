@@ -50,7 +50,7 @@ fn middleware_logging<'a, D>(request: &mut Request<D>, response: Response<'a, D>
 fn middleware_cors<'mw>(_req: &mut Request, mut res: Response<'mw>) -> MiddlewareResult<'mw> {
     res.headers_mut().set_raw("Access-Control-Allow-Origin", vec![b"*".to_vec()]);
     res.headers_mut().set_raw("Access-Control-Allow-Methods", vec![b"*".to_vec()]);
-    res.headers_mut().set_raw("Access-Control-Allow-Headers", vec![b"Origin, Authorization, X-Requested-With, Content-Type, Accept".to_vec()]);
+    res.headers_mut().set_raw("Access-Control-Allow-Headers", vec![b"*".to_vec()]); //Origin, Authorization, X-Requested-With, Content-Type, Accept
     res.next_middleware()
 }
 
@@ -67,6 +67,7 @@ impl<D> Middleware<D> for KvStoreMiddleware {
         let body_size = req.origin.read_to_end(&mut buffer).unwrap();
 
         // Define some response headers
+        // TODO: use crate version
         res.set(Server("Lucid 0.1.2".to_string()));
 
         match req.origin.headers.get::<Authorization<Bearer>>() {
@@ -121,7 +122,7 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                                 // TODO: found a better name / location
                                 if req.param("key").unwrap() == "check-token" {
                                     res.set(StatusCode::Ok).set(MediaType::Json);
-                                    // TODO: change version
+                                    // TODO: use create version
                                     return res.send(serde_json::to_string_pretty(&ErrorMessage { code: 0, message: "Lucid Version 0.1.2", details: None }).unwrap());
                                 }
                                 res.set(StatusCode::NotFound).set(MediaType::Json);
@@ -184,6 +185,15 @@ impl Server
         router
     }
 
+    fn router_sse(&self) -> nickel::Router {
+        let mut router = Nickel::router();
+        router.get("/sse/test", middleware! { |_request, mut response|
+            response.set(StatusCode::BadRequest).set(MediaType::Json);
+            "lol"
+        });
+        router
+    }
+
     pub fn run(&self) {
         let server_options = Options::default()
             .thread_count(None) // TODO: [Optimisation] improve this
@@ -214,6 +224,9 @@ impl Server
         server.get("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Get, store: store.clone() });
         server.patch("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Patch, store: store.clone() });
         server.delete("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Delete, store: store.clone() });
+
+        // SSE Endpoints
+        server.utilize(self.router_sse());
 
         // TODO: Implement HTTPS (https://github.com/nickel-org/nickel.rs/blob/master/examples/https.rs)
 

@@ -1,5 +1,5 @@
 #[cfg(target_os = "windows")]
-fn get_binary() -> &'static str {
+pub fn get_binary() -> &'static str {
     "lucid.exe"
 }
 
