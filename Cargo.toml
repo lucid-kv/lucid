@@ -6,7 +6,10 @@ authors = ["Clint.Network <me@clint.network>", "rigwild <me@rigwild.dev>"]
 edition = "2018"
 keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "http", "swagger", "websocket"]
 repository = "https://github.com/lucid-kv/lucid"
+readme = "https://github.com/lucid-kv/lucid/blob/master/README.md"
 license = "https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"
+documentation = "https://clintnetwork.gitbook.io/lucid/"
+categories = ["command-line-interface", "web-programming::http-server", "web-programming::websocket", "authentication", "command-line-utilities", ]
 build = "build.rs"
 
 [package.metadata.winres]
