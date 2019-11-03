@@ -2,18 +2,19 @@
 name = "lucid"
 description = "A Fast, Secure and Distributed KV store with a HTTP API."
 version = "0.1.2"
-authors = ["Clint.Network <me@clint.network>"]
+authors = ["Clint.Network <me@clint.network>", "rigwild <me@rigwild.dev>"]
 edition = "2018"
 keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "http", "swagger", "websocket"]
-repository = "https://github.com/clintnetwork/lucid"
-license = "https://github.com/clintnetwork/lucid/blob/master/LICENSE.md"
+repository = "https://github.com/lucid-kv/lucid"
+license = "https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"
 build = "build.rs"
 
 [package.metadata.winres]
+ProductName = "Lucid KV"
 LegalCopyright = "Copyright © 2019 Lucid - All Rights Reserved"
 
 [badges]
-travis-ci = { repository = "clintnetwork/lucid", branch = "master" }
+github = { repository = "lucid-kv/lucid", branch = "master" }
 
 [build-dependencies]
 winres = "*"
