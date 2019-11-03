@@ -7,9 +7,16 @@ edition = "2018"
 keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "http", "swagger", "websocket"]
 repository = "https://github.com/clintnetwork/lucid"
 license = "https://github.com/clintnetwork/lucid/blob/master/LICENSE.md"
+build = "build.rs"
+
+[package.metadata.winres]
+LegalCopyright = "Copyright © 2019 Lucid - All Rights Reserved"
 
 [badges]
 travis-ci = { repository = "clintnetwork/lucid", branch = "master" }
+
+[build-dependencies]
+winres = "*"
 
 [dependencies]
 nickel = "*"
