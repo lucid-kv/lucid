@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::io::Read;
 use std::net::Ipv4Addr;
 use std::sync::Arc;
@@ -35,11 +34,9 @@ struct Claims {
     exp: i64,
 }
 
-// TODO: move into implementation
-fn middleware_webui<'a>(_: &mut Request, res: Response<'a>) -> MiddlewareResult<'a> {
-    let mut data = HashMap::<&str, &str>::new();
-    data.insert("name", "Alex");
-    res.render("webui/dist/index.html", &data)
+fn middleware_webui<'a>(_: &mut Request, mut res: Response<'a>) -> MiddlewareResult<'a> {
+    res.set(MediaType::Html);
+    res.send_file("webui/dist/index.html")
 }
 
 fn middleware_logging<'a, D>(request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
