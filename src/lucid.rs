@@ -1,4 +1,10 @@
+use std::fs;
+use std::fs::File;
 use std::io::{Error, ErrorKind};
+use std::io;
+use std::io::prelude::*;
+use std::io::Write;
+use std::path::Path;
 
 use app_dirs::*;
 use chrono::*;
@@ -27,8 +33,6 @@ struct Claims {
     exp: i64,
 }
 
-const LUCID_INFO: AppInfo = AppInfo { name: "Lucid", author: "Clint.Network" };
-
 pub struct Lucid {
     configuration: Option<Configuration>
 }
@@ -54,7 +58,7 @@ impl Lucid {
         println!("Lucid Version {}\n", crate_version!());
     }
 
-    fn show_help(&self, commands: &mut App) -> () {
+    fn show_help(&self, commands: &mut App) {
         commands.print_help().unwrap();
         println!("\n");
     }
@@ -65,7 +69,6 @@ impl Lucid {
             .name(crate_description!())
             .bin_name(get_binary());
         self.show_banner();
-
         match self.handle_cli(&mut commands) {
             Some(usage) => println!("{}{}", usage, match usage.to_owned().contains("USAGE") {
                 true => "\n",
@@ -104,9 +107,6 @@ impl Lucid {
                         display_cli_help();
                         return Some("");
                     } else {
-                        use std::io;
-                        use std::io::Write;
-
                         println!("Welcome to the Lucid Command Line Interface (CLI)\nType 'help' to display all commands.\n");
 
                         // TODO: Try to connect to the remote endpoint
@@ -167,7 +167,8 @@ impl Lucid {
                     }
 
                     match &mut self.initialize_node(has_configuration_file, secret_key, matches.is_present("force")) {
-                        Ok(_) => {
+                        Ok(_lucid_yml_location) => {
+                            // TODO: display location in logs
                             &self.log(LogLevel::Success, "Lucid successfully initialized.", None);
                         },
                         Err(e) => {
@@ -218,8 +219,10 @@ impl Lucid {
     fn initialize_node(&mut self, configuration_file: Option<&str>, secret_key: String, force: bool) -> Result<&str, std::io::Error> {
         let lucid_yml = match configuration_file {
             Some(custom_configuration_file) => String::from(custom_configuration_file),
-            None => match app_root(AppDataType::SharedConfig, &LUCID_INFO) {
+            None => match get_data_root(AppDataType::UserConfig) {
                 Ok(mut appdata_root) => {
+                    &appdata_root.push("lucid");
+                    fs::create_dir_all(&appdata_root.clone().into_os_string().into_string().unwrap())?;
                     &appdata_root.push("lucid.yml");
                     appdata_root.clone().into_os_string().into_string().unwrap()
                 },
@@ -229,12 +232,9 @@ impl Lucid {
             }
         };
 
-        use std::path::Path;
         if Path::new(&lucid_yml).exists() && !force {
             return Err(Error::new(ErrorKind::Interrupted, "The Lucid node is already initialized."));
         } else {
-            use std::fs::*;
-            use std::io::prelude::*;
             match File::create(lucid_yml.clone()) {
                 Ok(mut file_handle) => {
                     let lucid_root_claims = Claims {
@@ -272,8 +272,10 @@ impl Lucid {
     // Configure the current instance with the default or a specific configuration file
     fn configure(&mut self, configuration_file: Option<&str>) -> Result<(), std::io::Error> {
         let lucid_yml = match configuration_file {
-            None => match app_root(AppDataType::SharedConfig, &LUCID_INFO) { // TODO: check app data location
+            None => match get_data_root(AppDataType::UserConfig) { // TODO: check app data location
                 Ok(mut appdata_root) => {
+                    &appdata_root.push("lucid");
+                    fs::create_dir_all(&appdata_root.clone().into_os_string().into_string().unwrap())?;
                     &appdata_root.push("lucid.yml");
                     appdata_root.into_os_string().into_string().unwrap()
                 },
@@ -284,8 +286,6 @@ impl Lucid {
             Some(conf) => String::from(conf)
         };
 
-        use std::path::Path;
-        use std::fs;
         if Path::new(&lucid_yml).exists() {
             match fs::read_to_string(&lucid_yml) {
                 Ok(content) => {
