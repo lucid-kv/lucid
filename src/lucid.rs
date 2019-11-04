@@ -10,6 +10,8 @@ use app_dirs::*;
 use chrono::*;
 use clap::App;
 use jsonwebtoken::*;
+use rand::Rng;
+use ring::digest::SHA256;
 
 use crate::configuration::Configuration;
 use crate::logger::{Logger, LogLevel};
@@ -142,23 +144,21 @@ impl Lucid {
                 }
 
                 if let Some(matches) = cli.subcommand_matches("init") {
-                    use ring::digest::SHA256;
-                    use rand::Rng;
-                    let secret_key_bytes = ring::digest::digest(&SHA256, &rand::thread_rng().gen::<[u8; 32]>());
-                    let mut secret_key = secret_key_bytes.as_ref().iter().fold(
-                        String::with_capacity(secret_key_bytes.as_ref().len() * 2),
-                        |mut acc, x| {
-                            acc.push_str(&format!("{:0>2x}", x));
-                            acc
-                        },
-                    );
-
-                    match matches.value_of("secret") {
+                    let secret_key = match matches.value_of("secret") {
                         Some(secret) => {
-                            secret_key = secret.to_owned();
+                            secret.to_owned()
                         }
-                        None => ()
-                    }
+                        None => {
+                            let secret_key_bytes = ring::digest::digest(&SHA256, &rand::thread_rng().gen::<[u8; 32]>());
+                            secret_key_bytes.as_ref().iter().fold(
+                                String::with_capacity(secret_key_bytes.as_ref().len() * 2),
+                                |mut acc, x| {
+                                    acc.push_str(&format!("{:0>2x}", x));
+                                    acc
+                                },
+                            )
+                        }
+                    };
 
                     let mut has_configuration_file: Option<&str> = None;
 
