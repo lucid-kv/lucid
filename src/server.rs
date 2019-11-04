@@ -93,10 +93,18 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                             return res.send(serde_json::to_string_pretty(&ErrorMessage { code: 101, message: "Missing request body.", details: None }).unwrap());
                         }
                         match req.param("key") {
+                            // TODO: set max length in configuration file
                             Some(key) => if buffer.len() < 7340032 {
-                                store.set(key.to_string(), buffer);
-                                res.set(StatusCode::Ok);
-                                res.send("")
+                                match store.set(key.to_string(), buffer) {
+                                    Some(_) => {
+                                        res.set(StatusCode::Ok).set(MediaType::Json);
+                                        res.send(serde_json::to_string_pretty(&ErrorMessage { code: 103, message: "The specified key was successfully created.", details: None }).unwrap())
+                                    },
+                                    None => {
+                                        res.set(StatusCode::Created).set(MediaType::Json);
+                                        res.send(serde_json::to_string_pretty(&ErrorMessage { code: 103, message: "The specified key was successfully updated.", details: None }).unwrap())
+                                    }
+                                }
                             } else {
                                 res.set(StatusCode::BadRequest).set(MediaType::Json);
                                 res.send(serde_json::to_string_pretty(&ErrorMessage { code: 103, message: "The maximum allowed value size is 7 Mb.", details: None }).unwrap())
@@ -135,7 +143,7 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                         Some(key) => {
                             store.drop(key.to_string());
                             res.set(StatusCode::Ok);
-                            res.send("")
+                            res.send(serde_json::to_string_pretty(&ErrorMessage { code: 102, message: "The specified key and its data was successfully deleted.", details: None }).unwrap())
                         },
                         None => {
                             res.set(StatusCode::BadRequest).set(MediaType::Json);
@@ -226,7 +234,6 @@ impl Server
         server.utilize(self.router_sse());
 
         // TODO: Implement HTTPS (https://github.com/nickel-org/nickel.rs/blob/master/examples/https.rs)
-
         match self.use_tls {
             true => {
 //                use hyper::Server;
