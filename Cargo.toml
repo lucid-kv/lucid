@@ -1,6 +1,6 @@
 [package]
 name = "lucid"
-description = "A Fast, Secure and Distributed KV store with a HTTP API."
+description = "A Fast, Secure and Distributed KV store with an HTTP API."
 version = "0.1.1"
 authors = ["Clint.Network <me@clint.network>"]
 edition = "2018"
