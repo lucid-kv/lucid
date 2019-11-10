@@ -76,6 +76,12 @@ subcommands:
                   short: e
                   long: expiration
                   takes_value: true
+      args:
+        - config:
+            help: 'Specify the Lucid configuration file'
+            short: c
+            long: config
+            takes_value: true
 args:
   -
     help:

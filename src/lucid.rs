@@ -74,6 +74,10 @@ impl Lucid {
                     self.show_version();
                     return Some("")
                 }
+
+                // Configure instance if --config args is passed
+                &mut self.configure(cli.value_of("config"));
+
                 if let Some(matches) = cli.subcommand_matches("cli") {
                     fn display_cli_help() {
                         crate::logger::print(&LogLevel::Information, "This is all the available commands:");
@@ -162,9 +166,6 @@ impl Lucid {
                 }
 
                 if let Some(matches) = cli.subcommand_matches("server") {
-                    // Configure instance if --config args is passed
-                    &mut self.configure(matches.value_of("config"));
-
                     // Run server if the instance is successfully configured
                     match &self.configuration {
                         Some(config) => {
@@ -180,15 +181,9 @@ impl Lucid {
                 }
 
                 if let Some(matches) = cli.subcommand_matches("settings") {
-                    // Configure instance if --config args is passed
-                    &mut self.configure(matches.value_of("config"));
-
-                    match &self.configuration {
-                        Some(configuration) => {
-                            // TODO: print configuration file directly not beautified struct
-                            &self.log(LogLevel::Information, format!("Actual configuration:\n\n{:#?}", configuration).as_str(), None);
-                        },
-                        _ => () // TODO: display error if not configured
+                    if let Some(configuration) = &self.configuration {
+                        // TODO: print configuration file directly not beautified struct
+                        &self.log(LogLevel::Information, format!("Actual configuration:\n\n{:#?}", configuration).as_str(), None);
                     }
                     return Some("");
                 }
@@ -198,7 +193,19 @@ impl Lucid {
                 }
 
                 if let Some(matches) = cli.subcommand_matches("tokens") {
-                    unimplemented!("Not implemented");
+                    if matches.is_present("issue") {
+                        if let Some(config) = &self.configuration {
+                            match &self.issue_jwt(&config.clone().authentication.secret_key, None) {
+                                Some(token) => {
+                                    &self.log(LogLevel::Information, "JWT token successfully generated.", Some(token));
+                                },
+                                None => {
+                                    &self.log(LogLevel::Information, "Unable to generate JWT token.", None);
+                                }
+                            }
+                        }
+                    }
+                    return Some("");
                 }
             }
             Err(e) => {
