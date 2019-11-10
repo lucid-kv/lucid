@@ -10,6 +10,7 @@ pub struct Configuration {
 }
 
 impl Configuration {
+    // TODO: change for default()
     pub fn new() -> Configuration {
         Configuration {
             default: Base {

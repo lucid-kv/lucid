@@ -34,6 +34,7 @@ pub trait Logger {
 }
 
 impl<T> Logger for T {
+    // TODO: print class owner
     fn log(&self, level: LogLevel, message: &str, err: Option<&str>)
     {
         print(&level, &message);
