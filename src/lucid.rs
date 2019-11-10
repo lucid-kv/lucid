@@ -209,7 +209,7 @@ impl Lucid {
     }
 
     fn issue_jwt(&self, secret_key: &String, expiration: Option<DateTime<Utc>>) -> Option<String> {
-        let mut lucid_root_claims = Claims {
+        let lucid_root_claims = Claims {
             sub: String::from("Lucid Root Token"),
             iss: String::from("http://127.0.0.1:7021/"), // TODO: check issuer, maybe set the proper uri
             iat: Utc::now().timestamp(),
