@@ -16,7 +16,7 @@ pub struct KvStore {
 
 impl KvStore
 {
-    pub fn default() -> KvStore
+    pub fn new() -> KvStore
     {
         // TODO: prepare looped persistence
         KvStore {
@@ -49,6 +49,16 @@ impl KvStore
         match &self.container.get(&key) {
             Some(value) => Some((&value.data).clone()),
             None => None
+        }
+    }
+
+    pub fn switch_lock(&self, key: String, to_lock: bool) -> bool {
+        match &mut self.container.get_mut(&key) {
+            Some(kv_element) => {
+                kv_element.locked = to_lock;
+                true
+            },
+            None => false
         }
     }
 
