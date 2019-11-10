@@ -234,7 +234,7 @@ impl Lucid {
                             if file_handle.write_all(serde_yaml::to_string(&default_configuration).unwrap().as_bytes()).is_ok() {
                                 return Ok(Box::leak(lucid_yml.into_boxed_str()));
                             }
-                            return Err(Error::new(ErrorKind::Interrupted, "Holly shit."));
+                            return Err(Error::new(ErrorKind::Interrupted, "Unable to create default configuration."));
                         },
                         Err(_e) => {
                             return Err(Error::new(ErrorKind::Interrupted, "Unable to create the JWT root token."));
