@@ -59,9 +59,8 @@ impl<D> Middleware<D> for KvStoreMiddleware {
         let mut buffer = Vec::new();
         let body_size = req.origin.read_to_end(&mut buffer).unwrap();
 
-        // Define some response headers
-        // TODO: use crate version
-        res.set(Server("Lucid 0.1.2".to_string()));
+        // Set the server response header
+        res.set(Server(format!("Lucid {}", crate_version!())));
 
         match req.origin.headers.get::<Authorization<Bearer>>() {
             Some(header) => match decode::<Claims>(&header.token, self.configuration.authentication.secret_key.as_ref(), &Validation::default()) {
