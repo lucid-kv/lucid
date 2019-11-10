@@ -41,6 +41,7 @@ rand = "*"
 warp = "*"
 chashmap = "*"
 plugin = "*"
+tree_magic = "*"
 #hyper = "*"
 #hyper-openssl = "*"
 
