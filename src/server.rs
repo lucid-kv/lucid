@@ -236,20 +236,14 @@ impl Server
 //                let ssl = Openssl::with_cert_and_key("examples/assets/self_signed.crt", "examples/assets/key.pem").unwrap();
 //                server.listen_https("127.0.0.1:7021", ssl);
             },
-            false => match server.listen(format!("{}:{}", self.configuration.default.bind_address, self.configuration.default.port)) {
+            false => match server.listen(self.configuration.clone().get_bind_endpoint()) {
                 Ok(instance) => {
                     // TODO: move logging for using in https to
                     // TODO: try using server.log and getting owner
                     &self.log(LogLevel::Information, format!("Running Lucid server on {endpoint} | PID: {pid}", endpoint = instance.socket(), pid = std::process::id()).as_str(), None);
-                    &self.log(LogLevel::Information, format!("Lucid API Endpoint: {scheme}://{endpoint}/api/", scheme = match self.configuration.default.use_ssl {
-                        true => "https",
-                        false => "http"
-                    }, endpoint = instance.socket()).as_str(), None);
+                    &self.log(LogLevel::Information, format!("Lucid API Endpoint: http://{endpoint}/api/", endpoint = instance.socket()).as_str(), None);
                     if self.configuration.webui.enabled {
-                        &self.log(LogLevel::Information, format!("Lucid Web UI Path: {scheme}://{endpoint}/", scheme = match self.configuration.default.use_ssl {
-                            true => "https",
-                            false => "http"
-                        }, endpoint = instance.socket()).as_str(), None);
+                        &self.log(LogLevel::Information, format!("Lucid Web UI Path: http://{endpoint}/", endpoint = instance.socket()).as_str(), None);
                     }
                     &self.log(LogLevel::Information, "Use Ctrl+C to stop the server.", None);
                 }

@@ -35,6 +35,10 @@ impl Configuration {
             },
         }
     }
+
+    pub fn get_bind_endpoint(self) -> String {
+        format!("{}:{}", self.default.bind_address, self.default.port)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
