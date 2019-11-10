@@ -185,9 +185,10 @@ impl Lucid {
 
                     match &self.configuration {
                         Some(configuration) => {
+                            // TODO: print configuration file directly not beautified struct
                             &self.log(LogLevel::Information, format!("Actual configuration:\n\n{:#?}", configuration).as_str(), None);
                         },
-                        _ => ()
+                        _ => () // TODO: display error if not configured
                     }
                     return Some("");
                 }
@@ -196,7 +197,7 @@ impl Lucid {
                     unimplemented!("Not implemented");
                 }
 
-                if let Some(_matches) = cli.subcommand_matches("tokens") {
+                if let Some(matches) = cli.subcommand_matches("tokens") {
                     unimplemented!("Not implemented");
                 }
             }
@@ -205,6 +206,22 @@ impl Lucid {
             }
         }
         None
+    }
+
+    fn issue_jwt(&self, secret_key: &String, expiration: Option<DateTime<Utc>>) -> Option<String> {
+        let mut lucid_root_claims = Claims {
+            sub: String::from("Lucid Root Token"),
+            iss: String::from("http://127.0.0.1:7021/"), // TODO: check issuer, maybe set the proper uri
+            iat: Utc::now().timestamp(),
+            exp: match expiration {
+                Some(exp) => exp.timestamp(),
+                None => (Utc::now() + Duration::weeks(52 * 3)).timestamp()
+            },
+        };
+        match encode(&Header::default(), &lucid_root_claims, secret_key.as_ref()) {
+            Ok(token) => Some(token),
+            _ => None,
+        }
     }
 
     // Initialize the node by creating a lucid.yml configuration file
@@ -229,26 +246,22 @@ impl Lucid {
         } else {
             match File::create(lucid_yml.clone()) {
                 Ok(mut file_handle) => {
-                    let lucid_root_claims = Claims {
-                        sub: String::from("Lucid Root Token"),
-                        iss: String::from("http://127.0.0.1:7021/"), // TODO: check issuer, maybe set the proper uri
-                        iat: Utc::now().timestamp(),
-                        exp: (Utc::now() + Duration::weeks(52 * 3)).timestamp(),    // TODO: look the expiration delay
-                    };
-                    match encode(&Header::default(), &lucid_root_claims, secret_key.as_ref()) {
-                        Ok(root_token) => {
+                    match &self.issue_jwt(&secret_key, None) {
+                        Some(root_token) => {
                             let mut default_configuration = Configuration::new();
-                            default_configuration.authentication.root_token = root_token;
+                            default_configuration.authentication.root_token = root_token.clone();
                             default_configuration.authentication.secret_key = secret_key;
                             if file_handle.write_all(serde_yaml::to_string(&default_configuration).unwrap().as_bytes()).is_ok() {
                                 return Ok(Box::leak(lucid_yml.into_boxed_str()));
                             }
                             return Err(Error::new(ErrorKind::Interrupted, "Unable to create default configuration."));
                         },
-                        Err(_e) => {
+                        None => {
                             return Err(Error::new(ErrorKind::Interrupted, "Unable to create the JWT root token."));
                         }
                     }
+//                    let r = &self.issue_jwt(&secret_key, None);
+//                    return Err(Error::new(ErrorKind::Interrupted, "Unable to create the JWT root token."));
                 },
                 Err(_) => {
                     return Err(Error::new(ErrorKind::Interrupted, "Unable to create the Lucid configuration file."));
