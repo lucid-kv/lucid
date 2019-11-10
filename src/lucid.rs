@@ -149,10 +149,10 @@ impl Lucid {
                         has_configuration_file = Some(configuration_file);
                     }
 
-                    match &mut self.initialize_node(has_configuration_file, secret_key, matches.is_present("force")) {
-                        Ok(_lucid_yml_location) => {
-                            // TODO: display location in logs
-                            &self.log(LogLevel::Success, "Lucid successfully initialized.", None);
+                    match self.initialize_node(has_configuration_file, secret_key, matches.is_present("force")) {
+                        Ok(lucid_yml_location) => {
+                            let location = format!("Located in: {}", lucid_yml_location.clone());
+                            &self.log(LogLevel::Success, "Lucid successfully initialized.", Some(location.as_str()));
                         },
                         Err(e) => {
                             &self.log(LogLevel::Error, "Unable to initialize Lucid node.", Some(e.get_ref().unwrap().description()));
