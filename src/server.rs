@@ -246,6 +246,12 @@ impl Server
                         true => "https",
                         false => "http"
                     }, endpoint = instance.socket()).as_str(), None);
+                    if self.configuration.webui.enabled {
+                        &self.log(LogLevel::Information, format!("Lucid Web UI Path: {scheme}://{endpoint}/", scheme = match self.configuration.default.use_ssl {
+                            true => "https",
+                            false => "http"
+                        }, endpoint = instance.socket()).as_str(), None);
+                    }
                     &self.log(LogLevel::Information, "Use Ctrl+C to stop the server.", None);
                 }
                 Err(err) => {
