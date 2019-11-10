@@ -67,3 +67,11 @@ pub struct WebUI {
 pub struct Store {
     pub max_limit: i32
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Claims {
+    pub sub: String,
+    pub iss: String,
+    pub iat: i64,
+    pub exp: i64,
+}

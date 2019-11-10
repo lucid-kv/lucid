@@ -12,19 +12,11 @@ use jsonwebtoken::*;
 use rand::Rng;
 use ring::digest::SHA256;
 
-use crate::configuration::Configuration;
+use crate::configuration::{Claims, Configuration};
 use crate::logger::{Logger, LogLevel};
 use crate::server::Server;
 
 include!("crossplatform.rs");
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Claims {
-    sub: String,
-    iss: String,
-    iat: i64,
-    exp: i64,
-}
 
 pub struct Lucid {
     configuration: Option<Configuration>
