@@ -2,7 +2,7 @@
 
 High performance and distributed KV store accessible through an HTTP API. Written in Rust. 🦀
 
-[![Build Status](https://github.com/clintnetwork/lucid/workflows/Lucid/badge.svg)](https://github.com/clintnetwork/lucid/actions?workflow=Lucid)
+[![Build Status](https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg)](https://github.com/lucid-kv/lucid/actions?workflow=Lucid)
 [![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/clintnetwork/lucid/blob/master/LICENSE.md)
 [![Telegram](https://img.shields.io/badge/t.me-clintnetwork-informational.svg)](https://t.me/clintnetwork)
@@ -14,7 +14,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 
 ## Works Progress
 
-<ins>__**Warning: Empty project for now, the development is ensured in the [development](https://github.com/clintnetwork/lucid/tree/development) branch.**__</ins>
+<ins>__**Warning: Empty project for now, the development is ensured in the [development](https://github.com/lucid-kv/lucid/tree/development) branch.**__</ins>
 
 - [x] Minimum Viable Product (MVP)
   - [x] Initialization process
@@ -41,33 +41,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 
 ## Command Line Interface
 
-```
- ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
- ██║    ██║   ██║██╔════╝██║██╔══██╗    ██║ ██╔╝██║   ██║
- ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
- ██████╗╚██████╔╝╚██████╗██║██████╔╝    ██║  ██╗ ╚████╔╝
- ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
-
-A Fast, Secure and Distributed KV store with an HTTP API.
-Written in Rust by Clint.Network (twitter.com/clint_network)
-
-USAGE:
-    lucid.exe [SUBCOMMAND]
-
-FLAGS:
-    -h, --help       Prints help informations
-    -v, --version    Print version information
-
-SUBCOMMANDS:
-    cli         Spawn to the command line interface
-    help        Prints this message or the help of the given subcommand(s)
-    init        Initialize the Lucid cluster and generate configuration file
-    members     Manage members of the cluster
-    server      Run a new Lucid server instance
-    settings    Manage Lucid configuration file
-    store       Play with the KV store (get/set)
-    tokens      Manage JWT Tokens (issue, revoke etc.)
-```
+[![asciicast](https://asciinema.org/a/277538.svg)](https://asciinema.org/a/277538)
 
 ## Web Interface (UI)
 
