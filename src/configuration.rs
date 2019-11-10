@@ -10,8 +10,7 @@ pub struct Configuration {
 }
 
 impl Configuration {
-    // TODO: change for default()
-    pub fn new() -> Configuration {
+    pub fn default() -> Configuration {
         Configuration {
             default: Base {
                 bind_address: Ipv4Addr::LOCALHOST.to_string(),

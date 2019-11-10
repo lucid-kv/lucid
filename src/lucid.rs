@@ -255,7 +255,7 @@ impl Lucid {
                 Ok(mut file_handle) => {
                     match &self.issue_jwt(&secret_key, None) {
                         Some(root_token) => {
-                            let mut default_configuration = Configuration::new();
+                            let mut default_configuration = Configuration::default();
                             default_configuration.authentication.root_token = root_token.clone();
                             default_configuration.authentication.secret_key = secret_key;
                             if file_handle.write_all(serde_yaml::to_string(&default_configuration).unwrap().as_bytes()).is_ok() {
