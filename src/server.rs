@@ -49,6 +49,7 @@ fn middleware_cors<'mw>(_req: &mut Request, mut res: Response<'mw>) -> Middlewar
 struct KvStoreMiddleware {
     http_verb: hyper::method::Method,
     store: Arc<RwLock<KvStore>>,
+    configuration: Configuration
 }
 
 impl<D> Middleware<D> for KvStoreMiddleware {
@@ -63,8 +64,7 @@ impl<D> Middleware<D> for KvStoreMiddleware {
         res.set(Server("Lucid 0.1.2".to_string()));
 
         match req.origin.headers.get::<Authorization<Bearer>>() {
-            // TODO: get secret from configuration file
-            Some(header) => match decode::<Claims>(&header.token, "0cccdfddd23f9f740c9620a094daf1b260436059924cec32622f0e7ebc99bbe5".as_ref(), &Validation::default()) {
+            Some(header) => match decode::<Claims>(&header.token, self.configuration.authentication.secret_key.as_ref(), &Validation::default()) {
                 Ok(_bearer) => match self.http_verb {
                     Method::Head => match req.param("key") {
                         Some(key) => match &store.get(key.to_string()) {
@@ -89,7 +89,7 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                         }
                         match req.param("key") {
                             // TODO: set max length in configuration file
-                            Some(key) => if buffer.len() < 7340032 {
+                            Some(key) => if buffer.len() < self.configuration.store.max_limit as usize {
                                 match store.set(key.to_string(), buffer) {
                                     None => {
                                         res.set(StatusCode::Created).set(MediaType::Json);
@@ -220,11 +220,11 @@ impl Server
 
         // API Endpoints
         // TODO: change to server.head() (https://github.com/nickel-org/nickel.rs/issues/444)
-        server.add_route(Method::Head, "/api/kv/:key", KvStoreMiddleware { http_verb: Method::Head, store: store.clone() });
-        server.put("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Put, store: store.clone() });
-        server.get("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Get, store: store.clone() });
-        server.patch("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Patch, store: store.clone() });
-        server.delete("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Delete, store: store.clone() });
+        server.add_route(Method::Head, "/api/kv/:key", KvStoreMiddleware { http_verb: Method::Head, store: store.clone(), configuration: self.configuration.clone() });
+        server.put("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Put, store: store.clone(), configuration: self.configuration.clone() });
+        server.get("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Get, store: store.clone(), configuration: self.configuration.clone() });
+        server.patch("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Patch, store: store.clone(), configuration: self.configuration.clone() });
+        server.delete("/api/kv/:key", KvStoreMiddleware { http_verb: Method::Delete, store: store.clone(), configuration: self.configuration.clone() });
 
         // SSE Endpoints
         server.utilize(self.router_sse());
