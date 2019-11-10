@@ -209,9 +209,11 @@ impl Server
         server.options("**", middleware!(""));
 
         // Web UI
-        server.utilize(self.router_webui());
-        server.utilize(StaticFilesHandler::new("assets/"));
-        server.utilize(StaticFilesHandler::new("webui/dist"));
+        if self.configuration.webui.enabled {
+            server.utilize(self.router_webui());
+            server.utilize(StaticFilesHandler::new("assets/"));
+            server.utilize(StaticFilesHandler::new("webui/dist"));
+        }
 
         // Robots.txt
         server.get("/robots.txt", middleware!("User-agent: *\nDisallow: /"));
