@@ -179,8 +179,17 @@ impl Lucid {
                     return Some("");
                 }
 
-                if let Some(_matches) = cli.subcommand_matches("settings") {
-                    unimplemented!("Not implemented");
+                if let Some(matches) = cli.subcommand_matches("settings") {
+                    // Configure instance if --config args is passed
+                    &mut self.configure(matches.value_of("config"));
+
+                    match &self.configuration {
+                        Some(configuration) => {
+                            &self.log(LogLevel::Information, format!("Actual configuration:\n\n{:#?}", configuration).as_str(), None);
+                        },
+                        _ => ()
+                    }
+                    return Some("");
                 }
 
                 if let Some(_matches) = cli.subcommand_matches("store") {
