@@ -18,14 +18,6 @@ use crate::server::Server;
 
 include!("crossplatform.rs");
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-struct ConfigurationFile {
-    endpoint: &'static str,
-    root_token: String,
-    secret_key: String,
-    use_tls: bool
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 struct Claims {
     sub: String,
@@ -185,7 +177,7 @@ impl Lucid {
                     match &self.configuration {
                         Some(config) => {
                             let mut lucid_server = Server::new();
-                            lucid_server.configure(&config);
+                            lucid_server.configure(config.clone());
                             lucid_server.run();
                         },
                         None => {
@@ -238,19 +230,15 @@ impl Lucid {
                 Ok(mut file_handle) => {
                     let lucid_root_claims = Claims {
                         sub: String::from("Lucid Root Token"),
-                        iss: String::from("https://127.0.0.1:7021/"), // TODO: check issuer, maybe set the proper uri
+                        iss: String::from("http://127.0.0.1:7021/"), // TODO: check issuer, maybe set the proper uri
                         iat: Utc::now().timestamp(),
                         exp: (Utc::now() + Duration::weeks(52 * 3)).timestamp(),    // TODO: look the expiration delay
                     };
                     match encode(&Header::default(), &lucid_root_claims, secret_key.as_ref()) {
                         Ok(root_token) => {
-                            // TODO: migrate to toml
-                            let default_configuration = ConfigurationFile {
-                                endpoint: "127.0.0.1:7021",
-                                root_token,
-                                secret_key,
-                                use_tls: false,
-                            };
+                            let mut default_configuration = Configuration::new();
+                            default_configuration.authentication.root_token = root_token;
+                            default_configuration.authentication.secret_key = secret_key;
                             if file_handle.write_all(serde_yaml::to_string(&default_configuration).unwrap().as_bytes()).is_ok() {
                                 return Ok(Box::leak(lucid_yml.into_boxed_str()));
                             }
@@ -288,12 +276,8 @@ impl Lucid {
         if Path::new(&lucid_yml).exists() {
             match fs::read_to_string(&lucid_yml) {
                 Ok(content) => {
-                    let configuration_file_yaml: serde_json::Value = serde_yaml::from_str(&content).unwrap();
-                    self.configuration = Some(Configuration {
-                        endpoint: configuration_file_yaml["endpoint"].to_string(),
-                        location: (&lucid_yml).to_string(),
-                        use_tls: false,
-                    });
+                    let configuration: Configuration = serde_yaml::from_str(&content).unwrap();
+                    self.configuration = Some(configuration);
                     return Ok(());
                 },
                 Err(_) => {

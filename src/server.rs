@@ -1,5 +1,4 @@
 use std::io::Read;
-use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::sync::RwLock;
 
@@ -9,20 +8,17 @@ use nickel::{*, HttpRouter, Middleware, MiddlewareResult, Nickel, Options, Reque
 use nickel::hyper::method::Method;
 use nickel::status::StatusCode;
 
-use crate::configuration::Configuration;
+use crate::configuration::*;
 use crate::kvstore::KvStore;
 use crate::logger::{Logger, LogLevel};
 
-// TODO: passing configuration to Server
 pub struct Server {
-    endpoint: String,
-    use_tls: bool,
+    configuration: Configuration
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ErrorMessage {
     message: &'static str,
-//    details: Option<String>
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -172,14 +168,13 @@ impl Server
     pub fn new() -> Server
     {
         Server {
-            endpoint: format!("{}:7021", Ipv4Addr::LOCALHOST),
-            use_tls: false,
+            configuration: Configuration::new()
         }
     }
 
-    pub fn configure(&mut self, configuration: &Configuration) {
-        self.endpoint = configuration.endpoint.to_owned().replace("\"", "");
-        self.use_tls = configuration.use_tls;
+    pub fn configure(&mut self, configuration: Configuration) {
+        self.configuration = configuration;
+//        self.use_tls = configuration.use_tls;
     }
 
     fn router_webui(&self) -> nickel::Router {
@@ -233,19 +228,19 @@ impl Server
         server.utilize(self.router_sse());
 
         // TODO: Implement HTTPS (https://github.com/nickel-org/nickel.rs/blob/master/examples/https.rs)
-        match self.use_tls {
+        match self.configuration.default.use_ssl {
             true => {
 //                use hyper::Server;
 //                use hyper_openssl::OpensslServer;
 //                let ssl = Openssl::with_cert_and_key("examples/assets/self_signed.crt", "examples/assets/key.pem").unwrap();
 //                server.listen_https("127.0.0.1:7021", ssl);
             },
-            false => match server.listen(&self.endpoint) {
+            false => match server.listen(format!("{}:{}", self.configuration.default.bind_address, self.configuration.default.port)) {
                 Ok(instance) => {
                     // TODO: move logging for using in https to
                     // TODO: try using server.log and getting owner
                     &self.log(LogLevel::Information, format!("Running Lucid server on {endpoint} | PID: {pid}", endpoint = instance.socket(), pid = std::process::id()).as_str(), None);
-                    &self.log(LogLevel::Information, format!("Lucid API Endpoint: {scheme}://{endpoint}/api/", scheme = match self.use_tls {
+                    &self.log(LogLevel::Information, format!("Lucid API Endpoint: {scheme}://{endpoint}/api/", scheme = match self.configuration.default.use_ssl {
                         true => "https",
                         false => "http"
                     }, endpoint = instance.socket()).as_str(), None);
