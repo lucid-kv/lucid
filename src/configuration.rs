@@ -80,7 +80,7 @@ pub struct WebUI {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Store {
-    pub max_limit: i32
+    pub max_limit: u64
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

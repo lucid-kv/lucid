@@ -43,6 +43,8 @@ chashmap = "*"
 plugin = "*"
 tree_magic = "*"
 byte-unit = "*"
+snafu = "*"
+bytes = "*"
 #hyper = "*"
 #hyper-openssl = "*"
 
