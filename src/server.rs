@@ -96,7 +96,6 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                         }
 
                         match req.param("key") {
-                            // TODO: set max length in configuration file
                             Some(key) => if buffer.len() < self.configuration.store.max_limit as usize {
                                 match store.set(key.to_string(), buffer) {
                                     None => {

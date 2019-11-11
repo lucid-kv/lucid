@@ -28,6 +28,7 @@ impl KvStore
         // TODO: prepare iterative persistence
         match &mut self.container.get_mut(&key) {
             Some(kv_element) => {
+                kv_element.data = value;
                 kv_element.updated = Utc::now();
                 Some(kv_element.to_owned())
             },
