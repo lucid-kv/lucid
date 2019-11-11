@@ -49,6 +49,12 @@ subcommands:
     settings:
       about: 'Manage Lucid configuration file'
       author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
+      args:
+        - config:
+            help: 'Specify the Lucid configuration file'
+            short: c
+            long: config
+            takes_value: true
   -
     store:
       about: 'Play with the KV store (get/set)'
