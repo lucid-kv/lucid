@@ -82,6 +82,11 @@ subcommands:
                   short: e
                   long: expiration
                   takes_value: true
+              - count:
+                  help: 'Number of tokens to issue  '
+                  short: c
+                  long: count
+                  index: 1
       args:
         - config:
             help: 'Specify the Lucid configuration file'
