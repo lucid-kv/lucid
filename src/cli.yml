@@ -67,6 +67,7 @@ subcommands:
         -
           revoke:
             about: 'Revoke a JWT Token'
+            author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
             args:
               -
                 token:
@@ -75,6 +76,7 @@ subcommands:
         -
           issue:
             about: 'Issue a new JWT Token'
+            author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
             args:
               -
                 expiration:
