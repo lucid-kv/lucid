@@ -16,17 +16,22 @@ pub struct Server {
     configuration: Configuration
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize)]
 struct ErrorMessage {
-    message: &'static str,
+    message: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize)]
 struct Claims {
     sub: String,
     iss: String,
     iat: i64,
     exp: i64,
+}
+
+#[derive(Serialize, Deserialize)]
+struct PatchValue {
+    operation: String
 }
 
 fn middleware_webui<'a>(_: &mut Request, mut res: Response<'a>) -> MiddlewareResult<'a> {
@@ -54,6 +59,7 @@ struct KvStoreMiddleware {
 
 impl<D> Middleware<D> for KvStoreMiddleware {
     fn invoke<'mw, 'conn>(&self, req: &mut Request<'mw, 'conn, D>, mut res: Response<'mw, D>) -> MiddlewareResult<'mw, D> {
+
         // Get the request body and retrieve the KV store
         let store = &*self.store.write().unwrap();
         let mut buffer = Vec::new();
@@ -62,6 +68,7 @@ impl<D> Middleware<D> for KvStoreMiddleware {
         // Set the server response header
         res.set(Server(format!("Lucid {}", crate_version!())));
 
+        // TODO: handle authentication disabled
         match req.origin.headers.get::<Authorization<Bearer>>() {
             Some(header) => match decode::<Claims>(&header.token, self.configuration.authentication.secret_key.as_ref(), &Validation::default()) {
                 Ok(_bearer) => match self.http_verb {
@@ -72,40 +79,41 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                                 res.send("")
                             },
                             None => {
-                                res.set(StatusCode::NotFound);
-                                res.send("")
+                                res.set(StatusCode::NotFound).set(MediaType::Json);
+                                res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key does not exists.".to_string() }).unwrap())
                             }
                         },
                         None => {
                             res.set(StatusCode::BadRequest).set(MediaType::Json);
-                            res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter." }).unwrap())
+                            res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string() }).unwrap())
                         }
                     },
                     Method::Put => {
                         if body_size == 0 {
                             res.set(StatusCode::BadRequest).set(MediaType::Json);
-                            return res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing request body." }).unwrap());
+                            return res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing request body.".to_string() }).unwrap());
                         }
+
                         match req.param("key") {
                             // TODO: set max length in configuration file
                             Some(key) => if buffer.len() < self.configuration.store.max_limit as usize {
                                 match store.set(key.to_string(), buffer) {
                                     None => {
                                         res.set(StatusCode::Created).set(MediaType::Json);
-                                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key was successfully created." }).unwrap())
+                                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key was successfully created.".to_string() }).unwrap())
                                     },
                                     Some(_) => {
                                         res.set(StatusCode::Ok).set(MediaType::Json);
-                                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key was successfully updated." }).unwrap())
+                                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key was successfully updated.".to_string() }).unwrap())
                                     }
                                 }
                             } else {
                                 res.set(StatusCode::BadRequest).set(MediaType::Json);
-                                res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The maximum allowed value size is 7 Mb." }).unwrap())
+                                res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The maximum allowed value size is {}.".to_string() }).unwrap())
                             },
                             None => {
                                 res.set(StatusCode::BadRequest).set(MediaType::Json);
-                                res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter." }).unwrap())
+                                res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string() }).unwrap())
                             }
                         }
                     },
@@ -121,42 +129,69 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                                 // TODO: found a better name / location
                                 if req.param("key").unwrap() == "check-token" {
                                     res.set(StatusCode::Ok).set(MediaType::Json);
-                                    // TODO: use create version
-                                    return res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Lucid Version 0.1.2" }).unwrap());
+                                    return res.send(serde_json::to_string_pretty(&ErrorMessage { message: format!("Lucid {}", crate_version!()) }).unwrap());
                                 }
                                 res.set(StatusCode::NotFound).set(MediaType::Json);
-                                res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key does not exists." }).unwrap())
+                                res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key does not exists.".to_string() }).unwrap())
                             }
                         },
                         None => {
                             res.set(StatusCode::BadRequest).set(MediaType::Json);
-                            res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter." }).unwrap())
+                            res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string() }).unwrap())
                         }
                     },
                     Method::Delete => match req.param("key") {
                         Some(key) => {
                             store.drop(key.to_string());
                             res.set(StatusCode::Ok);
-                            res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key and its data was successfully deleted." }).unwrap())
+                            res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key and it's data was successfully deleted.".to_string() }).unwrap())
                         },
                         None => {
                             res.set(StatusCode::BadRequest).set(MediaType::Json);
-                            res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter." }).unwrap())
+                            res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string() }).unwrap())
+                        }
+                    },
+                    Method::Patch => match req.param("key") {
+                        Some(key) => {
+                            // TODO: Operations to implement: LOCK, UNLOCK, INCREMENT, DECREMENT, EXPIRE
+
+                            if let Ok(json_body) = std::str::from_utf8((*buffer).as_ref()) {
+                                match serde_json::from_str::<PatchValue>(json_body) {
+                                    Ok(patch_value) => {
+                                        match patch_value.operation.as_str() {
+                                            "lock" | "unlock" => {
+                                                let r = store.switch_lock(key.to_string(), true);
+                                                println!("{}", r);
+                                            }
+                                            _ => ()
+                                        }
+                                    },
+                                    Err(e) => {
+                                        println!("{}", e);
+                                    }
+                                }
+                            }
+                            res.set(StatusCode::Ok);
+                            res.send("")
+                        },
+                        None => {
+                            res.set(StatusCode::BadRequest).set(MediaType::Json);
+                            res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string() }).unwrap())
                         }
                     },
                     _ => {
                         res.set(StatusCode::MethodNotAllowed).set(MediaType::Json);
-                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Method not allowed, maybe in the future :)" }).unwrap())
+                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Method not allowed, maybe in the future :)".to_string() }).unwrap())
                     }
                 },
                 Err(_) => {
                     res.set(StatusCode::InternalServerError).set(MediaType::Json);
-                    return res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Unable to decrypt JWT token." }).unwrap());  //, details: Some(e.to_string())
+                    return res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Unable to decrypt JWT token.".to_string() }).unwrap());  //, details: Some(e.to_string())
                 }
             },
             None => {
                 res.set(StatusCode::Unauthorized).set(MediaType::Json);
-                return res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing JWT token." }).unwrap());
+                return res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing JWT token.".to_string() }).unwrap());
             }
         }
     }
@@ -167,13 +202,12 @@ impl Server
     pub fn new() -> Server
     {
         Server {
-            configuration: Configuration::new()
+            configuration: Configuration::default()
         }
     }
 
     pub fn configure(&mut self, configuration: Configuration) {
         self.configuration = configuration;
-//        self.use_tls = configuration.use_tls;
     }
 
     fn router_webui(&self) -> nickel::Router {
@@ -199,7 +233,7 @@ impl Server
 
         let mut server = Nickel::with_options(server_options);
 
-        let store = Arc::new(RwLock::new(KvStore::default()));
+        let store = Arc::new(RwLock::new(KvStore::new()));
 
         server.utilize(middleware_logging);
 
@@ -214,6 +248,7 @@ impl Server
             server.utilize(StaticFilesHandler::new("webui/dist"));
         }
 
+        // TODO: maybe define if set in the configuration file
         // Robots.txt
         server.get("/robots.txt", middleware!("User-agent: *\nDisallow: /"));
 
