@@ -2,6 +2,7 @@ use std::io::Read;
 use std::sync::Arc;
 use std::sync::RwLock;
 
+use byte_unit::{Byte, ByteUnit};
 use hyper::header::*;
 use jsonwebtoken::{decode, Validation};
 use nickel::{*, HttpRouter, Middleware, MiddlewareResult, Nickel, Options, Request, Response, StaticFilesHandler};
@@ -109,7 +110,8 @@ impl<D> Middleware<D> for KvStoreMiddleware {
                                 }
                             } else {
                                 res.set(StatusCode::BadRequest).set(MediaType::Json);
-                                res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The maximum allowed value size is {}.".to_string() }).unwrap())
+                                let max_limit = Byte::from_bytes(self.configuration.store.max_limit as u128);
+                                res.send(serde_json::to_string_pretty(&ErrorMessage { message: format!("The maximum allowed value size is {}.", max_limit.get_appropriate_unit(true)) }).unwrap())
                             },
                             None => {
                                 res.set(StatusCode::BadRequest).set(MediaType::Json);

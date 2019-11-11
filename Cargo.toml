@@ -42,6 +42,7 @@ warp = "*"
 chashmap = "*"
 plugin = "*"
 tree_magic = "*"
+byte-unit = "*"
 #hyper = "*"
 #hyper-openssl = "*"
 
