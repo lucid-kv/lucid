@@ -5,6 +5,7 @@ pub struct Configuration {
     pub default: Base,
     pub authentication: Authentication,
     pub persistence: Persistence,
+    pub encryption: Encryption,
     pub webui: WebUI,
     pub store: Store
 }
@@ -26,6 +27,10 @@ impl Configuration {
             persistence: Persistence {
                 enabled: false,
                 location: String::new(),
+            },
+            encryption: Encryption {
+                enabled: false,
+                private_key: String::new(),
             },
             webui: WebUI {
                 enabled: false
@@ -60,6 +65,12 @@ pub struct Authentication {
 pub struct Persistence {
     pub enabled: bool,
     pub location: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Encryption {
+    pub enabled: bool,
+    pub private_key: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -2,7 +2,7 @@ use std::io::Read;
 use std::sync::Arc;
 use std::sync::RwLock;
 
-use byte_unit::{Byte, ByteUnit};
+use byte_unit::Byte;
 use hyper::header::*;
 use jsonwebtoken::{decode, Validation};
 use nickel::{*, HttpRouter, Middleware, MiddlewareResult, Nickel, Options, Request, Response, StaticFilesHandler};
