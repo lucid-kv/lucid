@@ -66,7 +66,10 @@ impl Server {
                     .and_then(patch_key)),
         );
         let routes = api_kv.recover(process_error);
-        warp::serve(routes).run(([127, 0, 0, 1], 7021));
+        warp::serve(routes).run((
+            self.configuration.default.bind_address,
+            self.configuration.default.port,
+        ));
     }
 }
 

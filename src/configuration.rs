@@ -1,4 +1,4 @@
-use std::net::Ipv4Addr;
+use std::net::{Ipv4Addr, IpAddr};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Configuration {
@@ -14,7 +14,7 @@ impl Configuration {
     pub fn default() -> Configuration {
         Configuration {
             default: Base {
-                bind_address: Ipv4Addr::LOCALHOST.to_string(),
+                bind_address: IpAddr::from(Ipv4Addr::LOCALHOST),
                 port: 7021, // TODO: change after implementing SSL
                 port_ssl: 7021,
                 use_ssl: false,
@@ -48,9 +48,9 @@ impl Configuration {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Base {
-    pub bind_address: String,
-    pub port: i32,
-    pub port_ssl: i32,
+    pub bind_address: IpAddr,
+    pub port: u16,
+    pub port_ssl: u16,
     pub use_ssl: bool,
 }
 
