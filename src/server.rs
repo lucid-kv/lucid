@@ -6,9 +6,9 @@ use byte_unit::Byte;
 use bytes::Buf;
 use jsonwebtoken::Validation;
 use snafu::{ResultExt, Snafu};
-use warp::{self, filters, http::StatusCode, path, Filter, Rejection, Reply};
+use warp::{self, filters, fs, http::StatusCode, path, Filter, Rejection, Reply};
 
-use crate::configuration::{Configuration, Claims};
+use crate::configuration::{Claims, Configuration};
 use crate::kvstore::KvStore;
 use crate::logger::{LogLevel, Logger};
 
@@ -39,49 +39,57 @@ impl Server {
         let config = self.configuration.clone();
         let config = warp::any().map(move || config.clone());
 
-        let auth = warp::header::optional::<String>("authorization").and(config).and_then(verify_auth).untuple_one();
+        let auth = warp::header::optional::<String>("authorization")
+            .and(config.clone())
+            .and_then(verify_auth)
+            .untuple_one();
+
+        let webui_enabled = config
+            .clone()
+            .and_then(|config: Arc<RwLock<Configuration>>| {
+                if config.read().unwrap().webui.enabled {
+                    Ok(())
+                } else {
+                    Err(warp::reject::not_found())
+                }
+            })
+            .untuple_one();
 
         let config = self.configuration.read().unwrap();
 
-        let api_kv = path!("api" / "kv")
-            .and(path::end())
-            .and(auth)
-            .and(
-                warp::get2()
+        let api_kv = path!("api" / "kv").and(path::end()).and(auth).and(
+            warp::get2()
+                .and(store.clone())
+                .and(warp::query::<GetKeyParameters>())
+                .and_then(get_key)
+                .or(warp::put2()
                     .and(store.clone())
-                    .and(warp::query::<GetKeyParameters>())
-                    .and_then(get_key)
-                    .or(warp::put2()
-                        .and(store.clone())
-                        .and(warp::query::<PutKeyParameters>())
-                        .and(filters::body::content_length_limit(
-                            config.store.max_limit,
-                        ))
-                        .and(warp::body::concat())
-                        .and_then(put_key))
-                    .or(warp::delete2()
-                        .and(store.clone())
-                        .and(warp::query::<DeleteKeyParameters>())
-                        .and_then(delete_key))
-                    .or(warp::head()
-                        .and(store.clone())
-                        .and(warp::query::<HeadKeyParameters>())
-                        .and_then(find_key))
-                    .or(warp::patch()
-                        .and(store.clone())
-                        .and(warp::query::<PatchKeyParameters>())
-                        .and(filters::body::content_length_limit(
-                            config.store.max_limit,
-                        ))
-                        .and(filters::body::json())
-                        .and_then(patch_key)),
-            );
+                    .and(warp::query::<PutKeyParameters>())
+                    .and(filters::body::content_length_limit(config.store.max_limit))
+                    .and(warp::body::concat())
+                    .and_then(put_key))
+                .or(warp::delete2()
+                    .and(store.clone())
+                    .and(warp::query::<DeleteKeyParameters>())
+                    .and_then(delete_key))
+                .or(warp::head()
+                    .and(store.clone())
+                    .and(warp::query::<HeadKeyParameters>())
+                    .and_then(find_key))
+                .or(warp::patch()
+                    .and(store.clone())
+                    .and(warp::query::<PatchKeyParameters>())
+                    .and(filters::body::content_length_limit(config.store.max_limit))
+                    .and(filters::body::json())
+                    .and_then(patch_key)),
+        );
 
-        let routes = api_kv.recover(process_error);
-        warp::serve(routes).run((
-            config.default.bind_address,
-            config.default.port,
-        ));
+        let webui = fs::dir("assets")
+            .or(fs::dir("webui/dist"))
+            .and(webui_enabled);
+
+        let routes = api_kv.or(webui).recover(process_error);
+        warp::serve(routes).run((config.default.bind_address, config.default.port));
     }
 }
 
@@ -210,9 +218,16 @@ fn patch_key(
     }
 }
 
-fn verify_auth(auth_header: Option<String>, config: Arc<RwLock<Configuration>>) -> Result<(), Rejection> {
+fn verify_auth(
+    auth_header: Option<String>,
+    config: Arc<RwLock<Configuration>>,
+) -> Result<(), Rejection> {
     if let Some(auth_header) = auth_header {
-        if let Ok(_bearer) = jsonwebtoken::decode::<Claims>(auth_header.trim_start_matches("Bearer "), config.read().unwrap().authentication.secret_key.as_ref(), &Validation::default()) {
+        if let Ok(_bearer) = jsonwebtoken::decode::<Claims>(
+            auth_header.trim_start_matches("Bearer "),
+            config.read().unwrap().authentication.secret_key.as_ref(),
+            &Validation::default(),
+        ) {
             Ok(())
         } else {
             Err(warp::reject::custom(Error::InvalidJwtToken))
