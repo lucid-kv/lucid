@@ -1,13 +1,14 @@
 use std::io::Read;
 use std::sync::Arc;
+use std::sync::RwLock;
 
 use byte_unit::Byte;
 use bytes::Buf;
-use jsonwebtoken::{decode, Validation};
+use jsonwebtoken::Validation;
 use snafu::{ResultExt, Snafu};
 use warp::{self, filters, http::StatusCode, path, Filter, Rejection, Reply};
 
-use crate::configuration::*;
+use crate::configuration::{Configuration, Claims};
 use crate::kvstore::KvStore;
 use crate::logger::{LogLevel, Logger};
 
@@ -17,58 +18,69 @@ struct JsonMessage {
 }
 
 pub struct Server {
-    configuration: Configuration,
+    configuration: Arc<RwLock<Configuration>>,
 }
 
 impl Server {
     pub fn new() -> Server {
         Server {
-            configuration: Configuration::default(),
+            configuration: Arc::new(RwLock::new(Configuration::default())),
         }
     }
 
     pub fn configure(&mut self, configuration: Configuration) {
-        self.configuration = configuration;
+        *self.configuration.write().unwrap() = configuration;
     }
 
     pub fn run(&self) {
         let store = Arc::new(KvStore::new());
         let store = warp::any().map(move || store.clone());
 
-        let api_kv = path!("api" / "kv").and(path::end()).and(
-            warp::get2()
-                .and(store.clone())
-                .and(warp::query::<GetKeyParameters>())
-                .and_then(get_key)
-                .or(warp::put2()
+        let config = self.configuration.clone();
+        let config = warp::any().map(move || config.clone());
+
+        let auth = warp::header::optional::<String>("authorization").and(config).and_then(verify_auth).untuple_one();
+
+        let config = self.configuration.read().unwrap();
+
+        let api_kv = path!("api" / "kv")
+            .and(path::end())
+            .and(auth)
+            .and(
+                warp::get2()
                     .and(store.clone())
-                    .and(warp::query::<PutKeyParameters>())
-                    .and(filters::body::content_length_limit(
-                        self.configuration.store.max_limit,
-                    ))
-                    .and(warp::body::concat())
-                    .and_then(put_key))
-                .or(warp::delete2()
-                    .and(store.clone())
-                    .and(warp::query::<DeleteKeyParameters>())
-                    .and_then(delete_key))
-                .or(warp::head()
-                    .and(store.clone())
-                    .and(warp::query::<HeadKeyParameters>())
-                    .and_then(find_key))
-                .or(warp::patch()
-                    .and(store.clone())
-                    .and(warp::query::<PatchKeyParameters>())
-                    .and(filters::body::content_length_limit(
-                        self.configuration.store.max_limit,
-                    ))
-                    .and(filters::body::json())
-                    .and_then(patch_key)),
-        );
+                    .and(warp::query::<GetKeyParameters>())
+                    .and_then(get_key)
+                    .or(warp::put2()
+                        .and(store.clone())
+                        .and(warp::query::<PutKeyParameters>())
+                        .and(filters::body::content_length_limit(
+                            config.store.max_limit,
+                        ))
+                        .and(warp::body::concat())
+                        .and_then(put_key))
+                    .or(warp::delete2()
+                        .and(store.clone())
+                        .and(warp::query::<DeleteKeyParameters>())
+                        .and_then(delete_key))
+                    .or(warp::head()
+                        .and(store.clone())
+                        .and(warp::query::<HeadKeyParameters>())
+                        .and_then(find_key))
+                    .or(warp::patch()
+                        .and(store.clone())
+                        .and(warp::query::<PatchKeyParameters>())
+                        .and(filters::body::content_length_limit(
+                            config.store.max_limit,
+                        ))
+                        .and(filters::body::json())
+                        .and_then(patch_key)),
+            );
+
         let routes = api_kv.recover(process_error);
         warp::serve(routes).run((
-            self.configuration.default.bind_address,
-            self.configuration.default.port,
+            config.default.bind_address,
+            config.default.port,
         ));
     }
 }
@@ -86,7 +98,7 @@ fn get_key(store: Arc<KvStore>, parameters: GetKeyParameters) -> Result<impl Rep
         }
     } else {
         Err(warp::reject::custom(Error::MissingParameter {
-            name: "key".to_string(),
+            parameter: "key".to_string(),
         }))
     }
 }
@@ -115,7 +127,7 @@ fn put_key(
             }
         } else {
             Err(warp::reject::custom(Error::MissingParameter {
-                name: "key".to_string(),
+                parameter: "key".to_string(),
             }))
         }
     }
@@ -140,7 +152,7 @@ fn delete_key(
         }
     } else {
         Err(warp::reject::custom(Error::MissingParameter {
-            name: "key".to_string(),
+            parameter: "key".to_string(),
         }))
     }
 }
@@ -158,7 +170,7 @@ fn find_key(store: Arc<KvStore>, parameters: HeadKeyParameters) -> Result<impl R
         }
     } else {
         Err(warp::reject::custom(Error::MissingParameter {
-            name: "key".to_string(),
+            parameter: "key".to_string(),
         }))
     }
 }
@@ -193,8 +205,20 @@ fn patch_key(
         }
     } else {
         Err(warp::reject::custom(Error::MissingParameter {
-            name: "key".to_string(),
+            parameter: "key".to_string(),
         }))
+    }
+}
+
+fn verify_auth(auth_header: Option<String>, config: Arc<RwLock<Configuration>>) -> Result<(), Rejection> {
+    if let Some(auth_header) = auth_header {
+        if let Ok(_bearer) = jsonwebtoken::decode::<Claims>(auth_header.trim_start_matches("Bearer "), config.read().unwrap().authentication.secret_key.as_ref(), &Validation::default()) {
+            Ok(())
+        } else {
+            Err(warp::reject::custom(Error::InvalidJwtToken))
+        }
+    } else {
+        Err(warp::reject::custom(Error::MissingAuthHeader))
     }
 }
 
@@ -203,8 +227,10 @@ fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
         let code = match err {
             Error::MissingBody => StatusCode::BAD_REQUEST,
             Error::MissingParameter { .. } => StatusCode::BAD_REQUEST,
+            Error::MissingAuthHeader => StatusCode::UNAUTHORIZED,
             Error::KeyNotFound => StatusCode::NOT_FOUND,
             Error::InvalidOperation { .. } => StatusCode::BAD_REQUEST,
+            Error::InvalidJwtToken => StatusCode::UNAUTHORIZED,
         };
         let json = warp::reply::json(&JsonMessage {
             message: err.to_string(),
@@ -219,7 +245,7 @@ fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
     } else if let Some(_) = err.find_cause::<warp::reject::PayloadTooLarge>() {
         let code = StatusCode::METHOD_NOT_ALLOWED;
         let json = warp::reply::json(&JsonMessage {
-            message: "Request payload is over {} bytes long.".to_string(), // TODO: format the string
+            message: "Request payload is too long.".to_string(), // TODO: find a way to format the limit into this string
         });
         Ok(warp::reply::with_status(json, code))
     } else {
@@ -231,10 +257,14 @@ fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
 enum Error {
     #[snafu(display("Missing request body."))]
     MissingBody,
-    #[snafu(display("Missing \"{}\" parameter.", name))]
-    MissingParameter { name: String },
+    #[snafu(display("Missing \"{}\" parameter.", parameter))]
+    MissingParameter { parameter: String },
+    #[snafu(display("Missing Authorization header."))]
+    MissingAuthHeader,
     #[snafu(display("The specified key does not exist."))]
     KeyNotFound,
     #[snafu(display("Invalid Operation \"{}\".", operation))]
     InvalidOperation { operation: String },
+    #[snafu(display("Invalid JWT token in Authorization header."))]
+    InvalidJwtToken,
 }
