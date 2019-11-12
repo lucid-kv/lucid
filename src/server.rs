@@ -54,37 +54,40 @@ impl Server {
 
         let configuration = self.configuration.read().unwrap();
 
-        let api_kv = path!("api" / "kv").and(path::end()).and(auth).and(
-            warp::get2()
-                .and(store.clone())
-                .and(warp::query::<GetKeyParameters>())
-                .and_then(get_key)
-                .or(warp::put2()
+        let api_kv = path!("api" / "kv")
+            .and(path::end())
+            .and(auth)
+            .and(filters::body::content_length_limit(
+                configuration.http.request_size_limit,
+            ))
+            .and(
+                warp::get2()
                     .and(store.clone())
-                    .and(config.clone())
-                    .and(warp::query::<PutKeyParameters>())
-                    .and(filters::body::content_length_limit(
-                        configuration.http.request_size_limit,
-                    ))
-                    .and(warp::body::concat())
-                    .and_then(put_key))
-                .or(warp::delete2()
-                    .and(store.clone())
-                    .and(warp::query::<DeleteKeyParameters>())
-                    .and_then(delete_key))
-                .or(warp::head()
-                    .and(store.clone())
-                    .and(warp::query::<HeadKeyParameters>())
-                    .and_then(find_key))
-                .or(warp::patch()
-                    .and(store.clone())
-                    .and(warp::query::<PatchKeyParameters>())
-                    .and(filters::body::content_length_limit(
-                        configuration.http.request_size_limit,
-                    ))
-                    .and(filters::body::json())
-                    .and_then(patch_key)),
-        );
+                    .and(warp::query::<GetKeyParameters>())
+                    .and_then(get_key)
+                    .or(warp::put2()
+                        .and(store.clone())
+                        .and(config.clone())
+                        .and(warp::query::<PutKeyParameters>())
+                        .and(filters::body::content_length_limit(
+                            configuration.store.max_limit,
+                        ))
+                        .and(warp::body::concat())
+                        .and_then(put_key))
+                    .or(warp::delete2()
+                        .and(store.clone())
+                        .and(warp::query::<DeleteKeyParameters>())
+                        .and_then(delete_key))
+                    .or(warp::head()
+                        .and(store.clone())
+                        .and(warp::query::<HeadKeyParameters>())
+                        .and_then(find_key))
+                    .or(warp::patch()
+                        .and(store.clone())
+                        .and(warp::query::<PatchKeyParameters>())
+                        .and(filters::body::json())
+                        .and_then(patch_key)),
+            );
 
         let webui = fs::dir("assets")
             .or(fs::dir("webui/dist"))
