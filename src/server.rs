@@ -51,7 +51,11 @@ impl Server {
                 .or(warp::delete2()
                     .and(store.clone())
                     .and(warp::query::<DeleteKeyParameters>())
-                    .and_then(delete_key)),
+                    .and_then(delete_key))
+                .or(warp::head()
+                    .and(store.clone())
+                    .and(warp::query::<HeadKeyParameters>())
+                    .and_then(find_key)),
         );
         let routes = api_kv.recover(process_error);
         warp::serve(routes).run(([127, 0, 0, 1], 7021));
@@ -120,6 +124,24 @@ fn delete_key(
             Ok(warp::reply::json(&JsonMessage {
                 message: "The specified key and it's data was successfully deleted".to_string(),
             }))
+        } else {
+            Err(warp::reject::custom(Error::KeyNotFound))
+        }
+    } else {
+        Err(warp::reject::custom(Error::MissingParameter {
+            name: "key".to_string(),
+        }))
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct HeadKeyParameters {
+    key: Option<String>,
+}
+fn find_key(store: Arc<KvStore>, parameters: HeadKeyParameters) -> Result<impl Reply, Rejection> {
+    if let Some(key) = parameters.key {
+        if let Some(_) = store.get(key) {
+            Ok("")
         } else {
             Err(warp::reject::custom(Error::KeyNotFound))
         }
