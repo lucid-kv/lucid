@@ -16,14 +16,6 @@ struct JsonMessage {
     message: String,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Claims {
-    sub: String,
-    iss: String,
-    iat: i64,
-    exp: i64,
-}
-
 pub struct Server {
     configuration: Configuration,
 }
@@ -51,9 +43,15 @@ impl Server {
                 .or(warp::put2()
                     .and(store.clone())
                     .and(warp::query::<PutKeyParameters>())
-                    .and(filters::body::content_length_limit(self.configuration.store.max_limit))
+                    .and(filters::body::content_length_limit(
+                        self.configuration.store.max_limit,
+                    ))
                     .and(warp::body::concat())
-                    .and_then(put_key)),
+                    .and_then(put_key))
+                .or(warp::delete2()
+                    .and(store.clone())
+                    .and(warp::query::<DeleteKeyParameters>())
+                    .and_then(delete_key)),
         );
         let routes = api_kv.recover(process_error);
         warp::serve(routes).run(([127, 0, 0, 1], 7021));
@@ -105,6 +103,30 @@ fn put_key(
                 name: "key".to_string(),
             }))
         }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct DeleteKeyParameters {
+    key: Option<String>,
+}
+fn delete_key(
+    store: Arc<KvStore>,
+    parameters: DeleteKeyParameters,
+) -> Result<impl Reply, Rejection> {
+    if let Some(key) = parameters.key {
+        if let Some(_) = store.get(key.clone()) {
+            (*store).drop(key);
+            Ok(warp::reply::json(&JsonMessage {
+                message: "The specified key and it's data was successfully deleted".to_string(),
+            }))
+        } else {
+            Err(warp::reject::custom(Error::KeyNotFound))
+        }
+    } else {
+        Err(warp::reject::custom(Error::MissingParameter {
+            name: "key".to_string(),
+        }))
     }
 }
 
