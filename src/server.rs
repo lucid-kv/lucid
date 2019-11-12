@@ -55,7 +55,15 @@ impl Server {
                 .or(warp::head()
                     .and(store.clone())
                     .and(warp::query::<HeadKeyParameters>())
-                    .and_then(find_key)),
+                    .and_then(find_key))
+                .or(warp::patch()
+                    .and(store.clone())
+                    .and(warp::query::<PatchKeyParameters>())
+                    .and(filters::body::content_length_limit(
+                        self.configuration.store.max_limit,
+                    ))
+                    .and(filters::body::json())
+                    .and_then(patch_key)),
         );
         let routes = api_kv.recover(process_error);
         warp::serve(routes).run(([127, 0, 0, 1], 7021));
@@ -152,12 +160,48 @@ fn find_key(store: Arc<KvStore>, parameters: HeadKeyParameters) -> Result<impl R
     }
 }
 
+#[derive(Debug, Deserialize)]
+struct PatchKeyParameters {
+    key: Option<String>,
+}
+#[derive(Debug, Deserialize)]
+struct PatchValue {
+    operation: String,
+}
+fn patch_key(
+    store: Arc<KvStore>,
+    parameters: PatchKeyParameters,
+    patch_value: PatchValue,
+) -> Result<impl Reply, Rejection> {
+    if let Some(key) = parameters.key {
+        if let Some(_) = store.get(key.clone()) {
+            match patch_value.operation.as_str() {
+                "lock" | "unlock" => {
+                    let r = store.switch_lock(key.to_string(), true);
+                    println!("{}", r);
+                    Ok("")
+                }
+                _ => Err(warp::reject::custom(Error::InvalidOperation {
+                    operation: patch_value.operation,
+                })),
+            }
+        } else {
+            Err(warp::reject::custom(Error::KeyNotFound))
+        }
+    } else {
+        Err(warp::reject::custom(Error::MissingParameter {
+            name: "key".to_string(),
+        }))
+    }
+}
+
 fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
     if let Some(err) = err.find_cause::<Error>() {
         let code = match err {
             Error::MissingBody => StatusCode::BAD_REQUEST,
             Error::MissingParameter { .. } => StatusCode::BAD_REQUEST,
             Error::KeyNotFound => StatusCode::NOT_FOUND,
+            Error::InvalidOperation { .. } => StatusCode::BAD_REQUEST,
         };
         let json = warp::reply::json(&JsonMessage {
             message: err.to_string(),
@@ -188,4 +232,6 @@ enum Error {
     MissingParameter { name: String },
     #[snafu(display("The specified key does not exist."))]
     KeyNotFound,
+    #[snafu(display("Invalid Operation \"{}\".", operation))]
+    InvalidOperation { operation: String },
 }
