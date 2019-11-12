@@ -1,16 +1,13 @@
-use std::io::Read;
 use std::sync::Arc;
 use std::sync::RwLock;
 
-use byte_unit::Byte;
 use bytes::Buf;
 use jsonwebtoken::Validation;
-use snafu::{ResultExt, Snafu};
+use snafu::Snafu;
 use warp::{self, filters, fs, http::StatusCode, path, Filter, Rejection, Reply};
 
 use crate::configuration::{Claims, Configuration};
 use crate::kvstore::KvStore;
-use crate::logger::{LogLevel, Logger};
 
 #[derive(Serialize, Deserialize)]
 struct JsonMessage {
