@@ -88,7 +88,11 @@ impl Server {
             .or(fs::dir("webui/dist"))
             .and(webui_enabled);
 
-        let routes = api_kv.or(webui).recover(process_error);
+        let robots = warp::path("robots.txt")
+            .and(path::end())
+            .and(warp::get2().map(|| "User-agent: *\nDisallow: /"));
+
+        let routes = api_kv.or(webui).or(robots).recover(process_error);
         warp::serve(routes).run((config.default.bind_address, config.default.port));
     }
 }
