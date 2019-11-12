@@ -7,7 +7,8 @@ pub struct Configuration {
     pub persistence: Persistence,
     pub encryption: Encryption,
     pub webui: WebUI,
-    pub store: Store
+    pub store: Store,
+    pub http: Http
 }
 
 impl Configuration {
@@ -37,6 +38,9 @@ impl Configuration {
             },
             store: Store {
                 max_limit: 7340032
+            },
+            http: Http {
+                request_size_limit: 8388608
             },
         }
     }
@@ -81,6 +85,11 @@ pub struct WebUI {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Store {
     pub max_limit: u64
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Http {
+    pub request_size_limit: u64
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -55,7 +55,7 @@ impl Server {
             })
             .untuple_one();
 
-        let config = self.configuration.read().unwrap();
+        let configuration = self.configuration.read().unwrap();
 
         let api_kv = path!("api" / "kv").and(path::end()).and(auth).and(
             warp::get2()
@@ -64,8 +64,11 @@ impl Server {
                 .and_then(get_key)
                 .or(warp::put2()
                     .and(store.clone())
+                    .and(config.clone())
                     .and(warp::query::<PutKeyParameters>())
-                    .and(filters::body::content_length_limit(config.store.max_limit))
+                    .and(filters::body::content_length_limit(
+                        configuration.http.request_size_limit,
+                    ))
                     .and(warp::body::concat())
                     .and_then(put_key))
                 .or(warp::delete2()
@@ -79,7 +82,9 @@ impl Server {
                 .or(warp::patch()
                     .and(store.clone())
                     .and(warp::query::<PatchKeyParameters>())
-                    .and(filters::body::content_length_limit(config.store.max_limit))
+                    .and(filters::body::content_length_limit(
+                        configuration.http.request_size_limit,
+                    ))
                     .and(filters::body::json())
                     .and_then(patch_key)),
         );
@@ -93,7 +98,10 @@ impl Server {
             .and(warp::get2().map(|| "User-agent: *\nDisallow: /"));
 
         let routes = api_kv.or(webui).or(robots).recover(process_error);
-        warp::serve(routes).run((config.default.bind_address, config.default.port));
+        warp::serve(routes).run((
+            configuration.default.bind_address,
+            configuration.default.port,
+        ));
     }
 }
 
@@ -121,11 +129,16 @@ struct PutKeyParameters {
 }
 fn put_key(
     store: Arc<KvStore>,
+    config: Arc<RwLock<Configuration>>,
     parameters: PutKeyParameters,
     body: filters::body::FullBody,
 ) -> Result<impl Reply, Rejection> {
     if body.remaining() == 0 {
         Err(warp::reject::custom(Error::MissingBody))
+    } else if body.bytes().len() as u64 > config.read().unwrap().store.max_limit {
+        Err(warp::reject::custom(Error::ValueSizeLimit {
+            max_limit: config.read().unwrap().store.max_limit,
+        }))
     } else {
         if let Some(key) = parameters.key {
             if let Some(_) = store.set(key, body.bytes().to_vec()) {
@@ -250,6 +263,7 @@ fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
             Error::KeyNotFound => StatusCode::NOT_FOUND,
             Error::InvalidOperation { .. } => StatusCode::BAD_REQUEST,
             Error::InvalidJwtToken => StatusCode::UNAUTHORIZED,
+            Error::ValueSizeLimit { .. } => StatusCode::BAD_REQUEST,
         };
         let json = warp::reply::json(&JsonMessage {
             message: err.to_string(),
@@ -286,4 +300,6 @@ enum Error {
     InvalidOperation { operation: String },
     #[snafu(display("Invalid JWT token in Authorization header."))]
     InvalidJwtToken,
+    #[snafu(display("The maximum allowed value size is {} bytes.", max_limit))]
+    ValueSizeLimit { max_limit: u64 },
 }
