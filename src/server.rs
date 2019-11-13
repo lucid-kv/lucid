@@ -239,18 +239,23 @@ fn verify_auth(
     auth_header: Option<String>,
     config: Arc<RwLock<Configuration>>,
 ) -> Result<(), Rejection> {
-    if let Some(auth_header) = auth_header {
-        if let Ok(_bearer) = jsonwebtoken::decode::<Claims>(
-            auth_header.trim_start_matches("Bearer "),
-            config.read().unwrap().authentication.secret_key.as_ref(),
-            &Validation::default(),
-        ) {
-            Ok(())
+    let config = config.read().unwrap();
+    if config.authentication.enabled {
+        if let Some(auth_header) = auth_header {
+            if let Ok(_bearer) = jsonwebtoken::decode::<Claims>(
+                auth_header.trim_start_matches("Bearer "),
+                config.authentication.secret_key.as_ref(),
+                &Validation::default(),
+            ) {
+                Ok(())
+            } else {
+                Err(warp::reject::custom(Error::InvalidJwtToken))
+            }
         } else {
-            Err(warp::reject::custom(Error::InvalidJwtToken))
+            Err(warp::reject::custom(Error::MissingAuthHeader))
         }
     } else {
-        Err(warp::reject::custom(Error::MissingAuthHeader))
+        Ok(())
     }
 }
 
