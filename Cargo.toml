@@ -45,6 +45,7 @@ tree_magic = "*"
 byte-unit = "*"
 snafu = "*"
 bytes = "*"
+log = "*"
 #hyper = "*"
 #hyper-openssl = "*"
 

@@ -2,6 +2,8 @@
 extern crate clap;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+extern crate log;
 
 //extern crate hyper;
 //extern crate hyper_openssl;
@@ -9,7 +11,6 @@ extern crate serde_derive;
 use lucid::Lucid;
 
 mod lucid;
-mod logger;
 mod kvstore;
 mod server;
 mod configuration;
