@@ -46,6 +46,7 @@ byte-unit = "*"
 snafu = "*"
 bytes = "*"
 log = "*"
+fern = "*"
 #hyper = "*"
 #hyper-openssl = "*"
 

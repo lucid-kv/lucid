@@ -6,11 +6,13 @@ use std::io::Write;
 use std::path::Path;
 
 use app_dirs::*;
-use chrono::*;
+use chrono::{DateTime, Duration, Utc};
 use clap::App;
+use fern::Dispatch;
 use jsonwebtoken::*;
 use rand::Rng;
 use ring::digest::SHA256;
+use log::LevelFilter;
 
 use crate::configuration::{Claims, Configuration};
 use crate::server::Server;
@@ -296,6 +298,19 @@ impl Lucid {
                 Ok(content) => {
                     let configuration: Configuration = serde_yaml::from_str(&content).unwrap();
                     self.configuration = Some(configuration);
+                    let dispatch = Dispatch::new()
+                        .format(|out, message, record| {
+                            out.finish(format_args!(
+                                "{} {} [{}] {}",
+                                Utc::now().format("%Y/%m/%d %H:%M:%S"),
+                                record.level(),
+                                record.target(),
+                                message
+                            ))
+                        })
+                        .chain(std::io::stdout())
+                        .apply()
+                        .expect("Couldn't start logger");
                     return Ok(());
                 },
                 Err(_) => {
