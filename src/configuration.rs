@@ -8,7 +8,8 @@ pub struct Configuration {
     pub encryption: Encryption,
     pub webui: WebUI,
     pub store: Store,
-    pub http: Http
+    pub http: Http,
+    pub logging: Logging
 }
 
 impl Configuration {
@@ -41,6 +42,9 @@ impl Configuration {
             },
             http: Http {
                 request_size_limit: 8388608
+            },
+            logging: Logging {
+                level: "Info".to_string()
             },
         }
     }
@@ -90,6 +94,11 @@ pub struct Store {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Http {
     pub request_size_limit: u64
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Logging {
+    pub level: String
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

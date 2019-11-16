@@ -1,14 +1,13 @@
-use std::fs;
-use std::fs::File;
-use std::io::{Error, ErrorKind};
-use std::io;
-use std::io::Write;
-use std::path::Path;
+use std::{
+    fs::{self, File},
+    io::{self, Error, ErrorKind, Write},
+    path::Path,
+    str::FromStr,
+};
 
 use app_dirs::*;
 use chrono::{DateTime, Duration, Utc};
 use clap::App;
-use fern::Dispatch;
 use jsonwebtoken::*;
 use rand::Rng;
 use ring::digest::SHA256;
@@ -297,20 +296,8 @@ impl Lucid {
             match fs::read_to_string(&lucid_yml) {
                 Ok(content) => {
                     let configuration: Configuration = serde_yaml::from_str(&content).unwrap();
+                    log::set_max_level(LevelFilter::from_str(&configuration.logging.level).expect("Invalid logging level in configuration"));
                     self.configuration = Some(configuration);
-                    let dispatch = Dispatch::new()
-                        .format(|out, message, record| {
-                            out.finish(format_args!(
-                                "{} {} [{}] {}",
-                                Utc::now().format("%Y/%m/%d %H:%M:%S"),
-                                record.level(),
-                                record.target(),
-                                message
-                            ))
-                        })
-                        .chain(std::io::stdout())
-                        .apply()
-                        .expect("Couldn't start logger");
                     return Ok(());
                 },
                 Err(_) => {
