@@ -17,12 +17,14 @@ use crate::configuration::{Claims, Configuration};
 use crate::server::Server;
 
 pub struct Lucid {
+    configuration_location: String,
     configuration: Option<Configuration>
 }
 
 impl Lucid {
     pub fn default() -> Lucid {
         Lucid {
+            configuration_location: String::new(),
             configuration: None
         }
     }
@@ -179,9 +181,11 @@ impl Lucid {
                 }
 
                 if let Some(_matches) = cli.subcommand_matches("settings") {
-                    if let Some(configuration) = &self.configuration {
-                        // TODO: print configuration file directly not beautified struct
-                        info!("Actual configuration:\n\n{:#?}", configuration);
+                    if let Some(_) = &self.configuration {
+                        match fs::read_to_string(&self.configuration_location) {
+                            Ok(content) => info!("Configuration location: {}\n\n{}", &self.configuration_location, content),
+                            Err(err) => error!("{}", err)
+                        }
                     }
                     return Some("");
                 }
@@ -297,6 +301,7 @@ impl Lucid {
                 Ok(content) => {
                     let configuration: Configuration = serde_yaml::from_str(&content).unwrap();
                     log::set_max_level(LevelFilter::from_str(&configuration.logging.level).expect("Invalid logging level in configuration"));
+                    self.configuration_location = lucid_yml;
                     self.configuration = Some(configuration);
                     return Ok(());
                 },
