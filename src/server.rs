@@ -1,195 +1,255 @@
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::BufReader;
-use std::io::prelude::*;
-use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::sync::RwLock;
 
-use hyper::header::{*};
-use nickel::{*, HttpRouter, Middleware, MiddlewareResult, Nickel, Options, Request, Response, StaticFilesHandler};
-use nickel::hyper::method::Method;
-use nickel::status::StatusCode;
+use bytes::Buf;
+use jsonwebtoken::Validation;
+use snafu::Snafu;
+use warp::{self, filters, fs, http::StatusCode, path, Filter, Rejection, Reply};
 
-use crate::configuration::Configuration;
+use crate::configuration::{Claims, Configuration};
 use crate::kvstore::KvStore;
-use crate::logger::{Logger, LogLevel};
+
+#[derive(Serialize, Deserialize)]
+struct JsonMessage {
+    message: String,
+}
 
 pub struct Server {
-    endpoint: String,
-    use_tls: bool
+    configuration: Arc<RwLock<Configuration>>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct ErrorMessage {
-    message: String,
-    details: Option<String>
-}
-
-// TODO: move into implementation
-fn handler_vuejs<'a>(_: &mut Request, res: Response<'a>) -> MiddlewareResult<'a> {
-    let mut data = HashMap::<&str, &str>::new();
-    data.insert("name", "Alex");
-    res.render("webui/dist/index.tpl", &data)
-}
-
-fn handler_logger<'a, D>(request: &mut Request<D>, response: Response<'a, D>) -> MiddlewareResult<'a, D> {
-    crate::logger::print(&LogLevel::Information, format!("{} {}", request.origin.method, request.origin.uri).as_ref());
-    response.next_middleware()
-}
-
-struct KvStoreMiddleware {
-    method: hyper::method::Method,
-    store: Arc<RwLock<KvStore>>,
-}
-
-impl<D> Middleware<D> for KvStoreMiddleware {
-    fn invoke<'mw, 'conn>(&self, req: &mut Request<'mw, 'conn, D>, mut res: Response<'mw, D>) -> MiddlewareResult<'mw, D> {
-        // TODO: validate JWT token
-
-        // Get the request body and retrieve the KV store
-        let store = &*self.store.write().unwrap();
-        let mut buffer = Vec::new();
-        let body_size = req.origin.read_to_end(&mut buffer).unwrap();
-
-        // Define some response headers
-        res.set(Server("Lucid 0.1.0".to_string()));
-
-        match self.method {
-            Method::Head => match req.param("key") {
-                Some(key) => match &store.get(key.to_string()) {
-                    Some(_) => {
-                        res.set(StatusCode::Ok);
-                        res.send("")
-                    },
-                    None => {
-                        res.set(StatusCode::NotFound);
-                        res.send("")
-                    }
-                },
-                _ => {
-                    res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
-                }
-            },
-            Method::Put => {
-                if body_size == 0 {
-                    res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    return res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing request body.".to_string(), details: None }).unwrap());
-                }
-                match req.param("key") {
-                    Some(key) => if buffer.len() < 7340032 {
-                        store.set(key.to_string(), buffer);
-                        res.set(StatusCode::Ok);
-                        res.send("")
-                    } else {
-                        res.set(StatusCode::BadRequest).set(MediaType::Json);
-                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The maximum allowed value size is 7 Mb.".to_string(), details: None }).unwrap())
-                    },
-                    _ => {
-                        res.set(StatusCode::BadRequest).set(MediaType::Json);
-                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
-                    }
-                }
-            },
-            Method::Get => match req.param("key") {
-                Some(key) => match store.get(key.to_string()) {
-                    Some(value) => {
-                        res.set(StatusCode::Ok).set(MediaType::Txt);
-                        res.send(value)
-                    },
-                    None => {
-                        res.set(StatusCode::NotFound).set(MediaType::Json);
-                        res.send(serde_json::to_string_pretty(&ErrorMessage { message: "The specified key does not exists.".to_string(), details: None }).unwrap())
-                    }
-                },
-                _ => {
-                    res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
-                }
-            },
-            Method::Delete => match req.param("key") {
-                Some(key) => {
-                    store.drop(key.to_string());
-                    res.set(StatusCode::Ok);
-                    res.send("")
-                },
-                _ => {
-                    res.set(StatusCode::BadRequest).set(MediaType::Json);
-                    res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Missing key parameter.".to_string(), details: None }).unwrap())
-                }
-            },
-            _ => {
-                res.set(StatusCode::MethodNotAllowed).set(MediaType::Json);
-                res.send(serde_json::to_string_pretty(&ErrorMessage { message: "Method not allowed, maybe in the future :)".to_string(), details: None }).unwrap())
-            }
-        }
-    }
-}
-
-impl Server
-{
-    pub fn new() -> Server
-    {
+impl Server {
+    pub fn new() -> Server {
         Server {
-            endpoint: format!("{}:7021", Ipv4Addr::LOCALHOST),
-            use_tls: false,
+            configuration: Arc::new(RwLock::new(Configuration::default())),
         }
     }
 
-    pub fn configure(&mut self, configuration: &Configuration) {
-        self.endpoint = configuration.endpoint.to_owned().replace("\"", "");
-        self.use_tls = configuration.use_tls;
-    }
-
-    fn router_webui(&self) -> nickel::Router {
-        let mut router = Nickel::router();
-        router.get("/", handler_vuejs);
-        router
+    pub fn configure(&mut self, configuration: Configuration) {
+        *self.configuration.write().unwrap() = configuration;
     }
 
     pub fn run(&self) {
-        let server_options = Options::default()
-            .thread_count(None) // TODO: [Optimisation] improve this
-            .output_on_listen(false);
+        let store = Arc::new(KvStore::new());
+        let store = warp::any().map(move || store.clone());
 
-        let mut server = Nickel::with_options(server_options);
+        let config = self.configuration.clone();
+        let config = warp::any().map(move || config.clone());
 
-        let store = Arc::new(RwLock::new(KvStore::default()));
+        let auth = warp::header::optional::<String>("authorization")
+            .and(config.clone())
+            .and_then(verify_auth)
+            .untuple_one();
 
-        server.utilize(handler_logger);
+        let webui_enabled = config
+            .clone()
+            .and_then(|config: Arc<RwLock<Configuration>>| {
+                if config.read().unwrap().webui.enabled {
+                    Ok(())
+                } else {
+                    Err(warp::reject::not_found())
+                }
+            })
+            .untuple_one();
 
-        server.utilize(StaticFilesHandler::new("assets/"));
-        server.utilize(StaticFilesHandler::new("webui/dist"));
+        let configuration = self.configuration.read().unwrap();
 
-        server.utilize(self.router_webui());
+        let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
+        let api_kv_key = auth
+            .and(filters::body::content_length_limit(
+                configuration.http.request_size_limit,
+            ))
+            .and(
+                warp::get2()
+                    .and(store.clone())
+                    .and(api_kv_key_path)
+                    .and_then(get_key)
+                    .or(warp::put2()
+                        .and(store.clone())
+                        .and(config.clone())
+                        .and(api_kv_key_path)
+                        .and(filters::body::content_length_limit(
+                            configuration.store.max_limit,
+                        ))
+                        .and(warp::body::concat())
+                        .and_then(put_key))
+                    .or(warp::delete2()
+                        .and(store.clone())
+                        .and(api_kv_key_path)
+                        .and_then(delete_key))
+                    .or(warp::head()
+                        .and(store.clone())
+                        .and(api_kv_key_path)
+                        .and_then(find_key))
+                    .or(warp::patch()
+                        .and(store.clone())
+                        .and(api_kv_key_path)
+                        .and(filters::body::json())
+                        .and_then(patch_key)),
+            );
 
-        // API Endpoints
-        server.add_route(Method::Head, "/api/kv/:key", KvStoreMiddleware { method: Method::Head, store: store.clone() });
-        server.put("/api/kv/:key", KvStoreMiddleware { method: Method::Put, store: store.clone() });
-        server.get("/api/kv/:key", KvStoreMiddleware { method: Method::Get, store: store.clone() });
-        server.patch("/api/kv/:key", KvStoreMiddleware { method: Method::Patch, store: store.clone() });
-        server.delete("/api/kv/:key", KvStoreMiddleware { method: Method::Delete, store: store.clone() });
+        let webui = fs::dir("assets")
+            .or(fs::dir("webui/dist"))
+            .and(webui_enabled);
 
-        // TODO: Implement HTTPS (https://github.com/nickel-org/nickel.rs/blob/master/examples/https.rs)
+        let robots = warp::path("robots.txt")
+            .and(path::end())
+            .and(warp::get2().map(|| "User-agent: *\nDisallow: /"));
 
-        match server.listen(&self.endpoint) {
-            Ok(instance) => {
-                // TODO: try using server.log and getting owner
-                &self.log(LogLevel::Information, format!("Running Lucid server on {endpoint} | PID: {pid}", endpoint = instance.socket(), pid = std::process::id()).as_str(), None);
-                &self.log(LogLevel::Information, format!("Lucid API Endpoint: {scheme}://{endpoint}/api/", scheme = match self.use_tls {
-                    true => "https",
-                    false => "http"
-                }, endpoint = instance.socket()).as_str(), None);
-                &self.log(LogLevel::Information, "Use Ctrl+C to stop the server.", None);
-            }
-            Err(err) => {
-                &self.log(LogLevel::Error, "Unable to run Lucid server", Some(Box::leak(err).description()));
-            }
-        }
-
-//        if self.use_tls {
-//            server.listen_https()
-//        }
+        let routes = api_kv_key.or(webui).or(robots).recover(process_error);
+        warp::serve(routes).run((
+            configuration.default.bind_address,
+            configuration.default.port,
+        ));
     }
+}
+
+fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
+    if let Some(value) = store.get(key) {
+        Ok(value)
+    } else {
+        Err(warp::reject::custom(Error::KeyNotFound))
+    }
+}
+
+fn put_key(
+    store: Arc<KvStore>,
+    config: Arc<RwLock<Configuration>>,
+    key: String,
+    body: filters::body::FullBody,
+) -> Result<impl Reply, Rejection> {
+    if body.remaining() == 0 {
+        Err(warp::reject::custom(Error::MissingBody))
+    } else if body.bytes().len() as u64 > config.read().unwrap().store.max_limit {
+        Err(warp::reject::custom(Error::ValueSizeLimit {
+            max_limit: config.read().unwrap().store.max_limit,
+        }))
+    } else {
+        if let Some(_) = store.set(key, body.bytes().to_vec()) {
+            Ok(warp::reply::json(&JsonMessage {
+                message: "The specified key was successfully updated.".to_string(),
+            }))
+        } else {
+            Ok(warp::reply::json(&JsonMessage {
+                message: "The specified key was successfully created.".to_string(),
+            }))
+        }
+    }
+}
+
+fn delete_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
+    if let Some(_) = store.get(key.clone()) {
+        (*store).drop(key);
+        Ok(warp::reply::json(&JsonMessage {
+            message: "The specified key and it's data was successfully deleted".to_string(),
+        }))
+    } else {
+        Err(warp::reject::custom(Error::KeyNotFound))
+    }
+}
+fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
+    if let Some(_) = store.get(key) {
+        Ok("")
+    } else {
+        Err(warp::reject::custom(Error::KeyNotFound))
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct PatchValue {
+    operation: String,
+}
+fn patch_key(
+    store: Arc<KvStore>,
+    key: String,
+    patch_value: PatchValue,
+) -> Result<impl Reply, Rejection> {
+    if let Some(_) = store.get(key.clone()) {
+        match patch_value.operation.as_str() {
+            "lock" | "unlock" => {
+                let r = store.switch_lock(key.to_string(), true);
+                println!("{}", r);
+                Ok("")
+            }
+            _ => Err(warp::reject::custom(Error::InvalidOperation {
+                operation: patch_value.operation,
+            })),
+        }
+    } else {
+        Err(warp::reject::custom(Error::KeyNotFound))
+    }
+}
+
+fn verify_auth(
+    auth_header: Option<String>,
+    config: Arc<RwLock<Configuration>>,
+) -> Result<(), Rejection> {
+    let config = config.read().unwrap();
+    if config.authentication.enabled {
+        if let Some(auth_header) = auth_header {
+            if let Ok(_bearer) = jsonwebtoken::decode::<Claims>(
+                auth_header.trim_start_matches("Bearer "),
+                config.authentication.secret_key.as_ref(),
+                &Validation::default(),
+            ) {
+                Ok(())
+            } else {
+                Err(warp::reject::custom(Error::InvalidJwtToken))
+            }
+        } else {
+            Err(warp::reject::custom(Error::MissingAuthHeader))
+        }
+    } else {
+        Ok(())
+    }
+}
+
+fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
+    if let Some(err) = err.find_cause::<Error>() {
+        let code = match err {
+            Error::MissingBody => StatusCode::BAD_REQUEST,
+            Error::MissingParameter { .. } => StatusCode::BAD_REQUEST,
+            Error::MissingAuthHeader => StatusCode::UNAUTHORIZED,
+            Error::KeyNotFound => StatusCode::NOT_FOUND,
+            Error::InvalidOperation { .. } => StatusCode::BAD_REQUEST,
+            Error::InvalidJwtToken => StatusCode::UNAUTHORIZED,
+            Error::ValueSizeLimit { .. } => StatusCode::BAD_REQUEST,
+        };
+        let json = warp::reply::json(&JsonMessage {
+            message: err.to_string(),
+        });
+        Ok(warp::reply::with_status(json, code))
+    } else if let Some(_) = err.find_cause::<warp::reject::MethodNotAllowed>() {
+        let code = StatusCode::METHOD_NOT_ALLOWED;
+        let json = warp::reply::json(&JsonMessage {
+            message: "Method not allowed.".to_string(),
+        });
+        Ok(warp::reply::with_status(json, code))
+    } else if let Some(_) = err.find_cause::<warp::reject::PayloadTooLarge>() {
+        let code = StatusCode::METHOD_NOT_ALLOWED;
+        let json = warp::reply::json(&JsonMessage {
+            message: "Request payload is too long.".to_string(), // TODO: find a way to format the limit into this string
+        });
+        Ok(warp::reply::with_status(json, code))
+    } else {
+        Err(err)
+    }
+}
+
+#[derive(Debug, Snafu)]
+enum Error {
+    #[snafu(display("Missing request body."))]
+    MissingBody,
+    #[snafu(display("Missing \"{}\" parameter.", parameter))]
+    MissingParameter { parameter: String },
+    #[snafu(display("Missing Authorization header."))]
+    MissingAuthHeader,
+    #[snafu(display("The specified key does not exist."))]
+    KeyNotFound,
+    #[snafu(display("Invalid Operation \"{}\".", operation))]
+    InvalidOperation { operation: String },
+    #[snafu(display("Invalid JWT token in Authorization header."))]
+    InvalidJwtToken,
+    #[snafu(display("The maximum allowed value size is {} bytes.", max_limit))]
+    ValueSizeLimit { max_limit: u64 },
 }

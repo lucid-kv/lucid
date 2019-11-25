@@ -1,9 +1,13 @@
 use chashmap::CHashMap;
 use chrono::{DateTime, Utc};
 
+#[derive(Debug, Clone)]
 pub struct KvElement {
-    data: Vec<u8>,
-    created: DateTime<Utc>,
+    pub data: Vec<u8>,
+    pub mime: String,
+    pub created: DateTime<Utc>,
+    pub updated: DateTime<Utc>,
+    pub locked: bool
 }
 
 pub struct KvStore {
@@ -12,23 +16,55 @@ pub struct KvStore {
 
 impl KvStore
 {
-    pub fn default() -> KvStore
+    pub fn new() -> KvStore
     {
+        // TODO: prepare looped persistence
         KvStore {
             container: CHashMap::new()
         }
     }
 
     pub fn set(&self, key: String, value: Vec<u8>) -> Option<KvElement> {
-        self.container.insert(key, KvElement { data: value, created: Utc::now() })
+        // TODO: prepare iterative persistence
+        let mime_type = tree_magic::from_u8(value.as_ref());
+        match &mut self.container.get_mut(&key) {
+            Some(kv_element) => {
+                kv_element.data = value;
+                kv_element.mime = mime_type;
+                kv_element.updated = Utc::now();
+                Some(kv_element.to_owned())
+            },
+            None => {
+                let kv_element = KvElement {
+                    data: value,
+                    mime: mime_type,
+                    created: Utc::now(),
+                    updated: Utc::now(),
+                    locked: false,
+                };
+                self.container.insert(key, kv_element)
+            }
+        }
     }
 
     pub fn get(&self, key: String) -> Option<Vec<u8>> {
-        match (&self.container).get(&key) {
+        match &self.container.get(&key) {
             Some(value) => Some((&value.data).clone()),
             None => None
         }
     }
+
+    pub fn switch_lock(&self, key: String, to_lock: bool) -> bool {
+        match &mut self.container.get_mut(&key) {
+            Some(kv_element) => {
+                kv_element.locked = to_lock;
+                true
+            },
+            None => false
+        }
+    }
+
+    // TODO: implement Lock, Unlock, Increment, Decrement, Expire
 
     pub fn drop(&self, key: String) {
         &self.container.remove(&key);

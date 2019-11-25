@@ -17,3 +17,6 @@
 
 /target
 #**/*.rs.bk
+
+**/resource.rc
+**/resource.lib

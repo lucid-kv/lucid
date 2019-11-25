@@ -1,0 +1,111 @@
+#app {
+  display: flex;
+  justify-content: space-between;
+}
+body {
+  background-color: #192039;
+  color: #838aa0;
+  font-weight: 400;
+  font-size: .875rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+::-webkit-scrollbar {
+  width: 7px;
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #3f4d69e1;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-corner {
+  background-color: transparent !important;
+}
+::-webkit-scrollbar-button {
+  background-color: transparent !important;
+}
+
+/* ------------------
+UTILITY CLASSES
+------------------- */
+ 
+.container-sm {
+  width: 500px !important;
+}
+.pointer {
+  cursor: pointer !important;
+}
+
+.indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+/* ------------------
+LUCID THEME CLASSES
+------------------- */
+h1 {
+  margin-bottom: .5rem;
+  font-weight: 500;
+  font-size: 18px;
+  color: #ffffff;
+  line-height: 1.2;
+}
+p {
+  font-weight: 500;
+  font-size: .825rem;
+}
+.bg-danger {
+  background-color: #f54394 !important;
+}
+.bg-warning {
+  background-color: #f4c414 !important
+}
+.bg-success {
+  background-color: #31c971 !important;
+}
+.bg-info {
+  background-color: #14bae4 !important;
+}
+.text-danger {
+  color: #f54394 !important;
+}
+.text-warning {
+  color: #f4c414 !important
+}
+.text-success {
+  color: #31c971 !important;
+}
+.text-info {
+  color: #14bae4 !important;
+}
+input, textarea {
+  background-color: transparent !important;
+  color: white !important;
+  border-color: #39456f !important;
+}
+.card {
+  border-radius: .5rem !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05) !important;
+  color: #b9c0d3 !important;
+  background-color: #1c233f !important;
+  margin-bottom: 15px !important;
+}
+.btn-primary {
+  color: #fff;
+  background-color: #1c233f;
+  border-color: #39456f;
+}
+.btn-primary:hover {
+  color: #fff;
+  background-color: #2f3b65;
+  border-color: transparent;
+}
+.btn-primary.disabled {
+  color: #fff;
+  background-color: #7484bf;
+  border-color: #39456f;
+}
+pre {
+  color: #b9c0d3 !important;
+}

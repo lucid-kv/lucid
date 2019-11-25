@@ -1,15 +1,26 @@
 [package]
 name = "lucid"
 description = "A Fast, Secure and Distributed KV store with an HTTP API."
-version = "0.1.1"
-authors = ["Clint.Network <me@clint.network>"]
+version = "0.1.2"
+authors = ["Clint.Network <me@clint.network>", "Jonathan Serra <jonathan@blocs.fr>", "CephalonRho <CephalonRho@gmail.com>", "rigwild <me@rigwild.dev>"]
 edition = "2018"
-keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "http", "swagger", "websocket"]
-repository = "https://github.com/clintnetwork/lucid"
-license = "https://github.com/clintnetwork/lucid/blob/master/LICENSE.md"
+keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "http", "swagger", "server-sent-event", "web-ui", "encryption", "persistence", "serpent", "redis"]
+repository = "https://github.com/lucid-kv/lucid"
+readme = "https://github.com/lucid-kv/lucid/blob/master/README.md"
+license = "https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"
+documentation = "https://clintnetwork.gitbook.io/lucid/"
+categories = ["command-line-interface", "web-programming::http-server", "web-programming::websocket", "authentication", "command-line-utilities", ]
+build = "build.rs"
+
+[package.metadata.winres]
+ProductName = "Lucid KV"
+LegalCopyright = "Copyright © 2019 Lucid - All Rights Reserved"
 
 [badges]
-travis-ci = { repository = "clintnetwork/lucid", branch = "master" }
+github = { repository = "lucid-kv/lucid", branch = "master" }
+
+[build-dependencies]
+winres = "*"
 
 [dependencies]
 nickel = "*"
@@ -17,19 +28,23 @@ serde = "*"
 serde_json = "*"
 serde_derive = "*"
 serde_yaml = "*"
-rustflake = "*"
+yaml-rust = "*"
 chrono = "*"
 include_dir = "*"
 jsonwebtoken = "*"
 app_dirs = "*"
-colored = "*"
-yaml-rust = "*"
-rust-crypto = "*"
+ring = "*"
 uuid = "*"
 rand = "*"
 warp = "*"
 chashmap = "*"
 plugin = "*"
+tree_magic = "*"
+byte-unit = "*"
+snafu = "*"
+bytes = "*"
+log = "*"
+fern = "*"
 
 [dependencies.clap]
 version = "*"

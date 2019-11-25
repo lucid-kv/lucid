@@ -49,6 +49,12 @@ subcommands:
     settings:
       about: 'Manage Lucid configuration file'
       author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
+      args:
+        - config:
+            help: 'Specify the Lucid configuration file'
+            short: c
+            long: config
+            takes_value: true
   -
     store:
       about: 'Play with the KV store (get/set)'
@@ -61,6 +67,7 @@ subcommands:
         -
           revoke:
             about: 'Revoke a JWT Token'
+            author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
             args:
               -
                 token:
@@ -69,6 +76,7 @@ subcommands:
         -
           issue:
             about: 'Issue a new JWT Token'
+            author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
             args:
               -
                 expiration:
@@ -76,6 +84,17 @@ subcommands:
                   short: e
                   long: expiration
                   takes_value: true
+              - count:
+                  help: 'Number of tokens to issue  '
+                  short: c
+                  long: count
+                  index: 1
+      args:
+        - config:
+            help: 'Specify the Lucid configuration file'
+            short: c
+            long: config
+            takes_value: true
 args:
   -
     help:
