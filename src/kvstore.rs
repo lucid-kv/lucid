@@ -26,14 +26,15 @@ impl KvStore
 
     pub fn set(&self, key: String, value: Vec<u8>) -> Option<KvElement> {
         // TODO: prepare iterative persistence
+        let mime_type = tree_magic::from_u8(value.as_ref());
         match &mut self.container.get_mut(&key) {
             Some(kv_element) => {
                 kv_element.data = value;
+                kv_element.mime = mime_type;
                 kv_element.updated = Utc::now();
                 Some(kv_element.to_owned())
             },
             None => {
-                let mime_type = tree_magic::from_u8(value.as_ref());
                 let kv_element = KvElement {
                     data: value,
                     mime: mime_type,

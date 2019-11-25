@@ -1,30 +1,30 @@
-use std::fs;
-use std::fs::File;
-use std::io::{Error, ErrorKind};
-use std::io;
-use std::io::Write;
-use std::path::Path;
+use std::{
+    fs::{self, File},
+    io::{self, Error, ErrorKind, Write},
+    path::Path,
+    str::FromStr,
+};
 
 use app_dirs::*;
-use chrono::*;
+use chrono::{DateTime, Duration, Utc};
 use clap::App;
 use jsonwebtoken::*;
 use rand::Rng;
 use ring::digest::SHA256;
+use log::LevelFilter;
 
 use crate::configuration::{Claims, Configuration};
-use crate::logger::{Logger, LogLevel};
 use crate::server::Server;
 
-include!("crossplatform.rs");
-
 pub struct Lucid {
+    configuration_location: String,
     configuration: Option<Configuration>
 }
 
 impl Lucid {
     pub fn default() -> Lucid {
         Lucid {
+            configuration_location: String::new(),
             configuration: None
         }
     }
@@ -51,8 +51,7 @@ impl Lucid {
     pub fn initialize(&mut self) -> Result<(), std::io::Error> {
         let cli_yaml = load_yaml!("cli.yml");
         let mut commands = App::from_yaml(cli_yaml)
-            .name(crate_description!())
-            .bin_name(get_binary());
+            .name(crate_description!());
         self.show_banner();
         match self.handle_cli(&mut commands) {
             Some(usage) => println!("{}{}", usage, match usage.to_owned().contains("USAGE") {
@@ -80,23 +79,25 @@ impl Lucid {
 
                 if let Some(matches) = cli.subcommand_matches("cli") {
                     fn display_cli_help() {
-                        crate::logger::print(&LogLevel::Information, "This is all the available commands:");
-                        println!(" - set       [key] - Set an object");
-                        println!(" - get       [key] - Get an object");
-                        println!(" - lock      [key] - Lock an object");
-                        println!(" - unlock    [key] - Unlock an object");
-                        println!(" - expire    [key] - Set an object expiration date");
-                        println!(" - increment [key] - Increment the value of an object");
-                        println!(" - decrement [key] - Decrement the value of an object");
-                        println!(" - drop      [key] - Drop an object");
+                        info!(
+                            "This is all the available commands:\n\
+                             - set       [key] - Set an object\n\
+                             - get       [key] - Get an object\n\
+                             - lock      [key] - Lock an object\n\
+                             - unlock    [key] - Unlock an object\n\
+                             - expire    [key] - Set an object expiration date\n\
+                             - increment [key] - Increment the value of an object\n\
+                             - decrement [key] - Decrement the value of an object\n\
+                             - drop      [key] - Drop an object"
+                        );
                     }
 
                     if matches.is_present("help") {
-                        println!("Welcome to the Lucid Command Line Interface (CLI)\n");
+                        info!("Welcome to the Lucid Command Line Interface (CLI)\n");
                         display_cli_help();
                         return Some("");
                     } else {
-                        println!("Welcome to the Lucid Command Line Interface (CLI)\nType 'help' to display all commands.\n");
+                        info!("Welcome to the Lucid Command Line Interface (CLI)\nType 'help' to display all commands.\n");
 
                         // TODO: Try to connect to the remote endpoint
                         // TODO: Use env var to set remote endpoint
@@ -110,14 +111,14 @@ impl Lucid {
                                 Ok(_) => {
                                     match input.trim().as_ref() {
                                         "exit" | "quit" => {
-                                            crate::logger::print(&LogLevel::Information, "Exiting Lucid CLI");
+                                            info!("Exiting Lucid CLI");
                                             break;
                                         }
                                         "help" | "?" | "-h" | "/?" => {
                                             display_cli_help();
                                         }
                                         _ => {
-                                            crate::logger::print(&LogLevel::Warning, format!("Unknown command '{}'", input.trim()).as_ref());
+                                            warn!("Unknown command '{}'", input.trim());
                                         }
                                     }
                                     println!();
@@ -155,17 +156,16 @@ impl Lucid {
 
                     match self.initialize_node(has_configuration_file, secret_key, matches.is_present("force")) {
                         Ok(lucid_yml_location) => {
-                            let location = format!("Located in: {}", lucid_yml_location.clone());
-                            &self.log(LogLevel::Success, "Lucid successfully initialized.", Some(location.as_str()));
+                            info!("Lucid successfully initialized in {}", lucid_yml_location);
                         },
                         Err(e) => {
-                            &self.log(LogLevel::Error, "Unable to initialize Lucid node.", Some(e.get_ref().unwrap().description()));
+                            error!("Unable to initialize Lucid node: {}", e.get_ref().unwrap().description());
                         }
                     }
                     return Some("");
                 }
 
-                if let Some(matches) = cli.subcommand_matches("server") {
+                if let Some(_matches) = cli.subcommand_matches("server") {
                     // Run server if the instance is successfully configured
                     match &self.configuration {
                         Some(config) => {
@@ -174,16 +174,18 @@ impl Lucid {
                             lucid_server.run();
                         },
                         None => {
-                            &self.log(LogLevel::Warning, "The Lucid node is not successfully configured.", None);
+                            warn!("The Lucid node is not successfully configured.");
                         }
                     };
                     return Some("");
                 }
 
-                if let Some(matches) = cli.subcommand_matches("settings") {
-                    if let Some(configuration) = &self.configuration {
-                        // TODO: print configuration file directly not beautified struct
-                        &self.log(LogLevel::Information, format!("Actual configuration:\n\n{:#?}", configuration).as_str(), None);
+                if let Some(_matches) = cli.subcommand_matches("settings") {
+                    if let Some(_) = &self.configuration {
+                        match fs::read_to_string(&self.configuration_location) {
+                            Ok(content) => info!("Configuration location: {}\n\n{}", &self.configuration_location, content),
+                            Err(err) => error!("{}", err)
+                        }
                     }
                     return Some("");
                 }
@@ -197,10 +199,10 @@ impl Lucid {
                         if let Some(config) = &self.configuration {
                             match &self.issue_jwt(&config.clone().authentication.secret_key, None) {
                                 Some(token) => {
-                                    &self.log(LogLevel::Information, "JWT token successfully generated.", Some(token));
+                                    info!("JWT token successfully generated: {}", token);
                                 },
                                 None => {
-                                    &self.log(LogLevel::Information, "Unable to generate JWT token.", None);
+                                    info!("Unable to generate JWT token.");
                                 }
                             }
                         }
@@ -298,6 +300,8 @@ impl Lucid {
             match fs::read_to_string(&lucid_yml) {
                 Ok(content) => {
                     let configuration: Configuration = serde_yaml::from_str(&content).unwrap();
+                    log::set_max_level(LevelFilter::from_str(&configuration.logging.level).expect("Invalid logging level in configuration"));
+                    self.configuration_location = lucid_yml;
                     self.configuration = Some(configuration);
                     return Ok(());
                 },
