@@ -54,7 +54,7 @@ impl Server {
 
         let configuration = self.configuration.read().unwrap();
 
-        let api_kv_key_path = path!("api" / "kv" / String).and(path::end()).map(|x| dbg!(x));
+        let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
         let api_kv_key = auth
             .and(filters::body::content_length_limit(
                 configuration.http.request_size_limit,
