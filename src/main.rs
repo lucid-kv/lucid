@@ -5,9 +5,6 @@ extern crate serde_derive;
 #[macro_use]
 extern crate log;
 
-//extern crate hyper;
-//extern crate hyper_openssl;
-
 use chrono::Utc;
 use fern::Dispatch;
 use log::LevelFilter;
