@@ -6,7 +6,8 @@ High performance and distributed KV store accessible through an HTTP API. Writte
 [![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/clintnetwork/lucid/blob/master/LICENSE.md)
 [![Telegram](https://img.shields.io/badge/t.me-clintnetwork-informational.svg)](https://t.me/clintnetwork)
-[![Twitter](https://img.shields.io/twitter/follow/clint_network.svg?style=social)](https://twitter.com/intent/follow?screen_name=clint_network)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/lucidkv/community)
+[![Twitter](https://img.shields.io/twitter/follow/lucid_kv.svg?style=social)](https://twitter.com/intent/follow?screen_name=lucid_kv)
 
 ## Introduction
 
@@ -22,13 +23,14 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
   - [x] JWT token Issuing
   - [ ] HTTPS Support
   - [x] Rest API
+     - [x] Adding CORS
      - [x] KV-Base, HashMap-based
      - [x] JWT Authentication
-- [ ] WebUI in VueJS
+- [ ] Web UI in VueJS
 - [ ] Persistence
-- [ ] Encryption on the Fly (AES-256)
+- [ ] Encryption (with Serpent Cipher)
 - [ ] Access Control List (ACL)
-- [ ] WebSocket or Event Source (SSE)
+- [ ] Server Sent Events (SSE)
 
 ## Some Use Cases
 
