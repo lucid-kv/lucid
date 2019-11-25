@@ -39,6 +39,16 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 - Distributed Configuration
 - Blob Storage
 
+## Some Features
+
+- RESTful HTTP API
+- Web UI
+- Persistence
+- Encryption on the Fly (Serpent)
+- Access Control List (ACL)
+- Server Sent Events (SSE)
+- Named Pipes
+
 ## Command Line Interface
 
 [![asciicast](https://asciinema.org/a/277538.svg)](https://asciinema.org/a/277538)
