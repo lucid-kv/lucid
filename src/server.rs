@@ -54,21 +54,20 @@ impl Server {
 
         let configuration = self.configuration.read().unwrap();
 
-        let api_kv = path!("api" / "kv")
-            .and(path::end())
-            .and(auth)
+        let api_kv_key_path = path!("api" / "kv" / String).and(path::end()).map(|x| dbg!(x));
+        let api_kv_key = auth
             .and(filters::body::content_length_limit(
                 configuration.http.request_size_limit,
             ))
             .and(
                 warp::get2()
                     .and(store.clone())
-                    .and(warp::query::<GetKeyParameters>())
+                    .and(api_kv_key_path)
                     .and_then(get_key)
                     .or(warp::put2()
                         .and(store.clone())
                         .and(config.clone())
-                        .and(warp::query::<PutKeyParameters>())
+                        .and(api_kv_key_path)
                         .and(filters::body::content_length_limit(
                             configuration.store.max_limit,
                         ))
@@ -76,15 +75,15 @@ impl Server {
                         .and_then(put_key))
                     .or(warp::delete2()
                         .and(store.clone())
-                        .and(warp::query::<DeleteKeyParameters>())
+                        .and(api_kv_key_path)
                         .and_then(delete_key))
                     .or(warp::head()
                         .and(store.clone())
-                        .and(warp::query::<HeadKeyParameters>())
+                        .and(api_kv_key_path)
                         .and_then(find_key))
                     .or(warp::patch()
                         .and(store.clone())
-                        .and(warp::query::<PatchKeyParameters>())
+                        .and(api_kv_key_path)
                         .and(filters::body::json())
                         .and_then(patch_key)),
             );
@@ -97,7 +96,7 @@ impl Server {
             .and(path::end())
             .and(warp::get2().map(|| "User-agent: *\nDisallow: /"));
 
-        let routes = api_kv.or(webui).or(robots).recover(process_error);
+        let routes = api_kv_key.or(webui).or(robots).recover(process_error);
         warp::serve(routes).run((
             configuration.default.bind_address,
             configuration.default.port,
@@ -105,32 +104,18 @@ impl Server {
     }
 }
 
-#[derive(Debug, Deserialize)]
-struct GetKeyParameters {
-    key: Option<String>,
-}
-fn get_key(store: Arc<KvStore>, parameters: GetKeyParameters) -> Result<impl Reply, Rejection> {
-    if let Some(key) = parameters.key {
-        if let Some(value) = store.get(key) {
-            Ok(value)
-        } else {
-            Err(warp::reject::custom(Error::KeyNotFound))
-        }
+fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
+    if let Some(value) = store.get(key) {
+        Ok(value)
     } else {
-        Err(warp::reject::custom(Error::MissingParameter {
-            parameter: "key".to_string(),
-        }))
+        Err(warp::reject::custom(Error::KeyNotFound))
     }
 }
 
-#[derive(Debug, Deserialize)]
-struct PutKeyParameters {
-    key: Option<String>,
-}
 fn put_key(
     store: Arc<KvStore>,
     config: Arc<RwLock<Configuration>>,
-    parameters: PutKeyParameters,
+    key: String,
     body: filters::body::FullBody,
 ) -> Result<impl Reply, Rejection> {
     if body.remaining() == 0 {
@@ -140,98 +125,58 @@ fn put_key(
             max_limit: config.read().unwrap().store.max_limit,
         }))
     } else {
-        if let Some(key) = parameters.key {
-            if let Some(_) = store.set(key, body.bytes().to_vec()) {
-                Ok(warp::reply::json(&JsonMessage {
-                    message: "The specified key was successfully updated.".to_string(),
-                }))
-            } else {
-                Ok(warp::reply::json(&JsonMessage {
-                    message: "The specified key was successfully created.".to_string(),
-                }))
-            }
-        } else {
-            Err(warp::reject::custom(Error::MissingParameter {
-                parameter: "key".to_string(),
-            }))
-        }
-    }
-}
-
-#[derive(Debug, Deserialize)]
-struct DeleteKeyParameters {
-    key: Option<String>,
-}
-fn delete_key(
-    store: Arc<KvStore>,
-    parameters: DeleteKeyParameters,
-) -> Result<impl Reply, Rejection> {
-    if let Some(key) = parameters.key {
-        if let Some(_) = store.get(key.clone()) {
-            (*store).drop(key);
+        if let Some(_) = store.set(key, body.bytes().to_vec()) {
             Ok(warp::reply::json(&JsonMessage {
-                message: "The specified key and it's data was successfully deleted".to_string(),
+                message: "The specified key was successfully updated.".to_string(),
             }))
         } else {
-            Err(warp::reject::custom(Error::KeyNotFound))
+            Ok(warp::reply::json(&JsonMessage {
+                message: "The specified key was successfully created.".to_string(),
+            }))
         }
-    } else {
-        Err(warp::reject::custom(Error::MissingParameter {
-            parameter: "key".to_string(),
-        }))
     }
 }
 
-#[derive(Debug, Deserialize)]
-struct HeadKeyParameters {
-    key: Option<String>,
-}
-fn find_key(store: Arc<KvStore>, parameters: HeadKeyParameters) -> Result<impl Reply, Rejection> {
-    if let Some(key) = parameters.key {
-        if let Some(_) = store.get(key) {
-            Ok("")
-        } else {
-            Err(warp::reject::custom(Error::KeyNotFound))
-        }
-    } else {
-        Err(warp::reject::custom(Error::MissingParameter {
-            parameter: "key".to_string(),
+fn delete_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
+    if let Some(_) = store.get(key.clone()) {
+        (*store).drop(key);
+        Ok(warp::reply::json(&JsonMessage {
+            message: "The specified key and it's data was successfully deleted".to_string(),
         }))
+    } else {
+        Err(warp::reject::custom(Error::KeyNotFound))
+    }
+}
+fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
+    if let Some(_) = store.get(key) {
+        Ok("")
+    } else {
+        Err(warp::reject::custom(Error::KeyNotFound))
     }
 }
 
-#[derive(Debug, Deserialize)]
-struct PatchKeyParameters {
-    key: Option<String>,
-}
 #[derive(Debug, Deserialize)]
 struct PatchValue {
     operation: String,
 }
 fn patch_key(
     store: Arc<KvStore>,
-    parameters: PatchKeyParameters,
+    key: String,
     patch_value: PatchValue,
 ) -> Result<impl Reply, Rejection> {
-    if let Some(key) = parameters.key {
-        if let Some(_) = store.get(key.clone()) {
-            match patch_value.operation.as_str() {
-                "lock" | "unlock" => {
-                    let r = store.switch_lock(key.to_string(), true);
-                    println!("{}", r);
-                    Ok("")
-                }
-                _ => Err(warp::reject::custom(Error::InvalidOperation {
-                    operation: patch_value.operation,
-                })),
+    if let Some(_) = store.get(key.clone()) {
+        match patch_value.operation.as_str() {
+            "lock" | "unlock" => {
+                let r = store.switch_lock(key.to_string(), true);
+                println!("{}", r);
+                Ok("")
             }
-        } else {
-            Err(warp::reject::custom(Error::KeyNotFound))
+            _ => Err(warp::reject::custom(Error::InvalidOperation {
+                operation: patch_value.operation,
+            })),
         }
     } else {
-        Err(warp::reject::custom(Error::MissingParameter {
-            parameter: "key".to_string(),
-        }))
+        Err(warp::reject::custom(Error::KeyNotFound))
     }
 }
 
