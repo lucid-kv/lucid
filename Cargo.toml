@@ -2,9 +2,9 @@
 name = "lucid"
 description = "A Fast, Secure and Distributed KV store with an HTTP API."
 version = "0.1.2"
-authors = ["Clint.Network <me@clint.network>", "rigwild <me@rigwild.dev>"]
+authors = ["Clint.Network <me@clint.network>", "Jonathan Serra <jonathan@blocs.fr>", "rigwild <me@rigwild.dev>"]
 edition = "2018"
-keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "http", "swagger", "websocket"]
+keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "http", "swagger", "server-sent-event", "web-ui", "encryption", "persistence", "serpent", "redis"]
 repository = "https://github.com/lucid-kv/lucid"
 readme = "https://github.com/lucid-kv/lucid/blob/master/README.md"
 license = "https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"
