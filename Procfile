@@ -1,1 +1,1 @@
-web: ./target/release/lucid init ; ./target/release/lucid server
+web: echo $PORT; ./target/release/lucid init ; ./target/release/lucid server
