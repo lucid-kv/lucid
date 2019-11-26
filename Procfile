@@ -1,1 +1,1 @@
-web: ./target/release/lucid server
+web: ./target/release/lucid init ; ./target/release/lucid server
