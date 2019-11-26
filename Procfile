@@ -1,1 +1,1 @@
-web: chmod +x heroku.sh ; ./heroku.sh
+web: chmod +x scripts/heroku.sh ; ./scripts/heroku.sh
