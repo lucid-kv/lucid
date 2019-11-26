@@ -1,1 +1,1 @@
-web: echo $PORT; ./target/release/lucid init ; ./target/release/lucid server
+web: chmod +x heroku.sh ; ./heroku.sh
