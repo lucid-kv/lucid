@@ -1,1 +1,1 @@
-web: chmod +x heroku.sh ; ./heroku.sh
+web: ./target/release/lucid init ; ./target/release/lucid server
