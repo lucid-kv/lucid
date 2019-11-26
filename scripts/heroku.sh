@@ -2,7 +2,7 @@
 cat > /app/.config/lucid/lucid.yml <<EOL
 ---
 default:
-  bind_address: 127.0.0.1
+  bind_address: 0.0.0.0
   port: ${PORT}
   port_ssl: ${PORT}
   use_ssl: false
