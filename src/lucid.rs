@@ -74,9 +74,6 @@ impl Lucid {
                     return Some("")
                 }
 
-                // Configure instance if --config args is passed
-                &mut self.configure(cli.value_of("config"));
-
                 if let Some(matches) = cli.subcommand_matches("cli") {
                     fn display_cli_help() {
                         info!(
@@ -165,8 +162,8 @@ impl Lucid {
                     return Some("");
                 }
 
-                if let Some(_matches) = cli.subcommand_matches("server") {
-                    // Run server if the instance is successfully configured
+                if let Some(matches) = cli.subcommand_matches("server") {
+                    &mut self.configure(matches.value_of("config"));
                     match &self.configuration {
                         Some(config) => {
                             let mut lucid_server = Server::new();
@@ -180,7 +177,8 @@ impl Lucid {
                     return Some("");
                 }
 
-                if let Some(_matches) = cli.subcommand_matches("settings") {
+                if let Some(matches) = cli.subcommand_matches("settings") {
+                    &mut self.configure(matches.value_of("config"));
                     if let Some(_) = &self.configuration {
                         match fs::read_to_string(&self.configuration_location) {
                             Ok(content) => info!("Configuration location: {}\n\n{}", &self.configuration_location, content),
@@ -190,11 +188,13 @@ impl Lucid {
                     return Some("");
                 }
 
-                if let Some(_matches) = cli.subcommand_matches("store") {
+                if let Some(matches) = cli.subcommand_matches("store") {
+                    &mut self.configure(matches.value_of("config"));
                     unimplemented!("Not implemented");
                 }
 
                 if let Some(matches) = cli.subcommand_matches("tokens") {
+                    &mut self.configure(matches.value_of("config"));
                     if matches.is_present("issue") {
                         if let Some(config) = &self.configuration {
                             match &self.issue_jwt(&config.clone().authentication.secret_key, None) {
