@@ -14,8 +14,6 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 
 ## Works Progress
 
-<ins>__**Warning: Empty project for now, the development is ensured in the [development](https://github.com/lucid-kv/lucid/tree/development) branch.**__</ins>
-
 - [x] Minimum Viable Product (MVP)
   - [x] Initialization process
   - [x] Configuration files handling
@@ -39,16 +37,6 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 - Service Discovery
 - Distributed Configuration
 - Blob Storage
-
-## Some Features
-
-- RESTful HTTP API
-- Web UI
-- Persistence
-- Encryption on the Fly (Serpent)
-- Access Control List (ACL)
-- Server Sent Events (SSE)
-- Named Pipes
 
 ## Command Line Interface
 
