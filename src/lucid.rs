@@ -280,20 +280,19 @@ impl Lucid {
     }
 
     // Configure the current instance with the default or a specific configuration file
-    fn configure(&mut self, configuration_file: Option<&str>) -> Result<(), std::io::Error> {
-        let lucid_yml = match configuration_file {
-            None => match get_data_root(AppDataType::UserConfig) { // TODO: check app data location
+    fn configure(&mut self, configuration_file: Option<&str>) {
+        let mut lucid_yml = String::new();
+        match configuration_file {
+            Some(conf) => lucid_yml = String::from(conf),
+            None => match get_data_root(AppDataType::UserConfig) {
                 Ok(mut appdata_root) => {
                     &appdata_root.push("lucid");
-                    fs::create_dir_all(&appdata_root.clone().into_os_string().into_string().unwrap())?;
+                    fs::create_dir_all(&appdata_root.clone().into_os_string().into_string().unwrap()).unwrap();
                     &appdata_root.push("lucid.yml");
-                    appdata_root.into_os_string().into_string().unwrap()
+                    lucid_yml = appdata_root.into_os_string().into_string().unwrap();
                 },
-                Err(_) => {
-                    return Err(Error::new(ErrorKind::Interrupted, "Unable to get the Lucid configuration folder."));
-                }
-            },
-            Some(conf) => String::from(conf)
+                Err(_) => warn!("Unable to get the Lucid configuration folder.")
+            }
         };
 
         if Path::new(&lucid_yml).exists() {
@@ -303,14 +302,11 @@ impl Lucid {
                     log::set_max_level(LevelFilter::from_str(&configuration.logging.level).expect("Invalid logging level in configuration"));
                     self.configuration_location = lucid_yml;
                     self.configuration = Some(configuration);
-                    return Ok(());
                 },
-                Err(_) => {
-                    return Err(Error::new(ErrorKind::Interrupted, "Unable to read the Lucid configuration file."));
-                }
+                Err(_) => warn!("Unable to read the Lucid configuration file.")
             }
         } else {
-            return Err(Error::new(ErrorKind::Interrupted, "Not initialized Lucid node."));
+            warn!("This configuration file does not exists.");
         }
     }
 }
