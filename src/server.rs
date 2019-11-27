@@ -56,9 +56,6 @@ impl Server {
 
         let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
         let api_kv_key = auth
-            .and(filters::body::content_length_limit(
-                configuration.http.request_size_limit,
-            ))
             .and(
                 warp::get2()
                     .and(store.clone())
@@ -68,6 +65,9 @@ impl Server {
                         .and(store.clone())
                         .and(config.clone())
                         .and(api_kv_key_path)
+                        .and(filters::body::content_length_limit(
+                            configuration.http.request_size_limit,
+                        ))
                         .and(filters::body::content_length_limit(
                             configuration.store.max_limit,
                         ))
@@ -84,6 +84,9 @@ impl Server {
                     .or(warp::patch()
                         .and(store.clone())
                         .and(api_kv_key_path)
+                        .and(filters::body::content_length_limit(
+                            configuration.http.request_size_limit,
+                        ))
                         .and(filters::body::json())
                         .and_then(patch_key)),
             );
