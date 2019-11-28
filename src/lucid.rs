@@ -190,7 +190,7 @@ impl Lucid {
 
                 if let Some(matches) = cli.subcommand_matches("store") {
                     &mut self.configure(matches.value_of("config"));
-                    unimplemented!("Not implemented");
+                    return None;
                 }
 
                 if let Some(matches) = cli.subcommand_matches("tokens") {
@@ -207,7 +207,7 @@ impl Lucid {
                             }
                         }
                     }
-                    return Some("");
+                    return None;
                 }
             }
             Err(e) => {
