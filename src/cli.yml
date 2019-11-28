@@ -49,6 +49,13 @@ subcommands:
     settings:
       about: 'Manage Lucid configuration file'
       author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
+      subcommands:
+        - set:
+            about: 'Update a setting parameter'
+            author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
+        - get:
+            about: 'Get a setting parameter'
+            author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
       args:
         - config:
             help: 'Specify the Lucid configuration file'
