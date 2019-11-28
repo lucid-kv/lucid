@@ -12,6 +12,10 @@ High performance and distributed KV store accessible through an HTTP API. Writte
 
 Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
 
+## Demo Node
+
+A demonstration instance is accessible here: http://lucid-kv.herokuapp.com/
+
 ## Works Progress
 
 - [x] Minimum Viable Product (MVP)
