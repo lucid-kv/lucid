@@ -91,8 +91,7 @@ impl Server {
                         .and_then(patch_key)),
             );
 
-        let webui = warp::get2()
-            .and(path::end())
+        let webui = warp::path::end()
             .and(fs::file("webui/dist/index.html"))
             .or(fs::dir("webui/dist"))
             .and(webui_enabled);
@@ -105,7 +104,7 @@ impl Server {
         warp::serve(routes).run((
             configuration.default.bind_address,
             configuration.default.port,
-        ));
+        ), );
     }
 }
 
