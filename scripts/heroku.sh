@@ -7,7 +7,7 @@ default:
   port_ssl: ${PORT}
   use_ssl: false
 authentication:
-  enabled: true
+  enabled: false
   root_token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJMdWNpZCBSb290IFRva2VuIiwiaXNzIjoiaHR0cDovLzEyNy4wLjAuMTo3MDIxLyIsImlhdCI6MTU3NDQyMDE0NSwiZXhwIjoxNjY4NzY4OTQ1fQ.iGGRmZXjwsO4PSQKNI1qGtsA1Sj94SBXB4WU_XN5EuQ
   secret_key: 03dfe6e600e2620388311955ab3bee32cd6cbb8aca75dace6cfc2e2a43db5dfd
 persistence:
