@@ -5,7 +5,7 @@
         <router-link :to="{ name: 'Home' }" class="logo">
           Lucid ᵏᵛ
         </router-link>
-        <b-badge v-if="endpoint.version" :href="`https://github.com/clintnetwork/lucid/releases/tag/${endpoint.version}`" target="_blank" rel="noopener" class="version" pill variant="dark">v{{ endpoint.version }}</b-badge>
+        <b-badge v-if="endpoint.version" :href="`https://github.com/lucid-kv/lucid/releases/tag/${endpoint.version}`" target="_blank" rel="noopener" class="version" pill variant="dark">v{{ endpoint.version }}</b-badge>
       </div>
 
       <ul class="list-unstyled components">
@@ -78,11 +78,11 @@
 
         <a class="list-group-item list-group-item-action heading">Other</a>
 
-        <a href="https://github.com/clintnetwork/lucid" target="_blank" rel="noopener" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <a href="https://github.com/lucid-kv/lucid" target="_blank" rel="noopener" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
           <feather type="github" size="1rem" />
           <span class="mr-auto">Github Repository</span>
         </a>
-        <a href="https://clintnetwork.gitbook.io/lucid/" target="_blank" rel="noopener" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <a href="https://docs.lucid-kv.store" target="_blank" rel="noopener" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
           <feather type="book-open" size="1rem" />
           <span class="mr-auto">Lucid Documentation</span>
         </a>

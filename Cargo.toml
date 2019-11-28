@@ -8,7 +8,7 @@ keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "htt
 repository = "https://github.com/lucid-kv/lucid"
 readme = "https://github.com/lucid-kv/lucid/blob/master/README.md"
 license = "https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"
-documentation = "https://clintnetwork.gitbook.io/lucid/"
+documentation = "https://docs.lucid-kv.store/"
 categories = ["command-line-interface", "web-programming::http-server", "web-programming::websocket", "authentication", "command-line-utilities", ]
 build = "build.rs"
 
