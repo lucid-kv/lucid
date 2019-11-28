@@ -100,7 +100,14 @@ impl Server {
             .and(path::end())
             .and(warp::get2().map(|| "User-agent: *\nDisallow: /"));
 
-        let routes = api_kv_key.or(webui).or(robots).recover(process_error);
+        let log = warp::log("lucid::Server");
+
+        let routes = api_kv_key
+            .or(webui)
+            .or(robots)
+            .recover(process_error)
+            .with(log);
+
         warp::serve(routes).run((
             configuration.default.bind_address,
             configuration.default.port,
