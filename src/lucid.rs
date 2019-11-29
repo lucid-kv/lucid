@@ -40,7 +40,16 @@ impl Lucid {
     }
 
     fn show_version(&self) {
-        println!("Lucid Version {}\n", crate_version!());
+        info!("Lucid Version {}\n", crate_version!());
+        println!("\
++-----------------+-----------------------+--------------------+\n\
+|               Lucid KV Development Credits                   |\n\
++-----------------+-----------------------+--------------------+\n\
+| Clint Mourlevat | me@clint.network      | Lucid Founder      |\n\
+| Jonathan Serra  | jonathan@blocs.fr     | Core Development   |\n\
+| CephalonRho     | CephalonRho@gmail.com | Core Development   |\n\
+| Rigwild         | me@rigwild.dev        | Web UI Development |\n\
++-----------------+-----------------------+--------------------+")
     }
 
     fn show_help(&self, commands: &mut App) {
