@@ -108,12 +108,11 @@ impl Server {
             .recover(process_error)
             .with(log);
 
-        let port_and_address = (configuration.default.bind_address, configuration.default.port);
         let instance = warp::serve(routes);
         if configuration.default.use_ssl {
-            instance.tls(&configuration.default.ssl_certificate,  &configuration.default.ssl_certificate_key).run(port_and_address);
+            instance.tls(&configuration.default.ssl_certificate,  &configuration.default.ssl_certificate_key).run((configuration.default.bind_address, configuration.default.port_ssl));
         } else {
-            instance.run(port_and_address);
+            instance.run((configuration.default.bind_address, configuration.default.port));
         }
     }
 }
