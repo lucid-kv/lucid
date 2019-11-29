@@ -109,8 +109,8 @@ impl Server {
             .with(log);
 
         warp::serve(routes).run((
-            configuration.default.bind_address,
-            configuration.default.port,
+            configuration.general.bind_address,
+            configuration.general.port,
         ), );
     }
 }
