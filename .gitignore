@@ -20,3 +20,6 @@
 
 **/resource.rc
 **/resource.lib
+
+# Ignore SSL certificate folder
+tls
