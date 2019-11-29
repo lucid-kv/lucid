@@ -108,10 +108,9 @@ impl Server {
             .recover(process_error)
             .with(log);
 
-        warp::serve(routes).run((
-            configuration.default.bind_address,
-            configuration.default.port,
-        ), );
+        warp::serve(routes)
+            .tls("tls/cert.pem", "tls/key.rsa")
+            .run((configuration.default.bind_address, configuration.default.port));
     }
 }
 

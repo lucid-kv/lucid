@@ -20,6 +20,8 @@ impl Configuration {
                 port: 7021, // TODO: change after implementing SSL
                 port_ssl: 7021,
                 use_ssl: false,
+                ssl_certificate: String::new(),
+                ssl_certificate_key: String::new()
             },
             authentication: Authentication {
                 enabled: true,
@@ -56,6 +58,8 @@ pub struct Base {
     pub port: u16,
     pub port_ssl: u16,
     pub use_ssl: bool,
+    pub ssl_certificate: String,
+    pub ssl_certificate_key: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
