@@ -8,6 +8,7 @@ extern crate log;
 use chrono::Utc;
 use fern::Dispatch;
 use log::LevelFilter;
+use fern::colors::{Color, ColoredLevelConfig};
 
 use lucid::Lucid;
 
@@ -17,12 +18,16 @@ mod lucid;
 mod server;
 
 fn main() -> Result<(), std::io::Error> {
+    let colors = ColoredLevelConfig::new()
+        .info(Color::Green)
+        .debug(Color::Magenta);
+
     Dispatch::new()
-        .format(|out, message, record| {
+        .format(move |out, message, record| {
             out.finish(format_args!(
                 "{} {} [{}] {}",
                 Utc::now().format("%Y/%m/%d %H:%M:%S"),
-                record.level(),
+                colors.color(record.level()),
                 record.target(),
                 message
             ))

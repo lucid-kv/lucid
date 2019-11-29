@@ -44,8 +44,11 @@ byte-unit = "*"
 snafu = "*"
 bytes = "*"
 log = "*"
-fern = "*"
 
 [dependencies.clap]
 version = "*"
 features = ["yaml"]
+
+[dependencies.fern]
+version = "*"
+features = ["colored"]
