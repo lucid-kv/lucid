@@ -4,3 +4,5 @@
 assets
 scripts
 target
+webui/**
+!webui/dist/**
