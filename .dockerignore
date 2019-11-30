@@ -1,0 +1,8 @@
+.git
+.github
+.idea
+assets
+scripts
+target
+webui/**
+!webui/dist/**

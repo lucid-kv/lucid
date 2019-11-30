@@ -1,15 +1,11 @@
-#MAINTAINER clint.mourlevat@gmail.com
+FROM rust:latest
 
-# Build Lucid
-FROM rust:1.38 as build
-COPY ./ ./
+WORKDIR /usr/src/lucid
+COPY . .
+
 RUN cargo build --release
-RUN mkdir -p /output
-RUN cp target/release/lucid /output
+RUN cp target/release/lucid /usr/bin/
 
-# Run Lucid
-FROM alpine:latest
-COPY --from=build /output/lucid /
-WORKDIR /
-CMD ["lucid", "init"]
-CMD ["lucid", "server"]
+EXPOSE 7021
+
+CMD ["lucid", "server", "--config", "/etc/lucid/lucid.yml"]
