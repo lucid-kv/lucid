@@ -123,12 +123,7 @@ fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
     }
 }
 
-fn put_key(
-    store: Arc<KvStore>,
-    config: Arc<RwLock<Configuration>>,
-    key: String,
-    body: filters::body::FullBody,
-) -> Result<impl Reply, Rejection> {
+fn put_key(store: Arc<KvStore>, config: Arc<RwLock<Configuration>>, key: String, body: filters::body::FullBody) -> Result<impl Reply, Rejection> {
     if body.remaining() == 0 {
         Err(warp::reject::custom(Error::MissingBody))
     } else if body.bytes().len() as u64 > config.read().unwrap().store.max_limit {
@@ -170,11 +165,7 @@ fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
 struct PatchValue {
     operation: String,
 }
-fn patch_key(
-    store: Arc<KvStore>,
-    key: String,
-    patch_value: PatchValue,
-) -> Result<impl Reply, Rejection> {
+fn patch_key(store: Arc<KvStore>, key: String, patch_value: PatchValue) -> Result<impl Reply, Rejection> {
     if let Some(_) = store.get(key.clone()) {
         match patch_value.operation.as_str() {
             "lock" | "unlock" => {
@@ -191,10 +182,7 @@ fn patch_key(
     }
 }
 
-fn verify_auth(
-    auth_header: Option<String>,
-    config: Arc<RwLock<Configuration>>,
-) -> Result<(), Rejection> {
+fn verify_auth(auth_header: Option<String>, config: Arc<RwLock<Configuration>>) -> Result<(), Rejection> {
     let config = config.read().unwrap();
     if config.authentication.enabled {
         if let Some(auth_header) = auth_header {
