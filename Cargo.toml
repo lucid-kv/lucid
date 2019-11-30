@@ -36,7 +36,6 @@ app_dirs = "*"
 ring = "*"
 uuid = "*"
 rand = "*"
-warp = "*"
 chashmap = "*"
 plugin = "*"
 tree_magic = "*"
@@ -49,3 +48,7 @@ fern = "*"
 [dependencies.clap]
 version = "*"
 features = ["yaml"]
+
+[dependencies.warp]
+version = "*"
+features = ["tls"]

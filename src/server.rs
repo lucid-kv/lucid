@@ -109,10 +109,12 @@ impl Server {
             .with(warp::reply::with::header("Server", format!("Lucid v{}", crate_version!())))
             .with(log);
 
-        warp::serve(routes).run((
-            configuration.default.bind_address,
-            configuration.default.port,
-        ), );
+        let instance = warp::serve(routes);
+        if configuration.default.use_ssl {
+            instance.tls(&configuration.default.ssl_certificate,  &configuration.default.ssl_certificate_key).run((configuration.default.bind_address, configuration.default.port_ssl));
+        } else {
+            instance.run((configuration.default.bind_address, configuration.default.port));
+        }
     }
 }
 
