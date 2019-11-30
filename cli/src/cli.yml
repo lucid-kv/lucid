@@ -1,0 +1,24 @@
+name: Lucid CLI
+author: &author Written in Rust by Clint.Network (twitter.com/clint_network)
+settings:
+    - GlobalVersion
+    - SubcommandRequiredElseHelp
+args:
+  - uri:
+      help: The Lucid server URI
+      takes_value: true
+      required: true
+subcommands:
+  - store:
+      about: Play with the KV store
+      settings:
+        - SubcommandRequiredElseHelp
+      author: *author
+      subcommands:
+          - get:
+              about: Get a value from the store
+              args:
+                - key:
+                    help: The key of the value to get
+                    takes_value: true
+                    required: true

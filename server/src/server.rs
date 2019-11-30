@@ -19,14 +19,8 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new() -> Server {
-        Server {
-            configuration: Arc::new(RwLock::new(Configuration::default())),
-        }
-    }
-
-    pub fn configure(&mut self, configuration: Configuration) {
-        *self.configuration.write().unwrap() = configuration;
+    pub fn new(configuration: Arc<RwLock<Configuration>>) -> Server {
+        Server { configuration }
     }
 
     pub fn run(&self) {
@@ -55,41 +49,40 @@ impl Server {
         let configuration = self.configuration.read().unwrap();
 
         let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
-        let api_kv_key = auth
-            .and(
-                warp::get2()
+        let api_kv_key = auth.and(
+            warp::get2()
+                .and(store.clone())
+                .and(api_kv_key_path)
+                .and_then(get_key)
+                .or(warp::put2()
+                    .and(store.clone())
+                    .and(config.clone())
+                    .and(api_kv_key_path)
+                    .and(filters::body::content_length_limit(
+                        configuration.http.request_size_limit,
+                    ))
+                    .and(filters::body::content_length_limit(
+                        configuration.store.max_limit,
+                    ))
+                    .and(warp::body::concat())
+                    .and_then(put_key))
+                .or(warp::delete2()
                     .and(store.clone())
                     .and(api_kv_key_path)
-                    .and_then(get_key)
-                    .or(warp::put2()
-                        .and(store.clone())
-                        .and(config.clone())
-                        .and(api_kv_key_path)
-                        .and(filters::body::content_length_limit(
-                            configuration.http.request_size_limit,
-                        ))
-                        .and(filters::body::content_length_limit(
-                            configuration.store.max_limit,
-                        ))
-                        .and(warp::body::concat())
-                        .and_then(put_key))
-                    .or(warp::delete2()
-                        .and(store.clone())
-                        .and(api_kv_key_path)
-                        .and_then(delete_key))
-                    .or(warp::head()
-                        .and(store.clone())
-                        .and(api_kv_key_path)
-                        .and_then(find_key))
-                    .or(warp::patch()
-                        .and(store.clone())
-                        .and(api_kv_key_path)
-                        .and(filters::body::content_length_limit(
-                            configuration.http.request_size_limit,
-                        ))
-                        .and(filters::body::json())
-                        .and_then(patch_key)),
-            );
+                    .and_then(delete_key))
+                .or(warp::head()
+                    .and(store.clone())
+                    .and(api_kv_key_path)
+                    .and_then(find_key))
+                .or(warp::patch()
+                    .and(store.clone())
+                    .and(api_kv_key_path)
+                    .and(filters::body::content_length_limit(
+                        configuration.http.request_size_limit,
+                    ))
+                    .and(filters::body::json())
+                    .and_then(patch_key)),
+        );
 
         let webui = warp::path::end()
             .and(fs::file("webui/dist/index.html"))
@@ -111,9 +104,20 @@ impl Server {
 
         let instance = warp::serve(routes);
         if configuration.default.use_ssl {
-            instance.tls(&configuration.default.ssl_certificate,  &configuration.default.ssl_certificate_key).run((configuration.default.bind_address, configuration.default.port_ssl));
+            instance
+                .tls(
+                    &configuration.default.ssl_certificate,
+                    &configuration.default.ssl_certificate_key,
+                )
+                .run((
+                    configuration.default.bind_address,
+                    configuration.default.port_ssl,
+                ));
         } else {
-            instance.run((configuration.default.bind_address, configuration.default.port));
+            instance.run((
+                configuration.default.bind_address,
+                configuration.default.port,
+            ));
         }
     }
 }

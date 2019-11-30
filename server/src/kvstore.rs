@@ -7,20 +7,18 @@ pub struct KvElement {
     pub mime: String,
     pub created: DateTime<Utc>,
     pub updated: DateTime<Utc>,
-    pub locked: bool
+    pub locked: bool,
 }
 
 pub struct KvStore {
-    container: CHashMap<String, KvElement>
+    container: CHashMap<String, KvElement>,
 }
 
-impl KvStore
-{
-    pub fn new() -> KvStore
-    {
+impl KvStore {
+    pub fn new() -> KvStore {
         // TODO: prepare looped persistence
         KvStore {
-            container: CHashMap::new()
+            container: CHashMap::new(),
         }
     }
 
@@ -33,7 +31,7 @@ impl KvStore
                 kv_element.mime = mime_type;
                 kv_element.updated = Utc::now();
                 Some(kv_element.to_owned())
-            },
+            }
             None => {
                 let kv_element = KvElement {
                     data: value,
@@ -59,8 +57,8 @@ impl KvStore
             Some(kv_element) => {
                 kv_element.locked = to_lock;
                 true
-            },
-            None => false
+            }
+            None => false,
         }
     }
 

@@ -1,4 +1,4 @@
-./target/release/lucid init
+./target/release/lucid-server init
 cat > /app/.config/lucid/lucid.yml <<EOL
 ---
 default:
@@ -27,4 +27,4 @@ http:
 logging:
   level: Info
 EOL
-./target/release/lucid server
+./target/release/lucid-server

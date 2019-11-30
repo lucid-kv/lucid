@@ -1,5 +1,5 @@
 [package]
-name = "server"
+name = "cli"
 description = "A Fast, Secure and Distributed KV store with an HTTP API."
 version = "0.1.2"
 authors = ["Clint.Network <me@clint.network>", "Jonathan Serra <jonathan@blocs.fr>", "CephalonRho <CephalonRho@gmail.com>", "rigwild <me@rigwild.dev>"]
@@ -13,14 +13,14 @@ categories = ["command-line-interface", "web-programming::http-server", "web-pro
 build = "build.rs"
 
 [package.metadata.winres]
-ProductName = "Lucid KV"
+ProductName = "Lucid KV CLI"
 LegalCopyright = "Copyright © 2019 Lucid - All Rights Reserved"
 
 [badges]
 github = { repository = "lucid-kv/lucid", branch = "master" }
 
 [[bin]]
-name = "lucid-server"
+name = "lucid-cli"
 path = "src/main.rs"
 
 [build-dependencies]
@@ -31,17 +31,11 @@ serde_json = "1.0.42"
 serde_yaml = "0.8.11"
 chrono = "0.4.10"
 jsonwebtoken = "6.0.1"
-app_dirs = "1.2.1"
-ring = "0.14.6"
-uuid = "0.8.1"
-rand = "0.7.2"
-chashmap = "2.2.2"
-tree_magic = "0.2.1"
-byte-unit = "3.0.3"
-snafu = "0.6.0"
-bytes = "0.4.12"
-log = { version = "0.4.8", features = ["serde"] }
-fern = "0.5.9"
-clap = { version = "2.33.0", features = ["yaml"] }
-warp = { version = "0.1.20", features = ["tls"] }
-serde = { version = "1.0.103", features = ["derive"] }
+snafu = { version = "0.6.0", features = [ "futures-01" ] }
+log = { version = "0.4.8" }
+env_logger = "0.7.1"
+clap = { version = "2.33.0", features = [ "yaml" ] }
+warp = { version = "0.1.20", features = [ "tls" ] }
+serde = { version = "1.0.103", features = [ "derive" ] }
+hyper = "0.12.35"
+hyper-rustls = "0.16.1"
