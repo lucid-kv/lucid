@@ -209,9 +209,11 @@ impl Lucid {
                             match &self.issue_jwt(&config.clone().authentication.secret_key, None) {
                                 Some(token) => {
                                     info!("JWT token successfully generated: {}", token);
+                                    return Some("");
                                 },
                                 None => {
                                     info!("Unable to generate JWT token.");
+                                    return Some("");
                                 }
                             }
                         }
