@@ -106,6 +106,7 @@ impl Server {
             .or(webui)
             .or(robots)
             .recover(process_error)
+            .with(warp::reply::with::header("Server", format!("Lucid v{}", crate_version!())))
             .with(log);
 
         warp::serve(routes).run((
