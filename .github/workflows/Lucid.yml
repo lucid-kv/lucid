@@ -10,8 +10,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Buildz
-      working-directory: lucid
       run: cargo build --verbose
     - name: Run tests
-      working-directory: lucid
       run: cargo test --verbose
