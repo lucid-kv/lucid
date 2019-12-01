@@ -10,15 +10,15 @@ High performance and distributed KV store accessible through an HTTP API. Writte
 
 ## Introduction
 
-⚠️ Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
+Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
 
 ## Getting Started
 
 Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/releases) page and run this commands:
 
 ```
-$ ./lucid init       # Initialize node and create the configuration file
-$ ./lucid server     # Run the Lucid server
+$ ./lucid init
+$ ./lucid server
 
 2019/12/01 12:58:16 INFO [warp::server] warp drive engaged: listening on http://127.0.0.1:7021
 ```
