@@ -10,7 +10,7 @@ High performance and distributed KV store accessible through an HTTP API. Writte
 
 ## Introduction
 
-Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
+⚠️ Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
 
 ## Getting Started
 
