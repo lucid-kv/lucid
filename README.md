@@ -17,7 +17,7 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/releases) page and run this commands:
 
 ```
-$ ./lucid init
+$ ./lucid init   # To initialize the node and create a new configuration file
 $ ./lucid server
 
  ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
