@@ -20,7 +20,8 @@ const CREDITS: &'static str = "\
                                | Rigwild         | me@rigwild.dev        | Web UI Development |\n\
                                +-----------------+-----------------------+--------------------+";
 
-fn main() -> Result<(), Error> {
+#[tokio::main]
+async fn main() -> Result<(), Error> {
     env_logger::init();
 
     let long_version = format!("{}\n{}", crate_version!(), CREDITS);

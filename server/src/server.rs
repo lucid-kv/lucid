@@ -4,7 +4,11 @@ use std::sync::RwLock;
 use bytes::Buf;
 use jsonwebtoken::Validation;
 use snafu::Snafu;
-use warp::{self, filters, fs, http::StatusCode, path, Filter, Rejection, Reply, http::Response};
+use warp::{
+    self, body, filters, fs, header,
+    http::{Response, StatusCode},
+    path, reject, reply, Filter, Rejection, Reply,
+};
 
 use crate::configuration::{Claims, Configuration};
 use crate::kvstore::KvStore;
@@ -23,38 +27,29 @@ impl Server {
         Server { configuration }
     }
 
-    pub fn run(&self) {
+    pub async fn run(&self) {
         let store = Arc::new(KvStore::new());
         let store = warp::any().map(move || store.clone());
 
         let config = self.configuration.clone();
         let config = warp::any().map(move || config.clone());
 
-        let auth = warp::header::optional::<String>("authorization")
+        let auth = header::optional::<String>("authorization")
             .and(config.clone())
             .and_then(verify_auth)
             .untuple_one();
 
-        let webui_enabled = config
-            .clone()
-            .and_then(|config: Arc<RwLock<Configuration>>| {
-                if config.read().unwrap().webui.enabled {
-                    Ok(())
-                } else {
-                    Err(warp::reject::not_found())
-                }
-            })
-            .untuple_one();
+        let webui_enabled = config.clone().and_then(check_webui).untuple_one();
 
         let configuration = self.configuration.read().unwrap();
 
         let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
         let api_kv_key = auth.and(
-            warp::get2()
+            warp::get()
                 .and(store.clone())
                 .and(api_kv_key_path)
                 .and_then(get_key)
-                .or(warp::put2()
+                .or(warp::put()
                     .and(store.clone())
                     .and(config.clone())
                     .and(api_kv_key_path)
@@ -64,9 +59,9 @@ impl Server {
                     .and(filters::body::content_length_limit(
                         configuration.store.max_limit,
                     ))
-                    .and(warp::body::concat())
+                    .and(body::concat())
                     .and_then(put_key))
-                .or(warp::delete2()
+                .or(warp::delete()
                     .and(store.clone())
                     .and(api_kv_key_path)
                     .and_then(delete_key))
@@ -84,14 +79,14 @@ impl Server {
                     .and_then(patch_key)),
         );
 
-        let webui = warp::path::end()
+        let webui = path::end()
             .and(fs::file("webui/dist/index.html"))
             .or(fs::dir("webui/dist"))
             .and(webui_enabled);
 
         let robots = warp::path("robots.txt")
             .and(path::end())
-            .and(warp::get2().map(|| "User-agent: *\nDisallow: /"));
+            .and(warp::get().map(|| "User-agent: *\nDisallow: /"));
 
         let log = warp::log("lucid::Server");
 
@@ -99,7 +94,10 @@ impl Server {
             .or(webui)
             .or(robots)
             .recover(process_error)
-            .with(warp::reply::with::header("Server", format!("Lucid v{}", crate_version!())))
+            .with(reply::with::header(
+                "Server",
+                format!("Lucid v{}", crate_version!()),
+            ))
             .with(log);
 
         let instance = warp::serve(routes);
@@ -112,61 +110,69 @@ impl Server {
                 .run((
                     configuration.default.bind_address,
                     configuration.default.port_ssl,
-                ));
+                ))
+                .await;
         } else {
-            instance.run((
-                configuration.default.bind_address,
-                configuration.default.port,
-            ));
+            instance
+                .run((
+                    configuration.default.bind_address,
+                    configuration.default.port,
+                ))
+                .await;
         }
     }
 }
 
-fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
+async fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
     if let Some(value) = store.get(key) {
         Ok(Response::builder()
             .header("Content-Type", value.mime)
             .body(value.data))
     } else {
-        Err(warp::reject::custom(Error::KeyNotFound))
+        Err(reject::custom(Error::KeyNotFound))
     }
 }
 
-fn put_key(store: Arc<KvStore>, config: Arc<RwLock<Configuration>>, key: String, body: filters::body::FullBody) -> Result<impl Reply, Rejection> {
+async fn put_key(
+    store: Arc<KvStore>,
+    config: Arc<RwLock<Configuration>>,
+    key: String,
+    body: filters::body::FullBody,
+) -> Result<impl Reply, Rejection> {
     if body.remaining() == 0 {
-        Err(warp::reject::custom(Error::MissingBody))
+        Err(reject::custom(Error::MissingBody))
     } else if body.bytes().len() as u64 > config.read().unwrap().store.max_limit {
-        Err(warp::reject::custom(Error::ValueSizeLimit {
+        Err(reject::custom(Error::ValueSizeLimit {
             max_limit: config.read().unwrap().store.max_limit,
         }))
     } else {
         if let Some(_) = store.set(key, body.bytes().to_vec()) {
-            Ok(warp::reply::json(&JsonMessage {
+            Ok(reply::json(&JsonMessage {
                 message: "The specified key was successfully updated.".to_string(),
             }))
         } else {
-            Ok(warp::reply::json(&JsonMessage {
+            Ok(reply::json(&JsonMessage {
                 message: "The specified key was successfully created.".to_string(),
             }))
         }
     }
 }
 
-fn delete_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
+async fn delete_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
     if let Some(_) = store.get(key.clone()) {
         (*store).drop(key);
-        Ok(warp::reply::json(&JsonMessage {
+        Ok(reply::json(&JsonMessage {
             message: "The specified key and it's data was successfully deleted".to_string(),
         }))
     } else {
-        Err(warp::reject::custom(Error::KeyNotFound))
+        Err(reject::custom(Error::KeyNotFound))
     }
 }
-fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
+async fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
     if let Some(_) = store.get(key) {
         Ok("")
     } else {
-        Err(warp::reject::custom(Error::KeyNotFound))
+        Err(reject::custom(Error::KeyNotFound))
     }
 }
 
@@ -174,7 +180,11 @@ fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
 struct PatchValue {
     operation: String,
 }
-fn patch_key(store: Arc<KvStore>, key: String, patch_value: PatchValue) -> Result<impl Reply, Rejection> {
+async fn patch_key(
+    store: Arc<KvStore>,
+    key: String,
+    patch_value: PatchValue,
+) -> Result<impl Reply, Rejection> {
     if let Some(_) = store.get(key.clone()) {
         match patch_value.operation.as_str() {
             "lock" | "unlock" => {
@@ -182,16 +192,19 @@ fn patch_key(store: Arc<KvStore>, key: String, patch_value: PatchValue) -> Resul
                 println!("{}", r);
                 Ok("")
             }
-            _ => Err(warp::reject::custom(Error::InvalidOperation {
+            _ => Err(reject::custom(Error::InvalidOperation {
                 operation: patch_value.operation,
             })),
         }
     } else {
-        Err(warp::reject::custom(Error::KeyNotFound))
+        Err(reject::custom(Error::KeyNotFound))
     }
 }
 
-fn verify_auth(auth_header: Option<String>, config: Arc<RwLock<Configuration>>) -> Result<(), Rejection> {
+async fn verify_auth(
+    auth_header: Option<String>,
+    config: Arc<RwLock<Configuration>>,
+) -> Result<(), Rejection> {
     let config = config.read().unwrap();
     if config.authentication.enabled {
         if let Some(auth_header) = auth_header {
@@ -202,18 +215,26 @@ fn verify_auth(auth_header: Option<String>, config: Arc<RwLock<Configuration>>) 
             ) {
                 Ok(())
             } else {
-                Err(warp::reject::custom(Error::InvalidJwtToken))
+                Err(reject::custom(Error::InvalidJwtToken))
             }
         } else {
-            Err(warp::reject::custom(Error::MissingAuthHeader))
+            Err(reject::custom(Error::MissingAuthHeader))
         }
     } else {
         Ok(())
     }
 }
 
-fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
-    if let Some(err) = err.find_cause::<Error>() {
+async fn check_webui(config: Arc<RwLock<Configuration>>) -> Result<(), Rejection> {
+    if config.read().unwrap().webui.enabled {
+        Ok(())
+    } else {
+        Err(reject::not_found())
+    }
+}
+
+async fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
+    if let Some(err) = err.find::<Error>() {
         let code = match err {
             Error::MissingBody => StatusCode::BAD_REQUEST,
             Error::MissingParameter { .. } => StatusCode::BAD_REQUEST,
@@ -223,22 +244,22 @@ fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
             Error::InvalidJwtToken => StatusCode::UNAUTHORIZED,
             Error::ValueSizeLimit { .. } => StatusCode::BAD_REQUEST,
         };
-        let json = warp::reply::json(&JsonMessage {
+        let json = reply::json(&JsonMessage {
             message: err.to_string(),
         });
-        Ok(warp::reply::with_status(json, code))
-    } else if let Some(_) = err.find_cause::<warp::reject::MethodNotAllowed>() {
+        Ok(reply::with_status(json, code))
+    } else if let Some(_) = err.find::<reject::MethodNotAllowed>() {
         let code = StatusCode::METHOD_NOT_ALLOWED;
-        let json = warp::reply::json(&JsonMessage {
+        let json = reply::json(&JsonMessage {
             message: "Method not allowed.".to_string(),
         });
-        Ok(warp::reply::with_status(json, code))
-    } else if let Some(_) = err.find_cause::<warp::reject::PayloadTooLarge>() {
+        Ok(reply::with_status(json, code))
+    } else if let Some(_) = err.find::<reject::PayloadTooLarge>() {
         let code = StatusCode::METHOD_NOT_ALLOWED;
-        let json = warp::reply::json(&JsonMessage {
+        let json = reply::json(&JsonMessage {
             message: "Request payload is too long.".to_string(), // TODO: find a way to format the limit into this string
         });
-        Ok(warp::reply::with_status(json, code))
+        Ok(reply::with_status(json, code))
     } else {
         Err(err)
     }
@@ -261,3 +282,5 @@ enum Error {
     #[snafu(display("The maximum allowed value size is {} bytes.", max_limit))]
     ValueSizeLimit { max_limit: u64 },
 }
+
+impl reject::Reject for Error {}

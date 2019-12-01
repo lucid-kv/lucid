@@ -30,12 +30,12 @@ winres = "0.1.11"
 serde_json = "1.0.42"
 serde_yaml = "0.8.11"
 chrono = "0.4.10"
-jsonwebtoken = "6.0.1"
+jsonwebtoken = "7.0.0-alpha.2"
 snafu = { version = "0.6.0", features = [ "futures-01" ] }
 log = { version = "0.4.8" }
 env_logger = "0.7.1"
 clap = { version = "2.33.0", features = [ "yaml" ] }
-warp = { version = "0.1.20", features = [ "tls" ] }
 serde = { version = "1.0.103", features = [ "derive" ] }
-hyper = "0.12.35"
-hyper-rustls = "0.16.1"
+hyper = "0.13.0-alpha.4"
+hyper-rustls = "0.19.0-alpha.3"
+tokio = "0.2.0-alpha.6"

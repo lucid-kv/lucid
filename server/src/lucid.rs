@@ -16,10 +16,10 @@ impl Lucid {
         }
     }
 
-    pub fn run(&self) -> Result<(), LucidError> {
+    pub async fn run(&self) -> Result<(), LucidError> {
         let server = Server::new(self.configuration.clone());
-        server.run();
-        return Ok(());
+        server.run().await;
+        Ok(())
     }
 }
 
