@@ -8,6 +8,12 @@ args:
       help: The Lucid server URI
       takes_value: true
       required: true
+  - secret:
+      help: The server's JWT token secret
+      short: s
+      long: secret
+      takes_value: true
+      global: true
 subcommands:
   - store:
       about: Play with the KV store
@@ -20,5 +26,23 @@ subcommands:
               args:
                 - key:
                     help: The key of the value to get
+                    takes_value: true
+                    required: true
+          - put:
+              about: Insert a key-value pair into the store
+              args:
+                - key:
+                    help: The key to insert
+                    takes_value: true
+                    required: true
+                - value:
+                    help: The value to insert
+                    takes_value: true
+                    required: true
+          - delete:
+              about: Delete a value in the store
+              args:
+                - key:
+                    help: The key to delete
                     takes_value: true
                     required: true

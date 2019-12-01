@@ -5,10 +5,14 @@ extern crate serde;
 #[macro_use]
 extern crate log;
 
+mod client;
+
+use client::{KvPutResponse, LucidClient, LucidClientError};
+
 use std::fmt;
 
-use clap::{App, AppSettings};
-use snafu::Snafu;
+use clap::App;
+use snafu::{ResultExt, Snafu};
 
 const CREDITS: &'static str = "\
                                +-----------------+-----------------------+--------------------+\n\
@@ -48,10 +52,46 @@ async fn main() -> Result<(), Error> {
         Err(e) => return Err(Error::ParseCli { source: e }),
     };
 
+    let client = LucidClient::new(
+        matches.value_of("uri").unwrap(),
+        matches.value_of("secret").map(|x| x.to_owned()),
+    )
+    .context(CreateClient)?;
+
     if let Some(store_matches) = matches.subcommand_matches("store") {
-        if let Some(get_matches) = matches.subcommand_matches("store") {
-            if let Some(key) = matches.value_of("key") {
-                
+        if let Some(get_matches) = store_matches.subcommand_matches("get") {
+            let key = get_matches.value_of("key").unwrap();
+            let response = client.get(key).await.context(RequestFailed)?;
+            if let Some(element) = response {
+                if element.mime_type == "text/plain" {
+                    println!("{}", String::from_utf8_lossy(&element.data))
+                } else {
+                    println!("{:?}", &element.data)
+                }
+            } else {
+                println!("Key  \"{}\" not found", key);
+            }
+        } else if let Some(put_matches) = store_matches.subcommand_matches("put") {
+            let key = put_matches.value_of("key").unwrap();
+            let value = put_matches.value_of("value").unwrap();
+            let response = client
+                .put(key, value.as_bytes().to_owned())
+                .await
+                .context(RequestFailed)?;
+            match response {
+                KvPutResponse::Created => {
+                    println!("Successfully created key {} with value {}", key, value)
+                }
+                KvPutResponse::Updated => {
+                    println!("Successfully updated key {} with value {}", key, value)
+                }
+            }
+        } else if let Some(delete_matches) = store_matches.subcommand_matches("delete") {
+            let key = delete_matches.value_of("key").unwrap();
+            if client.delete(key).await.context(RequestFailed)? {
+                println!("Successfully deleted key \"{}\"", key)
+            } else {
+                println!("Key \"{}\" not found", key)
             }
         }
     }
@@ -62,6 +102,10 @@ async fn main() -> Result<(), Error> {
 pub enum Error {
     #[snafu(display("{}", source))]
     ParseCli { source: clap::Error },
+    #[snafu(display("Failed to create the client: {}", source))]
+    CreateClient { source: LucidClientError },
+    #[snafu(display("{}", source))]
+    RequestFailed { source: LucidClientError },
 }
 
 impl fmt::Debug for Error {
