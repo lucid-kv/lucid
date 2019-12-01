@@ -17,8 +17,8 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/releases) page and run this commands:
 
 ```
-$ ./lucid init   # To initialize the node and create a new configuration file
-$ ./lucid server
+$ ./lucid init       # Initialize node and create the configuration file
+$ ./lucid server     # Run the Lucid server
 
 2019/12/01 12:58:16 INFO [warp::server] warp drive engaged: listening on http://127.0.0.1:7021
 ```
