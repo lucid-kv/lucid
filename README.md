@@ -46,7 +46,32 @@ You can find the official documentation at https://docs.lucid-kv.store.
 
 ## Command Line Interface
 
-[![asciicast](https://asciinema.org/a/277538.svg)](https://asciinema.org/a/277538)
+```
+ ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
+ ██║    ██║   ██║██╔════╝██║██╔══██╗    ██║ ██╔╝██║   ██║
+ ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
+ ██████╗╚██████╔╝╚██████╗██║██████╔╝    ██║  ██╗ ╚████╔╝
+ ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
+
+A Fast, Secure and Distributed KV store with an HTTP API.
+Written in Rust by Clint.Network (twitter.com/clint_network)
+
+USAGE:
+    lucid.exe [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Prints help information
+    -v, --version    Prints version information
+
+SUBCOMMANDS:
+    cli         Spawn to the command line interface
+    help        Prints this message or the help of the given subcommand(s)
+    init        Initialize Lucid and generate configuration file
+    server      Run a new Lucid server instance
+    settings    Manage Lucid configuration file
+    store       Play with the KV store (get/set)
+    tokens      Manage JWT Tokens (issue, revoke etc.)
+```
 
 ## Web Interface (UI)
 
