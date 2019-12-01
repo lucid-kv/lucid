@@ -6,6 +6,8 @@ default:
   port: ${PORT}
   port_ssl: ${PORT}
   use_ssl: false
+  ssl_certificate: "tls/cert.pem"
+  ssl_certificate_key: "tls/key.rsa"
 authentication:
   enabled: false
   root_token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJMdWNpZCBSb290IFRva2VuIiwiaXNzIjoiaHR0cDovLzEyNy4wLjAuMTo3MDIxLyIsImlhdCI6MTU3NDQyMDE0NSwiZXhwIjoxNjY4NzY4OTQ1fQ.iGGRmZXjwsO4PSQKNI1qGtsA1Sj94SBXB4WU_XN5EuQ
