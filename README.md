@@ -26,23 +26,6 @@ A demonstration instance is accessible at http://lucid-kv.herokuapp.com.
 
 You can find the official documentation at https://docs.lucid-kv.store.
 
-## Works Progress
-
-- [x] Minimum Viable Product (MVP)
-  - [x] Initialization process
-  - [x] Configuration files handling
-  - [x] JWT token Issuing
-  - [ ] HTTPS Support
-  - [x] Rest API
-     - [x] Adding CORS
-     - [x] KV-Base, HashMap-based
-     - [x] JWT Authentication
-- [ ] Web UI in VueJS
-- [ ] Persistence
-- [ ] Encryption (with Serpent Cipher)
-- [ ] Access Control List (ACL)
-- [ ] Server Sent Events (SSE)
-
 ## Some Use Cases
 
 - Private Keys Storing (for a wallet by example)
