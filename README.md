@@ -19,8 +19,6 @@ Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/rele
 ```
 $ ./lucid init
 $ ./lucid server
-
-2019/12/01 12:58:16 INFO [warp::server] warp drive engaged: listening on http://127.0.0.1:7021
 ```
 
 A demonstration instance is accessible at http://lucid-kv.herokuapp.com (authentication disabled).
