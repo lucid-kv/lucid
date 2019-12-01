@@ -21,6 +21,12 @@ $ ./lucid init
 $ ./lucid server
 ```
 
+Or run a node with Docker, but you need to create a [lucid.yml](lucid.yml) file localy before.
+```
+$ docker pull lucidkv/lucid
+$ docker run -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
+```
+
 A demonstration instance is accessible at http://lucid-kv.herokuapp.com (authentication disabled).
 
 ## Documentation
