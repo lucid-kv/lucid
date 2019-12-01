@@ -20,11 +20,11 @@ $ ./lucid init   #Initialize the Lucid node
 $ ./lucid server
 ```
 
-A demonstration instance is accessible here: http://lucid-kv.herokuapp.com/
+A demonstration instance is accessible at http://lucid-kv.herokuapp.com.
 
 ## Documentation
 
-You can find the official documentation at https://docs.lucid-kv.store/
+You can find the official documentation at https://docs.lucid-kv.store.
 
 ## Works Progress
 
