@@ -43,9 +43,6 @@ You can find the official documentation at https://docs.lucid-kv.store.
 
 Lucid wants to propose a web UI to manage data, issue tokens, organize nodes and configure instances.
 
-## Contribute on Lucid
-See CONTRIBUTING.md for best practices and instructions on setting up your development environment to work on Lucid.
-
 ## Lucid Credits
 
 Lucid is developed by [@clintnetwork](https://twitter.com/clint_network), [@Slals](https://github.com/Slals), [@CephalonRho](https://github.com/CephalonRho), [@rigwild](https://github.com/rigwild) and published under the [MIT License](LICENSE.md).
@@ -55,3 +52,6 @@ Lucid is developed by [@clintnetwork](https://twitter.com/clint_network), [@Slal
 | Jonathan Serra  | jonathan@blocs.fr     | Core Development   |
 | CephalonRho     | CephalonRho@gmail.com | Core Development   |
 | Rigwild         | me@rigwild.dev        | Web UI Development |
+
+## Contribute on Lucid
+See CONTRIBUTING.md for best practices and instructions on setting up your development environment to work on Lucid.
