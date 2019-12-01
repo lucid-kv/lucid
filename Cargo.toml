@@ -10,7 +10,7 @@ readme = "https://github.com/lucid-kv/lucid/blob/master/README.md"
 license = "https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"
 documentation = "https://docs.lucid-kv.store/"
 categories = ["command-line-interface", "web-programming::http-server", "web-programming::websocket", "authentication", "command-line-utilities", ]
-build = "build.rs"
+build = "src/build.rs"
 
 [package.metadata.winres]
 ProductName = "Lucid KV"
