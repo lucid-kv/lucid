@@ -27,7 +27,7 @@ $ docker pull lucidkv/lucid
 $ docker run -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 ```
 
-A demonstration instance is accessible at http://lucid-kv.herokuapp.com (authentication disabled).
+A demonstration instance is accessible at http://lucid-kv.herokuapp.com (with authentication disabled).
 
 ## Documentation
 
