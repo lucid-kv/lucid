@@ -14,10 +14,19 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 
 ## Getting Started
 
-```bash
-$ curl https://github.com/lucid-kv/lucid/releases/download/0.1.2/lucid.exe
-$ ./lucid init   #Initialize the Lucid node
+Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/releases) page and run this commands:
+
+```
+$ ./lucid init
 $ ./lucid server
+
+ ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
+ ██║    ██║   ██║██╔════╝██║██╔══██╗    ██║ ██╔╝██║   ██║
+ ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
+ ██████╗╚██████╔╝╚██████╗██║██████╔╝    ██║  ██╗ ╚████╔╝
+ ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
+
+2019/12/01 12:58:16 INFO [warp::server] warp drive engaged: listening on http://127.0.0.1:7021
 ```
 
 A demonstration instance is accessible at http://lucid-kv.herokuapp.com (authentication disabled).
