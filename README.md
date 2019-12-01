@@ -46,7 +46,10 @@ You can find the official documentation at https://docs.lucid-kv.store.
 
 ## Command Line Interface
 
+You can take a look to the Lucid command line on at https://asciinema.org/a/277538.
+
 ```
+
  ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
  ██║    ██║   ██║██╔════╝██║██╔══██╗    ██║ ██╔╝██║   ██║
  ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
