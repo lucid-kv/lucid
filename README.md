@@ -14,44 +14,72 @@ Lucid is currently in an embryonic state but we wish to achieve a fast, secure a
 
 ## Getting Started
 
-```bash
-$ curl https://github.com/lucid-kv/lucid/releases/download/0.1.2/lucid.exe
-$ ./lucid init   #Initialize the Lucid node
+Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/releases) page and run this commands:
+
+```
+$ ./lucid init
 $ ./lucid server
 ```
 
-A demonstration instance is accessible at http://lucid-kv.herokuapp.com.
+Or run a node with Docker, but you need to create a [lucid.yml](lucid.yml) file localy before.
+```
+$ docker pull lucidkv/lucid
+$ docker run -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
+```
 
-## Documentation
+A demonstration instance is accessible at http://lucid-kv.herokuapp.com (with authentication disabled).
+
+## Official Documentation
 
 You can find the official documentation at https://docs.lucid-kv.store.
 
-## Some Use Cases
-
-- Private Keys Storing (for a wallet by example)
-- IoT: collect and save statistics data
-- A distributed cache for an application
-- Service Discovery
-- Distributed Configuration
-- Blob Storage
-
 ## Command Line Interface
 
-[![asciicast](https://asciinema.org/a/277538.svg)](https://asciinema.org/a/277538)
+You can take a look to the Lucid command line on at https://asciinema.org/a/277538.
+
+```
+
+ ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
+ ██║    ██║   ██║██╔════╝██║██╔══██╗    ██║ ██╔╝██║   ██║
+ ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
+ ██████╗╚██████╔╝╚██████╗██║██████╔╝    ██║  ██╗ ╚████╔╝
+ ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
+
+A Fast, Secure and Distributed KV store with an HTTP API.
+Written in Rust by Clint.Network (twitter.com/clint_network)
+
+USAGE:
+    lucid.exe [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Prints help information
+    -v, --version    Prints version information
+
+SUBCOMMANDS:
+    cli         Spawn to the command line interface
+    help        Prints this message or the help of the given subcommand(s)
+    init        Initialize Lucid and generate configuration file
+    server      Run a new Lucid server instance
+    settings    Manage Lucid configuration file
+    store       Play with the KV store (get/set)
+    tokens      Manage JWT Tokens (issue, revoke etc.)
+```
 
 ## Web Interface (UI)
 
 Lucid wants to propose a web UI to manage data, issue tokens, organize nodes and configure instances.
 
-## Contribute on Lucid
-See CONTRIBUTING.md for best practices and instructions on setting up your development environment to work on Lucid.
-
-## Credits
+## Lucid Credits
 
 Lucid is developed by [@clintnetwork](https://twitter.com/clint_network), [@Slals](https://github.com/Slals), [@CephalonRho](https://github.com/CephalonRho), [@rigwild](https://github.com/rigwild) and published under the [MIT License](LICENSE.md).
 
-| Clint Mourlevat | me@clint.network      | Lucid Founder      |
+| Name / Nickname | Email                 | Role               |
 |-----------------|-----------------------|--------------------|
+| Clint Mourlevat | me@clint.network      | Lucid Founder      |
 | Jonathan Serra  | jonathan@blocs.fr     | Core Development   |
 | CephalonRho     | CephalonRho@gmail.com | Core Development   |
 | Rigwild         | me@rigwild.dev        | Web UI Development |
+
+## Contribute on Lucid
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for best practices and instructions on setting up your development environment to work on Lucid.
