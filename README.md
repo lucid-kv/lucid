@@ -90,4 +90,5 @@ Lucid is developed by [@clintnetwork](https://twitter.com/clint_network), [@Slal
 | Rigwild         | me@rigwild.dev        | Web UI Development |
 
 ## Contribute on Lucid
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for best practices and instructions on setting up your development environment to work on Lucid.
