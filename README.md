@@ -20,7 +20,7 @@ $ ./lucid init   #Initialize the Lucid node
 $ ./lucid server
 ```
 
-A demonstration instance (with auth. disabled) is accessible at http://lucid-kv.herokuapp.com.
+A demonstration instance is accessible at http://lucid-kv.herokuapp.com (authentication disabled).
 
 ## Documentation
 
@@ -46,7 +46,7 @@ Lucid wants to propose a web UI to manage data, issue tokens, organize nodes and
 ## Contribute on Lucid
 See CONTRIBUTING.md for best practices and instructions on setting up your development environment to work on Lucid.
 
-## Credits
+## Lucid Credits
 
 Lucid is developed by [@clintnetwork](https://twitter.com/clint_network), [@Slals](https://github.com/Slals), [@CephalonRho](https://github.com/CephalonRho), [@rigwild](https://github.com/rigwild) and published under the [MIT License](LICENSE.md).
 
