@@ -33,27 +33,6 @@ A demonstration instance is accessible at http://lucid-kv.herokuapp.com (with au
 
 You can find the official documentation at https://docs.lucid-kv.store.
 
-## Some Use Cases
-
-* **IoT** - Health Checking enables Consul to quickly alert
-  operators about any issues in a cluster. The integration with service
-  discovery prevents routing traffic to unhealthy hosts and enables service
-  level circuit breakers.
-
-* **Private Keys Storing** - A flexible key/value store enables storing
-  dynamic configuration, feature flagging, coordination, leader election and
-  more. The simple HTTP API makes it easy to use anywhere.
-
-* **Distributed Cache** - Consul makes it simple for services to register
-  themselves and to discover other services via a DNS or HTTP interface.
-  External services such as SaaS providers can be registered as well.
-
-* **Service Discovery** - Consul is built to be datacenter aware, and can
-  support any number of regions without complex configuration.
-
-* **Distributed Configuration** - Consul Connect enables secure service-to-service
-communication with automatic TLS encryption and identity-based authorization.
-
 ## Command Line Interface
 
 You can take a look to the Lucid command line on at https://asciinema.org/a/277538.
