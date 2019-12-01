@@ -56,8 +56,9 @@ Lucid wants to propose a web UI to manage data, issue tokens, organize nodes and
 
 Lucid is developed by [@clintnetwork](https://twitter.com/clint_network), [@Slals](https://github.com/Slals), [@CephalonRho](https://github.com/CephalonRho), [@rigwild](https://github.com/rigwild) and published under the [MIT License](LICENSE.md).
 
-| Clint Mourlevat | me@clint.network      | Lucid Founder      |
+| Name / Nickname | Email                 | Role               |
 |-----------------|-----------------------|--------------------|
+| Clint Mourlevat | me@clint.network      | Lucid Founder      |
 | Jonathan Serra  | jonathan@blocs.fr     | Core Development   |
 | CephalonRho     | CephalonRho@gmail.com | Core Development   |
 | Rigwild         | me@rigwild.dev        | Web UI Development |
