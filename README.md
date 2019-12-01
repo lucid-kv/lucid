@@ -12,9 +12,19 @@ High performance and distributed KV store accessible through an HTTP API. Writte
 
 Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
 
-## Demo Node
+## Getting Started
+
+```bash
+$ curl https://github.com/lucid-kv/lucid/releases/download/0.1.2/lucid.exe
+$ ./lucid init   #Initialize the Lucid node
+$ ./lucid server
+```
 
 A demonstration instance is accessible here: http://lucid-kv.herokuapp.com/
+
+## Documentation
+
+You can find the official documentation at https://docs.lucid-kv.store/
 
 ## Works Progress
 
@@ -50,10 +60,15 @@ A demonstration instance is accessible here: http://lucid-kv.herokuapp.com/
 
 Lucid wants to propose a web UI to manage data, issue tokens, organize nodes and configure instances.
 
-## About the Author
+## Contribute on Lucid
+See CONTRIBUTING.md for best practices and instructions on setting up your development environment to work on Lucid.
 
-Lucid is powered by [Clint.Network](https://twitter.com/clint_network) and published under the [MIT License](LICENSE.md).
+## Credits
 
-**Donate to Clint.Network**
-- ![Paypal](https://raw.githubusercontent.com/reek/anti-adblock-killer/gh-pages/images/paypal.png) Paypal: [Donate](http://paypal.me/clintnetwork)
-- ![btc](https://raw.githubusercontent.com/reek/anti-adblock-killer/gh-pages/images/bitcoin.png) Bitcoin: 3AEqgvpiHC2LzPDunf6PBPBLeT98YruKmg
+Lucid is developed by [@clintnetwork](https://twitter.com/clint_network), [@Slals](https://github.com/Slals), [@CephalonRho](https://github.com/CephalonRho), [@rigwild](https://github.com/rigwild) and published under the [MIT License](LICENSE.md).
+
+| Clint Mourlevat | me@clint.network      | Lucid Founder      |
+|-----------------|-----------------------|--------------------|
+| Jonathan Serra  | jonathan@blocs.fr     | Core Development   |
+| CephalonRho     | CephalonRho@gmail.com | Core Development   |
+| Rigwild         | me@rigwild.dev        | Web UI Development |
