@@ -4,7 +4,7 @@ use std::sync::RwLock;
 use bytes::Buf;
 use jsonwebtoken::Validation;
 use snafu::Snafu;
-use warp::{self, filters, fs, http::StatusCode, path, Filter, Rejection, Reply};
+use warp::{self, filters, fs, http::StatusCode, path, Filter, Rejection, Reply, http::Response};
 
 use crate::configuration::{Claims, Configuration};
 use crate::kvstore::KvStore;
@@ -120,7 +120,9 @@ impl Server {
 
 fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
     if let Some(value) = store.get(key) {
-        Ok(value)
+        Ok(Response::builder()
+            .header("Content-Type", value.mime)
+            .body(value.data))
     } else {
         Err(warp::reject::custom(Error::KeyNotFound))
     }

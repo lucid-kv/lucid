@@ -47,9 +47,9 @@ impl KvStore
         }
     }
 
-    pub fn get(&self, key: String) -> Option<Vec<u8>> {
-        match &self.container.get(&key) {
-            Some(value) => Some((&value.data).clone()),
+    pub fn get(&self, key: String) -> Option<KvElement> {
+        match self.container.get(&key) {
+            Some(value) => Some(value.clone()),
             None => None
         }
     }
@@ -67,6 +67,6 @@ impl KvStore
     // TODO: implement Lock, Unlock, Increment, Decrement, Expire
 
     pub fn drop(&self, key: String) {
-        &self.container.remove(&key);
+        self.container.remove(&key);
     }
 }
