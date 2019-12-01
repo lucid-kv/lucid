@@ -27,8 +27,6 @@ path = "src/main.rs"
 winres = "0.1.11"
 
 [dependencies]
-serde_json = "1.0.42"
-serde_yaml = "0.8.11"
 chrono = "0.4.10"
 jsonwebtoken = "7.0.0-alpha.2"
 snafu = { version = "0.6.0", features = [ "futures-01" ] }

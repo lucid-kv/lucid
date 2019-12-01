@@ -208,8 +208,6 @@ dependencies = [
  "jsonwebtoken",
  "log 0.4.8",
  "serde",
- "serde_json",
- "serde_yaml",
  "snafu",
  "tokio",
  "winres",
