@@ -44,6 +44,7 @@ snafu = "*"
 bytes = "*"
 log = "*"
 fern = "*"
+tokio = "0.1.22"
 
 [dependencies.clap]
 version = "*"
