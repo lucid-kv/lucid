@@ -1,10 +1,12 @@
-use std::sync::Arc;
-use std::sync::RwLock;
+use std::{
+    net::SocketAddr,
+    sync::{Arc, RwLock},
+};
 
 use bytes::Buf;
 use jsonwebtoken::Validation;
 use snafu::Snafu;
-use warp::{self, filters, fs, http::StatusCode, path, Filter, Rejection, Reply, http::Response};
+use warp::{self, filters, fs, http::Response, http::StatusCode, path, Filter, Rejection, Reply};
 
 use crate::configuration::{Claims, Configuration};
 use crate::kvstore::KvStore;
@@ -55,41 +57,40 @@ impl Server {
         let configuration = self.configuration.read().unwrap();
 
         let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
-        let api_kv_key = auth
-            .and(
-                warp::get2()
+        let api_kv_key = auth.and(
+            warp::get2()
+                .and(store.clone())
+                .and(api_kv_key_path)
+                .and_then(get_key)
+                .or(warp::put2()
+                    .and(store.clone())
+                    .and(config.clone())
+                    .and(api_kv_key_path)
+                    .and(filters::body::content_length_limit(
+                        configuration.http.request_size_limit,
+                    ))
+                    .and(filters::body::content_length_limit(
+                        configuration.store.max_limit,
+                    ))
+                    .and(warp::body::concat())
+                    .and_then(put_key))
+                .or(warp::delete2()
                     .and(store.clone())
                     .and(api_kv_key_path)
-                    .and_then(get_key)
-                    .or(warp::put2()
-                        .and(store.clone())
-                        .and(config.clone())
-                        .and(api_kv_key_path)
-                        .and(filters::body::content_length_limit(
-                            configuration.http.request_size_limit,
-                        ))
-                        .and(filters::body::content_length_limit(
-                            configuration.store.max_limit,
-                        ))
-                        .and(warp::body::concat())
-                        .and_then(put_key))
-                    .or(warp::delete2()
-                        .and(store.clone())
-                        .and(api_kv_key_path)
-                        .and_then(delete_key))
-                    .or(warp::head()
-                        .and(store.clone())
-                        .and(api_kv_key_path)
-                        .and_then(find_key))
-                    .or(warp::patch()
-                        .and(store.clone())
-                        .and(api_kv_key_path)
-                        .and(filters::body::content_length_limit(
-                            configuration.http.request_size_limit,
-                        ))
-                        .and(filters::body::json())
-                        .and_then(patch_key)),
-            );
+                    .and_then(delete_key))
+                .or(warp::head()
+                    .and(store.clone())
+                    .and(api_kv_key_path)
+                    .and_then(find_key))
+                .or(warp::patch()
+                    .and(store.clone())
+                    .and(api_kv_key_path)
+                    .and(filters::body::content_length_limit(
+                        configuration.http.request_size_limit,
+                    ))
+                    .and(filters::body::json())
+                    .and_then(patch_key)),
+        );
 
         let webui = warp::path::end()
             .and(fs::file("webui/dist/index.html"))
@@ -106,14 +107,44 @@ impl Server {
             .or(webui)
             .or(robots)
             .recover(process_error)
-            .with(warp::reply::with::header("Server", format!("Lucid v{}", crate_version!())))
+            .with(warp::reply::with::header(
+                "Server",
+                format!("Lucid v{}", crate_version!()),
+            ))
             .with(log);
 
         let instance = warp::serve(routes);
         if configuration.default.use_ssl {
-            tokio::run(instance.tls(&configuration.default.ssl_certificate,  &configuration.default.ssl_certificate_key).bind((configuration.default.bind_address, configuration.default.port_ssl)));
+            info!(
+                "Listening on https://{}",
+                SocketAddr::from((
+                    configuration.default.bind_address,
+                    configuration.default.port_ssl
+                ))
+            );
+            tokio::run(
+                instance
+                    .tls(
+                        &configuration.default.ssl_certificate,
+                        &configuration.default.ssl_certificate_key,
+                    )
+                    .bind((
+                        configuration.default.bind_address,
+                        configuration.default.port_ssl,
+                    )),
+            );
         } else {
-            tokio::run(instance.bind((configuration.default.bind_address, configuration.default.port)));
+            info!(
+                "Listening on http://{}",
+                SocketAddr::from((
+                    configuration.default.bind_address,
+                    configuration.default.port
+                ))
+            );
+            tokio::run(instance.bind((
+                configuration.default.bind_address,
+                configuration.default.port,
+            )));
         }
     }
 }
@@ -128,7 +159,12 @@ fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
     }
 }
 
-fn put_key(store: Arc<KvStore>, config: Arc<RwLock<Configuration>>, key: String, body: filters::body::FullBody) -> Result<impl Reply, Rejection> {
+fn put_key(
+    store: Arc<KvStore>,
+    config: Arc<RwLock<Configuration>>,
+    key: String,
+    body: filters::body::FullBody,
+) -> Result<impl Reply, Rejection> {
     if body.remaining() == 0 {
         Err(warp::reject::custom(Error::MissingBody))
     } else if body.bytes().len() as u64 > config.read().unwrap().store.max_limit {
@@ -170,7 +206,11 @@ fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
 struct PatchValue {
     operation: String,
 }
-fn patch_key(store: Arc<KvStore>, key: String, patch_value: PatchValue) -> Result<impl Reply, Rejection> {
+fn patch_key(
+    store: Arc<KvStore>,
+    key: String,
+    patch_value: PatchValue,
+) -> Result<impl Reply, Rejection> {
     if let Some(_) = store.get(key.clone()) {
         match patch_value.operation.as_str() {
             "lock" | "unlock" => {
@@ -187,7 +227,10 @@ fn patch_key(store: Arc<KvStore>, key: String, patch_value: PatchValue) -> Resul
     }
 }
 
-fn verify_auth(auth_header: Option<String>, config: Arc<RwLock<Configuration>>) -> Result<(), Rejection> {
+fn verify_auth(
+    auth_header: Option<String>,
+    config: Arc<RwLock<Configuration>>,
+) -> Result<(), Rejection> {
     let config = config.read().unwrap();
     if config.authentication.enabled {
         if let Some(auth_header) = auth_header {
