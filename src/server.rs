@@ -115,13 +115,13 @@ impl Server {
 
         let instance = warp::serve(routes);
         if configuration.default.use_ssl {
-            info!(
-                "Listening on https://{}",
-                SocketAddr::from((
-                    configuration.default.bind_address,
-                    configuration.default.port_ssl
-                ))
-            );
+            let bind_endpoint = SocketAddr::from((
+                configuration.default.bind_address,
+                configuration.default.port_ssl
+            ));
+            info!("Running Lucid server on {} | PID: {}", bind_endpoint, std::process::id());                                                         
+            info!("Lucid API Endpoint: https://{}/api/", bind_endpoint);
+            info!("Use Ctrl+C to stop the server.");
             tokio::run(
                 instance
                     .tls(
@@ -134,13 +134,13 @@ impl Server {
                     )),
             );
         } else {
-            info!(
-                "Listening on http://{}",
-                SocketAddr::from((
-                    configuration.default.bind_address,
-                    configuration.default.port
-                ))
-            );
+            let bind_endpoint = SocketAddr::from((
+                configuration.default.bind_address,
+                configuration.default.port
+            ));
+            info!("Running Lucid server on {} | PID: {}", bind_endpoint, std::process::id());         
+            info!("Lucid API Endpoint: http://{}/api/", bind_endpoint);
+            info!("Use Ctrl+C to stop the server.");
             tokio::run(instance.bind((
                 configuration.default.bind_address,
                 configuration.default.port,
