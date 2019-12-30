@@ -199,9 +199,12 @@ fn delete_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection>
         Err(warp::reject::custom(Error::KeyNotFound))
     }
 }
+
 fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
-    if let Some(_) = store.get(key) {
-        Ok("")
+    if let Some(value) = store.get(key) {
+        Ok(Response::builder()
+            .header("Content-Type", value.mime)
+            .body(value.data))
     } else {
         Err(warp::reject::custom(Error::KeyNotFound))
     }
