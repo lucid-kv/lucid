@@ -103,6 +103,10 @@ impl Server {
 
         let log = warp::log("lucid::Server");
 
+        let cors = warp::cors()
+            .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
+            .allow_any_origin();
+
         let routes = api_kv_key
             .or(webui)
             .or(robots)
@@ -111,6 +115,7 @@ impl Server {
                 "Server",
                 format!("Lucid v{}", crate_version!()),
             ))
+            .with(cors)
             .with(log);
 
         let instance = warp::serve(routes);
