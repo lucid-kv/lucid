@@ -36,7 +36,9 @@ impl Lucid {
  ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
  ██████╗╚██████╔╝╚██████╗██║██████╔╝    ██║  ██╗ ╚████╔╝
  ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
- "###);
+
+A Fast, Secure and Distributed KV store with an HTTP API.
+Written in Rust by Clint.Network (twitter.com/clint_network)"###);
     }
 
     fn show_version(&self) {
@@ -59,8 +61,7 @@ impl Lucid {
 
     pub fn initialize(&mut self) -> Result<(), std::io::Error> {
         let cli_yaml = load_yaml!("cli.yml");
-        let mut commands = App::from_yaml(cli_yaml)
-            .name(crate_description!());
+        let mut commands = App::from_yaml(cli_yaml);
         self.show_banner();
         match self.handle_cli(&mut commands) {
             Some(usage) => println!("{}{}", usage, match usage.to_owned().contains("USAGE") {
