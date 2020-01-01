@@ -10,7 +10,7 @@ readme = "https://github.com/lucid-kv/lucid/blob/master/README.md"
 license = "https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"
 documentation = "https://docs.lucid-kv.store/"
 categories = ["command-line-interface", "web-programming::http-server", "web-programming::websocket", "authentication", "command-line-utilities", ]
-build = "build.rs"
+build = "src/build.rs"
 
 [package.metadata.winres]
 ProductName = "Lucid KV"
@@ -31,12 +31,11 @@ serde_yaml = "*"
 yaml-rust = "*"
 chrono = "*"
 include_dir = "*"
-jsonwebtoken = "*"
+jsonwebtoken = "6.0.1"
 app_dirs = "*"
 ring = "*"
 uuid = "*"
 rand = "*"
-warp = "*"
 chashmap = "*"
 plugin = "*"
 tree_magic = "*"
@@ -45,7 +44,12 @@ snafu = "*"
 bytes = "*"
 log = "*"
 fern = "*"
+tokio = "0.1.22"
 
 [dependencies.clap]
 version = "*"
 features = ["yaml"]
+
+[dependencies.warp]
+version = "*"
+features = ["tls"]
