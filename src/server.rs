@@ -1,10 +1,12 @@
-use std::sync::Arc;
-use std::sync::RwLock;
+use std::{
+    net::SocketAddr,
+    sync::{Arc, RwLock},
+};
 
 use bytes::Buf;
 use jsonwebtoken::Validation;
 use snafu::Snafu;
-use warp::{self, filters, fs, http::StatusCode, path, Filter, Rejection, Reply};
+use warp::{self, filters, fs, http::Response, http::StatusCode, path, Filter, Rejection, Reply};
 
 use crate::configuration::{Claims, Configuration};
 use crate::kvstore::KvStore;
@@ -55,41 +57,40 @@ impl Server {
         let configuration = self.configuration.read().unwrap();
 
         let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
-        let api_kv_key = auth
-            .and(
-                warp::get2()
+        let api_kv_key = auth.and(
+            warp::get2()
+                .and(store.clone())
+                .and(api_kv_key_path)
+                .and_then(get_key)
+                .or(warp::put2()
+                    .and(store.clone())
+                    .and(config.clone())
+                    .and(api_kv_key_path)
+                    .and(filters::body::content_length_limit(
+                        configuration.http.request_size_limit,
+                    ))
+                    .and(filters::body::content_length_limit(
+                        configuration.store.max_limit,
+                    ))
+                    .and(warp::body::concat())
+                    .and_then(put_key))
+                .or(warp::delete2()
                     .and(store.clone())
                     .and(api_kv_key_path)
-                    .and_then(get_key)
-                    .or(warp::put2()
-                        .and(store.clone())
-                        .and(config.clone())
-                        .and(api_kv_key_path)
-                        .and(filters::body::content_length_limit(
-                            configuration.http.request_size_limit,
-                        ))
-                        .and(filters::body::content_length_limit(
-                            configuration.store.max_limit,
-                        ))
-                        .and(warp::body::concat())
-                        .and_then(put_key))
-                    .or(warp::delete2()
-                        .and(store.clone())
-                        .and(api_kv_key_path)
-                        .and_then(delete_key))
-                    .or(warp::head()
-                        .and(store.clone())
-                        .and(api_kv_key_path)
-                        .and_then(find_key))
-                    .or(warp::patch()
-                        .and(store.clone())
-                        .and(api_kv_key_path)
-                        .and(filters::body::content_length_limit(
-                            configuration.http.request_size_limit,
-                        ))
-                        .and(filters::body::json())
-                        .and_then(patch_key)),
-            );
+                    .and_then(delete_key))
+                .or(warp::head()
+                    .and(store.clone())
+                    .and(api_kv_key_path)
+                    .and_then(find_key))
+                .or(warp::patch()
+                    .and(store.clone())
+                    .and(api_kv_key_path)
+                    .and(filters::body::content_length_limit(
+                        configuration.http.request_size_limit,
+                    ))
+                    .and(filters::body::json())
+                    .and_then(patch_key)),
+        );
 
         let webui = warp::path::end()
             .and(fs::file("webui/dist/index.html"))
@@ -102,22 +103,62 @@ impl Server {
 
         let log = warp::log("lucid::Server");
 
+        let cors = warp::cors()
+            .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
+            .allow_any_origin();
+
         let routes = api_kv_key
             .or(webui)
             .or(robots)
             .recover(process_error)
+            .with(warp::reply::with::header(
+                "Server",
+                format!("Lucid v{}", crate_version!()),
+            ))
+            .with(cors)
             .with(log);
 
-        warp::serve(routes).run((
-            configuration.default.bind_address,
-            configuration.default.port,
-        ), );
+        let instance = warp::serve(routes);
+        if configuration.general.use_ssl {
+            let bind_endpoint = SocketAddr::from((
+                configuration.general.bind_address,
+                configuration.general.port_ssl
+            ));
+            info!("Running Lucid server on {} | PID: {}", bind_endpoint, std::process::id());                                                         
+            info!("Lucid API Endpoint: https://{}/api/", bind_endpoint);
+            info!("Use Ctrl+C to stop the server.");
+            tokio::run(
+                instance
+                    .tls(
+                        &configuration.general.ssl_certificate,
+                        &configuration.general.ssl_certificate_key,
+                    )
+                    .bind((
+                        configuration.general.bind_address,
+                        configuration.general.port_ssl,
+                    )),
+            );
+        } else {
+            let bind_endpoint = SocketAddr::from((
+                configuration.general.bind_address,
+                configuration.general.port
+            ));
+            info!("Running Lucid server on {} | PID: {}", bind_endpoint, std::process::id());         
+            info!("Lucid API Endpoint: http://{}/api/", bind_endpoint);
+            info!("Use Ctrl+C to stop the server.");
+            tokio::run(instance.bind((
+                configuration.general.bind_address,
+                configuration.general.port,
+            )));
+        }
     }
 }
 
 fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
     if let Some(value) = store.get(key) {
-        Ok(value)
+        Ok(Response::builder()
+            .header("Content-Type", value.mime_type)
+            .body(value.data))
     } else {
         Err(warp::reject::custom(Error::KeyNotFound))
     }
@@ -158,9 +199,12 @@ fn delete_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection>
         Err(warp::reject::custom(Error::KeyNotFound))
     }
 }
+
 fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
-    if let Some(_) = store.get(key) {
-        Ok("")
+    if let Some(value) = store.get(key) {
+        Ok(Response::builder()
+            .header("Content-Type", value.mime_type)
+            .body(value.data))
     } else {
         Err(warp::reject::custom(Error::KeyNotFound))
     }

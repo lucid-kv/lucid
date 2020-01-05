@@ -4,9 +4,11 @@ use chrono::{DateTime, Utc};
 #[derive(Debug, Clone)]
 pub struct KvElement {
     pub data: Vec<u8>,
-    pub mime: String,
-    pub created: DateTime<Utc>,
-    pub updated: DateTime<Utc>,
+    pub mime_type: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub expire_at: DateTime<Utc>,
+    pub update_count: i32,
     pub locked: bool
 }
 
@@ -30,16 +32,19 @@ impl KvStore
         match &mut self.container.get_mut(&key) {
             Some(kv_element) => {
                 kv_element.data = value;
-                kv_element.mime = mime_type;
-                kv_element.updated = Utc::now();
+                kv_element.mime_type = mime_type;
+                kv_element.updated_at = Utc::now();
+                kv_element.update_count = kv_element.update_count + 1; 
                 Some(kv_element.to_owned())
             },
             None => {
                 let kv_element = KvElement {
                     data: value,
-                    mime: mime_type,
-                    created: Utc::now(),
-                    updated: Utc::now(),
+                    mime_type: mime_type,
+                    created_at: Utc::now(),
+                    updated_at: Utc::now(),
+                    expire_at: Utc::now(),
+                    update_count: 1,
                     locked: false,
                 };
                 self.container.insert(key, kv_element)
@@ -47,9 +52,9 @@ impl KvStore
         }
     }
 
-    pub fn get(&self, key: String) -> Option<Vec<u8>> {
-        match &self.container.get(&key) {
-            Some(value) => Some((&value.data).clone()),
+    pub fn get(&self, key: String) -> Option<KvElement> {
+        match self.container.get(&key) {
+            Some(value) => Some(value.clone()),
             None => None
         }
     }
@@ -67,6 +72,6 @@ impl KvStore
     // TODO: implement Lock, Unlock, Increment, Decrement, Expire
 
     pub fn drop(&self, key: String) {
-        &self.container.remove(&key);
+        self.container.remove(&key);
     }
 }

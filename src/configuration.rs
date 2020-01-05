@@ -2,7 +2,7 @@ use std::net::{Ipv4Addr, IpAddr};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Configuration {
-    pub default: Base,
+    pub general: General,
     pub authentication: Authentication,
     pub persistence: Persistence,
     pub encryption: Encryption,
@@ -15,11 +15,13 @@ pub struct Configuration {
 impl Configuration {
     pub fn default() -> Configuration {
         Configuration {
-            default: Base {
+            general: General {
                 bind_address: IpAddr::from(Ipv4Addr::LOCALHOST),
-                port: 7021, // TODO: change after implementing SSL
+                port: 7020,
                 port_ssl: 7021,
-                use_ssl: false,
+                use_ssl: true,
+                ssl_certificate: String::new(),
+                ssl_certificate_key: String::new()
             },
             authentication: Authentication {
                 enabled: true,
@@ -51,11 +53,13 @@ impl Configuration {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Base {
+pub struct General {
     pub bind_address: IpAddr,
     pub port: u16,
     pub port_ssl: u16,
     pub use_ssl: bool,
+    pub ssl_certificate: String,
+    pub ssl_certificate_key: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
