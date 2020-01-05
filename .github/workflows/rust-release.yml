@@ -15,5 +15,5 @@ jobs:
       uses: fnkr/github-action-ghr@v1.2
       env:
         GHR_COMPRESS: xz
-        GHR_PATH: build/
+        GHR_PATH: target/release/
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
