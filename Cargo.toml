@@ -43,13 +43,17 @@ byte-unit = "*"
 snafu = "*"
 bytes = "*"
 log = "*"
-fern = "*"
 tokio = "0.1.22"
 
 [dependencies.clap]
 version = "*"
 features = ["yaml"]
 
+[dependencies.fern]
+version = "*"
+features = ["colored"]
+
 [dependencies.warp]
 version = "*"
 features = ["tls"]
+
