@@ -10,7 +10,7 @@ High performance and distributed KV store accessible through an HTTP API. Writte
 
 ## Introduction
 
-Lucid is currently in an embryonic state but we wish to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
+Lucid is currently in an development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
 
 ## Getting Started
 
@@ -21,7 +21,7 @@ $ ./lucid init
 $ ./lucid server
 ```
 
-Or run a node with Docker, but you need to create a [lucid.yml](lucid.yml) file localy before.
+Or run a node with Docker, but you need to create a [lucid.yml](.github/lucid.yml) file localy before.
 ```
 $ docker pull lucidkv/lucid
 $ docker run -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
@@ -69,7 +69,7 @@ SUBCOMMANDS:
 
 Lucid wants to propose a web UI to manage data, issue tokens, organize nodes and configure instances.
 
-## Lucid Credits
+## Development Credits
 
 Lucid is developed by [@clintnetwork](https://twitter.com/clint_network), [@Slals](https://github.com/Slals), [@CephalonRho](https://github.com/CephalonRho), [@rigwild](https://github.com/rigwild) and published under the [MIT License](LICENSE.md).
 
@@ -80,6 +80,6 @@ Lucid is developed by [@clintnetwork](https://twitter.com/clint_network), [@Slal
 | CephalonRho     | CephalonRho@gmail.com | Core Development   |
 | Rigwild         | me@rigwild.dev        | Web UI Development |
 
-## Contribute on Lucid
+## Contribute to Lucid
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for best practices and instructions on setting up your development environment to work on Lucid.
