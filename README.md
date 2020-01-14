@@ -10,18 +10,18 @@ High performance and distributed KV store accessible through an HTTP API. Writte
 
 ## Introduction
 
-Lucid is currently in an development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
+Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
 
 ## Getting Started
 
-Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/releases) page and run this commands:
+Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/releases) page and run these commands:
 
 ```
 $ ./lucid init
 $ ./lucid server
 ```
 
-Or run a node with Docker, but you need to create a [lucid.yml](.github/lucid.yml) file localy before.
+Or run a node with Docker, but you need to create a [lucid.yml](.github/lucid.yml) file locally before.
 ```
 $ docker pull lucidkv/lucid
 $ docker run -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
@@ -35,7 +35,7 @@ You can find the official documentation at https://docs.lucid-kv.store.
 
 ## Command Line Interface
 
-You can take a look to the Lucid command line on at https://asciinema.org/a/277538.
+You can take a look at the Lucid command line on at https://asciinema.org/a/277538.
 
 ```
 
