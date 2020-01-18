@@ -21,13 +21,21 @@ $ ./lucid init
 $ ./lucid server
 ```
 
+### Docker Deployment
+
 Or run a node with Docker, but you need to create a [lucid.yml](.github/lucid.yml) file locally before.
 ```
 $ docker pull lucidkv/lucid
 $ docker run -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 ```
 
-A demonstration instance is accessible at http://lucid-kv.herokuapp.com (with authentication disabled).
+### One Click Deployment
+
+<a href="#azure_deploy" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png" height="32" />
+</a><a href="#heroku_deploy" target="_blank">
+    <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
+</a>
 
 ## Documentation
 
