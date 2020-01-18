@@ -6,7 +6,7 @@
     About Lucid KV
   </h3>
   <p align="center">
-    High performance and distributed KV store w/ REST API.
+    High performance and distributed KV store w/ REST API. 🦀
   </p>
   <p align="center">
       <a href="#"><img src="https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg" /></a>
