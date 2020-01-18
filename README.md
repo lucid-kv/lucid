@@ -29,6 +29,14 @@ $ docker run -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 
 A demonstration instance is accessible at http://lucid-kv.herokuapp.com (with authentication disabled).
 
+## One Click Deployment
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fclintnetwork%2Fstratis-guru-v2%2Ffeature%2Fmultichain%2FAzure%2Fazuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png" height="32" />
+</a><a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fclintnetwork%2Fstratis-guru-v2%2Ffeature%2Fmultichain%2FAzure%2Fazuredeploy.json" target="_blank">
+    <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
+</a>
+
 ## Documentation
 
 You can find the official documentation at https://docs.lucid-kv.store.
