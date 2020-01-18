@@ -10,7 +10,7 @@ High performance and distributed KV store accessible through an HTTP API. Writte
 
 ## Introduction
 
-Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
+Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and more.
 
 <a href="#azure_deploy" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png" height="32" />
