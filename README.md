@@ -1,12 +1,21 @@
-# About Lucid ᵏᵛ
-
-High performance and distributed KV store accessible through an HTTP API. Written in Rust. 🦀
-
-[![Build Status](https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg)](https://github.com/lucid-kv/lucid/actions?workflow=Lucid)
-[![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)](https://www.rust-lang.org/)
-[![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/lucid-kv/lucid/blob/master/LICENSE.md)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/lucidkv/community)
-[![Twitter](https://img.shields.io/twitter/follow/lucid_kv.svg?style=social)](https://twitter.com/intent/follow?screen_name=lucid_kv)
+<p align="center">
+  <p align="center">
+    <img src="https://github.com/lucid-kv/deploy-templates/blob/master/lucid.png?raw=true" height="100" alt="Lucid KV" />
+  </p>
+  <h3 align="center">
+    About Lucid KV
+  </h3>
+  <p align="center">
+    High performance and distributed KV store w/ REST API. 🦀
+  </p>
+  <p align="center">
+      <a href="#"><img src="https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg" /></a>
+      <a href="#"><img src="https://img.shields.io/badge/Made%20With-Rust-dea584" /></a>
+      <a href="#"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" /></a>
+      <a href="#"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
+      <!--<a href="#"><img src="https://img.shields.io/twitter/follow/lucid_kv.svg?style=social" /></a>-->
+  </p>
+</p>
 
 ## Introduction
 
