@@ -12,6 +12,12 @@ High performance and distributed KV store accessible through an HTTP API. Writte
 
 Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
 
+<a href="#azure_deploy" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png" height="32" />
+</a><a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/deploy-templates" target="_blank">
+    <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
+</a>
+
 ## Getting Started
 
 Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/releases) page and run these commands:
@@ -28,14 +34,6 @@ Or run a node with Docker, but you need to create a [lucid.yml](.github/lucid.ym
 $ docker pull lucidkv/lucid
 $ docker run -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 ```
-
-### One Click Deployment
-
-<a href="#azure_deploy" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png" height="32" />
-</a><a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/deploy-templates" target="_blank">
-    <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
-</a>
 
 ## Documentation
 
