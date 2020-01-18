@@ -9,11 +9,10 @@
     High performance and distributed KV store w/ REST API. 🦀
   </p>
   <p align="center">
-      <a href="#"><img src="https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg" /></a>
-      <a href="#"><img src="https://img.shields.io/badge/Made%20With-Rust-dea584" /></a>
-      <a href="#"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" /></a>
-      <a href="#"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
-      <!--<a href="#"><img src="https://img.shields.io/twitter/follow/lucid_kv.svg?style=social" /></a>-->
+      <a href="https://github.com/lucid-kv/lucid/actions?workflow=Lucid"><img src="https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg" /></a>
+      <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Made%20With-Rust-dea584" /></a>
+      <a href="https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" /></a>
+      <a href="https://gitter.im/lucidkv/community"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
   </p>
 </p>
 
