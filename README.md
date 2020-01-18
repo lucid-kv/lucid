@@ -33,7 +33,7 @@ $ docker run -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 
 <a href="#azure_deploy" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png" height="32" />
-</a><a href="#heroku_deploy" target="_blank">
+</a><a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/deploy-templates" target="_blank">
     <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
 </a>
 
