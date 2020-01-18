@@ -21,14 +21,10 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new() -> Server {
+    pub fn new(configuration: Arc<RwLock<Configuration>>) -> Server {
         Server {
-            configuration: Arc::new(RwLock::new(Configuration::default())),
+            configuration,
         }
-    }
-
-    pub fn configure(&mut self, configuration: Configuration) {
-        *self.configuration.write().unwrap() = configuration;
     }
 
     pub fn run(&self) {
