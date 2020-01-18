@@ -1,6 +1,6 @@
 <p align="center">
   <p align="center">
-    <img src="https://avatars3.githubusercontent.com/u/56896360?s=200&v=4" height="100" alt="Lucid KV" />
+    <img src="https://github.com/lucid-kv/deploy-templates/blob/master/lucid.png?raw=true" height="100" alt="Lucid KV" />
   </p>
   <h3 align="center">
     About Lucid KV
