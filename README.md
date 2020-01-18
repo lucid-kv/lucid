@@ -92,3 +92,7 @@ Lucid is developed by [@clintnetwork](https://twitter.com/clint_network), [@Slal
 ## Contribute to Lucid
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for best practices and instructions on setting up your development environment to work on Lucid.
+
+## Other Points
+
+You can review Lucid on G2.com [here](https://www.g2.com/products/lucid-kv-lucid/reviews).
