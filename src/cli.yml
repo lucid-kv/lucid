@@ -30,3 +30,5 @@ subcommands:
   - server:
       about: "Run a new Lucid server instance"
       author: *author
+  - settings:
+      about: "Manage the Lucid configuration file"

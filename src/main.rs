@@ -142,6 +142,13 @@ fn main() -> Result<(), Error> {
             return Err(Error::ConfigurationNotFound);
         }
     }
+    if let Some(_) = matches.subcommand_matches("settings") {
+        if config_path.exists() {
+            println!("Configuration location: {:?}\n\n{}", &config_path, fs::read_to_string(&config_path).context(OpenConfigFile)?);
+        } else {
+            return Err(Error::ConfigurationNotFound);
+        }
+    }
     Ok(())
 }
 
