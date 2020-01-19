@@ -8,7 +8,7 @@ template: &template |-4
      ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
 
     A Fast, Secure and Distributed KV store with an HTTP API.
-    Written in Rust by Clint.Network (twitter.com/clint_network)
+    Written in Rust by Clint.Network (https://github.com/lucid-kv)
 
     {all-args}
 settings:
