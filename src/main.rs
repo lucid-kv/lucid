@@ -88,6 +88,11 @@ fn main() -> Result<(), Error> {
             kind: clap::ErrorKind::VersionDisplayed,
             message,
             ..
+        })
+        | Err(clap::Error {
+            kind: clap::ErrorKind::MissingArgumentOrSubcommand,
+            message,
+            ..
         }) => {
             println!("{}", message);
             return Ok(());
