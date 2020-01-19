@@ -32,3 +32,4 @@ subcommands:
       author: *author
   - settings:
       about: "Manage the Lucid configuration file"
+      author: *author
