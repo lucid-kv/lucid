@@ -42,7 +42,6 @@ tree_magic = "*"
 byte-unit = "*"
 snafu = "*"
 bytes = "*"
-log = "*"
 fern = "*"
 tokio = "0.1.22"
 
@@ -53,3 +52,7 @@ features = ["yaml"]
 [dependencies.warp]
 version = "*"
 features = ["tls"]
+
+[dependencies.log]
+version = "*"
+features = ["serde"]
