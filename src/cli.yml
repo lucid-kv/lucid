@@ -1,5 +1,16 @@
 name: "Lucid"
 author: &author "Written in Rust by Clint.Network (https://github.com/lucid-kv)"
+template: &template |-4
+     ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
+     ██║    ██║   ██║██╔════╝██║██╔══██╗    ██║ ██╔╝██║   ██║
+     ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
+     ██████╗╚██████╔╝╚██████╗██║██████╔╝    ██║  ██╗ ╚████╔╝
+     ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
+
+    A Fast, Secure and Distributed KV store with an HTTP API.
+    Written in Rust by Clint.Network (twitter.com/clint_network)
+
+    {all-args}
 settings:
   - "GlobalVersion"
   - "SubcommandRequiredElseHelp"
@@ -16,6 +27,7 @@ subcommands:
   - init:
       about: "Initialize Lucid and generate configuration file"
       author: *author
+      template: *template
       args:
         - secret:
             help: "Set the JWT secret"
@@ -30,6 +42,8 @@ subcommands:
   - server:
       about: "Run a new Lucid server instance"
       author: *author
+      template: *template
   - settings:
       about: "Manage the Lucid configuration file"
       author: *author
+      template: *template
