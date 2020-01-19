@@ -8,4 +8,4 @@ RUN cp target/release/lucid /usr/bin/
 
 EXPOSE 7021
 
-CMD ["lucid", "server", "--config", "/etc/lucid/lucid.yml"]
+CMD ["lucid", "--config", "/etc/lucid/lucid.yml", "server"]
