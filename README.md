@@ -26,7 +26,7 @@ Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/rele
 
 ```
 $ ./lucid init
-$ ./lucid server
+$ ./lucid --config lucid.yml server
 ```
 
 Or run a node with Docker, but you need to create a [lucid.yml](.github/lucid.yml) file locally before.
@@ -40,6 +40,10 @@ A demonstration instance is accessible at http://lucid-kv.herokuapp.com (with au
 ## Documentation
 
 You can find the official documentation at https://docs.lucid-kv.store.
+
+## Works in Progress
+
+You can take a look at the roadmap [here](https://github.com/lucid-kv/lucid/issues/46), we are working on the implementation of persistence and encryption.
 
 ## Command Line Interface
 
