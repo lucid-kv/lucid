@@ -31,7 +31,7 @@ use snafu::{ResultExt, Snafu};
 
 const APP_INFO: AppInfo = AppInfo {
     name: "lucid",
-    author: "Clint.Network",
+    author: "LucidKV",
 };
 
 const BANNER: &'static str = r###"
@@ -42,7 +42,7 @@ const BANNER: &'static str = r###"
 ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
 
 A Fast, Secure and Distributed KV store with an HTTP API.
-Written in Rust by Clint.Network (twitter.com/clint_network)
+Written in Rust by Clint.Network (https://github.com/lucid-kv)
 "###;
 
 const CREDITS: &'static str = "\
@@ -71,7 +71,7 @@ fn main() -> Result<(), Error> {
         .expect("Couldn't start logger");
     log::set_max_level(LevelFilter::Debug);
 
-    let long_version = format!("{}\n{}", crate_version!(), CREDITS);
+    let long_version = format!("{}\n{}\n\nYou can send a tips here: 3BxEYn4RZ3iYETcFpN7nA6VqCY4Hz1tSUK", crate_version!(), CREDITS);
 
     let cli_yaml = load_yaml!("cli.yml");
     let app = App::from_yaml(&cli_yaml)

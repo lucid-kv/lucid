@@ -1,5 +1,5 @@
 name: "Lucid"
-author: &author "Written in Rust by Clint.Network (twitter.com/clint_network)"
+author: &author "Written in Rust by Clint.Network (https://github.com/lucid-kv)"
 settings:
   - "GlobalVersion"
   - "SubcommandRequiredElseHelp"
