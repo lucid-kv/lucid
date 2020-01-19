@@ -1,17 +1,17 @@
 name: "Lucid"
 author: &author "Written in Rust by Clint.Network (twitter.com/clint_network)"
 settings:
-  - GlobalVersion
-  - SubcommandRequiredElseHelp
+  - "GlobalVersion"
+  - "SubcommandRequiredElseHelp"
 args:
   - config:
       help: "Specify the Lucid configuration file"
-      short: c
-      long: config
+      short: "c"
+      long: "config"
       takes_value: true
   - no-banner:
       help: "Disable showing the banner on start"
-      long: no-banner
+      long: "no-banner"
 subcommands:
   - init:
       about: "Initialize Lucid and generate configuration file"
@@ -19,13 +19,13 @@ subcommands:
       args:
         - secret:
             help: "Set the JWT secret"
-            short: s
-            long: secret
+            short: "s"
+            long: "secret"
             takes_value: true
         - force:
             help: "Initialize Lucid and overwrite existing configuration file"
-            short: f
-            long: force
+            short: "f"
+            long: "force"
             takes_value: false
   - server:
       about: "Run a new Lucid server instance"
