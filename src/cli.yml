@@ -9,6 +9,9 @@ args:
       short: c
       long: config
       takes_value: true
+  - no-banner:
+      help: "Disable showing the banner on start"
+      long: no-banner
 subcommands:
   - init:
       about: "Initialize Lucid and generate configuration file"

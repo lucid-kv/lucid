@@ -71,7 +71,6 @@ fn main() -> Result<(), Error> {
         .expect("Couldn't start logger");
     log::set_max_level(LevelFilter::Debug);
 
-    println!("{}", BANNER);
     let long_version = format!("{}\n{}", crate_version!(), CREDITS);
 
     let cli_yaml = load_yaml!("cli.yml");
@@ -95,6 +94,10 @@ fn main() -> Result<(), Error> {
         }
         Err(e) => return Err(Error::ParseCli { source: e }),
     };
+
+    if !matches.is_present("no-banner") {
+        println!("{}", BANNER);
+    }
 
     let config_path = {
         if let Some(config) = matches.value_of("config") {
