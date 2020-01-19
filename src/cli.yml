@@ -1,5 +1,5 @@
 name: "Lucid"
-author: "Written in Rust by Clint.Network (twitter.com/clint_network)"
+author: &author "Written in Rust by Clint.Network (twitter.com/clint_network)"
 settings:
   - GlobalVersion
   - SubcommandRequiredElseHelp
@@ -15,6 +15,7 @@ args:
 subcommands:
   - init:
       about: "Initialize Lucid and generate configuration file"
+      author: *author
       args:
         - secret:
             help: "Set the JWT secret"
@@ -28,3 +29,4 @@ subcommands:
             takes_value: false
   - server:
       about: "Run a new Lucid server instance"
+      author: *author
