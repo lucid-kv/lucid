@@ -20,32 +20,32 @@ LegalCopyright = "Copyright © 2019 Lucid - All Rights Reserved"
 github = { repository = "lucid-kv/lucid", branch = "master" }
 
 [build-dependencies]
-winres = "*"
+winres = "0.1.11"
 
 [dependencies]
-nickel = "*"
-serde = "*"
-serde_json = "*"
-serde_derive = "*"
-serde_yaml = "*"
-yaml-rust = "*"
-chrono = "*"
-include_dir = "*"
+nickel = "0.11.0"
+serde = "1.0.104"
+serde_json = "1.0.44"
+serde_derive = "1.0.104"
+serde_yaml = "0.8.11"
+yaml-rust = "0.4.3"
+chrono = "0.4.10"
+include_dir = "0.5.0"
 jsonwebtoken = "7.0.0-alpha.2"
-app_dirs = "*"
-ring = "*"
-uuid = "*"
-rand = "*"
-chashmap = "*"
-plugin = "*"
-tree_magic = "*"
-byte-unit = "*"
-snafu = "*"
+app_dirs = "1.2.1"
+ring = "0.16.9"
+uuid = "0.8.1"
+rand = "0.7.3"
+chashmap = "2.2.2"
+plugin = "0.2.6"
+tree_magic = "0.2.1"
+byte-unit = "3.0.3"
+snafu = "0.6.2"
 bytes = "0.5.3"
-fern = "*"
+fern = "0.5.9"
 
 [dependencies.clap]
-version = "*"
+version = "2.33.0"
 features = ["yaml"]
 
 [dependencies.warp]
