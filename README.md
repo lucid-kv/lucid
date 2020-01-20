@@ -51,7 +51,6 @@ You can take a look at the roadmap [here](https://github.com/lucid-kv/lucid/issu
 You can take a look at the Lucid command line on at https://asciinema.org/a/277538.
 
 ```
-
  ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
  ██║    ██║   ██║██╔════╝██║██╔══██╗    ██║ ██╔╝██║   ██║
  ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
