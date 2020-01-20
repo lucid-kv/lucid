@@ -29,10 +29,11 @@ $ ./lucid init
 $ ./lucid --config lucid.yml server
 ```
 
-Or run a node with Docker, but you need to create a [lucid.yml](.github/lucid.yml) file locally before.
+Or run a node with Docker, but you need to create a [lucid.yml](.github/docker.yml) file locally before.
+
 ```
 $ docker pull lucidkv/lucid
-$ docker run -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
+$ docker run -p 7020:7020 -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 ```
 
 A demonstration instance is accessible at http://lucid-kv.herokuapp.com (with authentication disabled).
