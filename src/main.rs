@@ -55,7 +55,8 @@ const CREDITS: &'static str = "\
                                | Rigwild         | me@rigwild.dev        | Web UI Development |\n\
                                +-----------------+-----------------------+--------------------+";
 
-fn main() -> Result<(), Error> {
+#[tokio::main]
+async fn main() -> Result<(), Error> {
     Dispatch::new()
         .format(|out, message, record| {
             out.finish(format_args!(
@@ -137,7 +138,7 @@ fn main() -> Result<(), Error> {
                 serde_yaml::from_reader(File::open(&config_path).context(OpenConfigFile)?)
                     .context(ReadConfigFile)?;
             log::set_max_level(config.logging.level); // this has to be executed every time the logging configuration changes
-            Lucid::new(config).run().context(RunServer)?;
+            Lucid::new(config).run().await.context(RunServer)?;
         } else {
             return Err(Error::ConfigurationNotFound);
         }

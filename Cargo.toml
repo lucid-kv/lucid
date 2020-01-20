@@ -31,7 +31,7 @@ serde_yaml = "*"
 yaml-rust = "*"
 chrono = "*"
 include_dir = "*"
-jsonwebtoken = "6.0.1"
+jsonwebtoken = "7.0.0-alpha.2"
 app_dirs = "*"
 ring = "*"
 uuid = "*"
@@ -41,18 +41,21 @@ plugin = "*"
 tree_magic = "*"
 byte-unit = "*"
 snafu = "*"
-bytes = "*"
+bytes = "0.5.3"
 fern = "*"
-tokio = "0.1.22"
 
 [dependencies.clap]
 version = "*"
 features = ["yaml"]
 
 [dependencies.warp]
-version = "*"
+version = "0.2.0"
 features = ["tls"]
 
 [dependencies.log]
-version = "*"
+version = "0.4.8"
 features = ["serde"]
+
+[dependencies.tokio]
+version = "0.2.9"
+features = ["full"]
