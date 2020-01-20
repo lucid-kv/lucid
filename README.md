@@ -61,21 +61,19 @@ You can take a look at the Lucid command line on at https://asciinema.org/a/2775
 A Fast, Secure and Distributed KV store with an HTTP API.
 Written in Rust by Clint.Network (twitter.com/clint_network)
 
-USAGE:
-    lucid.exe [SUBCOMMAND]
-
 FLAGS:
-    -h, --help       Prints help information
-    -v, --version    Prints version information
+    -h, --help         Prints help information
+        --no-banner    Disable showing the banner on start
+    -V, --version      Prints version information
+
+OPTIONS:
+    -c, --config <config>    Specify the Lucid configuration file
 
 SUBCOMMANDS:
-    cli         Spawn to the command line interface
     help        Prints this message or the help of the given subcommand(s)
     init        Initialize Lucid and generate configuration file
     server      Run a new Lucid server instance
-    settings    Manage Lucid configuration file
-    store       Play with the KV store (get/set)
-    tokens      Manage JWT Tokens (issue, revoke etc.)
+    settings    Manage the Lucid configuration file
 ```
 
 ## Web Interface (UI)
