@@ -1,6 +1,7 @@
 name: "Lucid"
 author: &author "Written in Rust by Clint.Network (https://github.com/lucid-kv)"
 template: &template |-4
+
      ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
      ██║    ██║   ██║██╔════╝██║██╔══██╗    ██║ ██╔╝██║   ██║
      ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
