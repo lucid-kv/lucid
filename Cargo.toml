@@ -43,6 +43,7 @@ byte-unit = "*"
 snafu = "*"
 bytes = "*"
 log = "*"
+fern = "*"
 tokio = "0.1.22"
 
 [dependencies.clap]
@@ -57,3 +58,6 @@ features = ["colored"]
 version = "*"
 features = ["tls"]
 
+[dependencies.log]
+version = "*"
+features = ["serde"]

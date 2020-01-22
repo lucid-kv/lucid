@@ -1,4 +1,10 @@
-use std::net::{Ipv4Addr, IpAddr};
+use std::{
+    net::{IpAddr, Ipv4Addr},
+    path::PathBuf,
+};
+
+use app_dirs::{AppDataType, AppDirsError};
+use log::LevelFilter;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Configuration {
@@ -9,11 +15,19 @@ pub struct Configuration {
     pub webui: WebUI,
     pub store: Store,
     pub http: Http,
-    pub logging: Logging
+    pub logging: Logging,
 }
 
 impl Configuration {
-    pub fn default() -> Configuration {
+    pub fn get_path() -> Result<PathBuf, AppDirsError> {
+        let mut path = app_dirs::get_app_root(AppDataType::UserConfig, &crate::APP_INFO)?;
+        path.push("lucid.yml");
+        Ok(path)
+    }
+}
+
+impl Default for Configuration {
+    fn default() -> Configuration {
         Configuration {
             general: General {
                 bind_address: IpAddr::from(Ipv4Addr::LOCALHOST),
@@ -21,7 +35,7 @@ impl Configuration {
                 port_ssl: 7021,
                 use_ssl: true,
                 ssl_certificate: String::new(),
-                ssl_certificate_key: String::new()
+                ssl_certificate_key: String::new(),
             },
             authentication: Authentication {
                 enabled: true,
@@ -36,17 +50,13 @@ impl Configuration {
                 enabled: false,
                 private_key: String::new(),
             },
-            webui: WebUI {
-                enabled: false
-            },
-            store: Store {
-                max_limit: 7340032
-            },
+            webui: WebUI { enabled: false },
+            store: Store { max_limit: 7340032 },
             http: Http {
-                request_size_limit: 8388608
+                request_size_limit: 8388608,
             },
             logging: Logging {
-                level: "Info".to_string()
+                level: LevelFilter::Info,
             },
         }
     }
@@ -83,22 +93,22 @@ pub struct Encryption {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WebUI {
-    pub enabled: bool
+    pub enabled: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Store {
-    pub max_limit: u64
+    pub max_limit: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Http {
-    pub request_size_limit: u64
+    pub request_size_limit: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Logging {
-    pub level: String
+    pub level: LevelFilter,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

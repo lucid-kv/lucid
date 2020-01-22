@@ -1,117 +1,50 @@
-name: Lucid
-author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
-subcommands:
-  -
-    cli:
-      about: 'Spawn to the command line interface'
-      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
-      args:
-        -
-          help:
-            help: 'Prints CLI help information'
-            short: h
-            long: help
-  -
-    init:
-      about: 'Initialize Lucid and generate configuration file'
-      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
-      args:
-        -
-          secret:
-            help: 'Set the JWT secret'
-            short: s
-            long: secret
-            takes_value: true
-        -
-          force:
-            help: 'Initialize Lucid and overwrite existing configuration file'
-            short: f
-            long: force
-            takes_value: false
-        -
-          config:
-            help: 'Specify the Lucid configuration file location'
-            short: c
-            long: config
-            takes_value: true
-  -
-    server:
-      about: 'Run a new Lucid server instance'
-      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
-      args:
-        -
-          config:
-            help: 'Specify the Lucid configuration file'
-            short: c
-            long: config
-            takes_value: true
-  -
-    settings:
-      about: 'Manage Lucid configuration file'
-      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
-      subcommands:
-        - set:
-            about: 'Update a setting parameter'
-            author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
-        - get:
-            about: 'Get a setting parameter'
-            author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
-      args:
-        - config:
-            help: 'Specify the Lucid configuration file'
-            short: c
-            long: config
-            takes_value: true
-  -
-    store:
-      about: 'Play with the KV store (get/set)'
-      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
-  -
-    tokens:
-      about: 'Manage JWT Tokens (issue, revoke etc.)'
-      author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
-      subcommands:
-        -
-          revoke:
-            about: 'Revoke a JWT Token'
-            author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
-            args:
-              -
-                token:
-                  help: 'Token to revoke'
-                  index: 1
-        -
-          issue:
-            about: 'Issue a new JWT Token'
-            author: 'Written in Rust by Clint.Network (twitter.com/clint_network)'
-            args:
-              -
-                expiration:
-                  help: 'Specify the expiration date of the JWT Token (timestamp)'
-                  short: e
-                  long: expiration
-                  takes_value: true
-              - count:
-                  help: 'Number of tokens to issue  '
-                  short: c
-                  long: count
-                  index: 1
-      args:
-        - config:
-            help: 'Specify the Lucid configuration file'
-            short: c
-            long: config
-            takes_value: true
+name: "Lucid"
+author: &author "Written in Rust by Clint.Network (https://github.com/lucid-kv)"
+template: &template |-4
+
+     ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
+     ██║    ██║   ██║██╔════╝██║██╔══██╗    ██║ ██╔╝██║   ██║
+     ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
+     ██████╗╚██████╔╝╚██████╗██║██████╔╝    ██║  ██╗ ╚████╔╝
+     ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
+
+    A Fast, Secure and Distributed KV store with an HTTP API.
+    Written in Rust by Clint.Network (https://github.com/lucid-kv)
+
+    {all-args}
+settings:
+  - "GlobalVersion"
+  - "SubcommandRequiredElseHelp"
 args:
-  -
-    help:
-      help: 'Prints help information'
-      short: h
-      long: help
-      takes_value: false
-  -
-    version:
-      help: 'Prints version information'
-      short: v
-      long: version
-      takes_value: false
+  - config:
+      help: "Specify the Lucid configuration file"
+      short: "c"
+      long: "config"
+      takes_value: true
+  - no-banner:
+      help: "Disable showing the banner on start"
+      long: "no-banner"
+subcommands:
+  - init:
+      about: "Initialize Lucid and generate configuration file"
+      author: *author
+      template: *template
+      args:
+        - secret:
+            help: "Set the JWT secret"
+            short: "s"
+            long: "secret"
+            takes_value: true
+        - force:
+            help: "Initialize Lucid and overwrite existing configuration file"
+            short: "f"
+            long: "force"
+            takes_value: false
+  - server:
+      about: "Run a new Lucid server instance"
+      author: *author
+      template: *template
+  - settings:
+      about: "Manage the Lucid configuration file"
+      author: *author
+      template: *template
