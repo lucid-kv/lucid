@@ -25,9 +25,13 @@ use clap::App;
 use fern::Dispatch;
 use jsonwebtoken::Header;
 use log::LevelFilter;
+use fern::colors::{Color, ColoredLevelConfig};
 use rand::Rng;
 use ring::digest;
 use snafu::{ResultExt, Snafu};
+
+#[cfg(not(windows))]
+use syslog4 as syslog;
 
 const APP_INFO: AppInfo = AppInfo {
     name: "lucid",
@@ -56,17 +60,36 @@ const CREDITS: &'static str = "\
                                +-----------------+-----------------------+--------------------+";
 
 fn main() -> Result<(), Error> {
+    let logging_colors = ColoredLevelConfig::new()
+        .debug(Color::BrightMagenta)
+        .warn(Color::BrightYellow)
+        .error(Color::BrightRed)
+        .info(Color::BrightCyan);
+
+    // For now, I comment syslog implementation
+
+    // let syslog_formatter = syslog::Formatter3164 {
+    //     facility: syslog::Facility::LOG_USER,
+    //     hostname: None,
+    //     process: "hello-world".to_owned(),
+    //     pid: 0,
+    // };
+
+    // I let you move or change what you want to configure logging Cephalon!
     Dispatch::new()
-        .format(|out, message, record| {
+        .format(move |out, message, record| {
             out.finish(format_args!(
                 "{} {} [{}] {}",
                 Utc::now().format("%Y/%m/%d %H:%M:%S"),
-                record.level(),
+                logging_colors.color(record.level()),
                 record.target(),
                 message
             ))
         })
-        .chain(std::io::stdout())
+        .chain(std::io::stdout())                       // I don't know if it only broadcast warn/err or all
+        .chain(std::io::stderr())
+        .chain(fern::log_file("output.log").unwrap())
+        // .chain(syslog::unix(syslog_formatter))       // Commented for now, it don't compile for an unknown reason
         .apply()
         .expect("Couldn't start logger");
     log::set_max_level(LevelFilter::Debug);

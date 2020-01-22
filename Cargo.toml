@@ -50,7 +50,7 @@ features = ["yaml"]
 
 [dependencies.fern]
 version = "*"
-features = ["colored"]
+features = ["colored", "syslog-4"]
 
 [dependencies.warp]
 version = "*"
