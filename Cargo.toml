@@ -42,7 +42,6 @@ tree_magic = "*"
 byte-unit = "*"
 snafu = "*"
 bytes = "*"
-log = "*"
 tokio = "0.1.22"
 
 [dependencies.clap]
