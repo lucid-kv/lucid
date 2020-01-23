@@ -20,42 +20,24 @@ LegalCopyright = "Copyright © 2019 Lucid - All Rights Reserved"
 github = { repository = "lucid-kv/lucid", branch = "master" }
 
 [build-dependencies]
-winres = "*"
+winres = "0.1.11"
 
 [dependencies]
-nickel = "*"
-serde = "*"
-serde_json = "*"
-serde_derive = "*"
-serde_yaml = "*"
-yaml-rust = "*"
-chrono = "*"
-include_dir = "*"
-jsonwebtoken = "6.0.1"
-app_dirs = "*"
-ring = "*"
-uuid = "*"
-rand = "*"
-chashmap = "*"
-plugin = "*"
-tree_magic = "*"
-byte-unit = "*"
-snafu = "*"
-bytes = "*"
-tokio = "0.1.22"
-
-[dependencies.clap]
-version = "*"
-features = ["yaml"]
-
-[dependencies.fern]
-version = "*"
-features = ["colored", "syslog-4"]
-
-[dependencies.warp]
-version = "*"
-features = ["tls"]
-
-[dependencies.log]
-version = "*"
-features = ["serde"]
+serde = "1.0.104"
+serde_json = "1.0.44"
+serde_derive = "1.0.104"
+serde_yaml = "0.8.11"
+chrono = "0.4.10"
+jsonwebtoken = "7.0.0-alpha.2"
+app_dirs = "1.2.1"
+ring = "0.16.9"
+rand = "0.7.3"
+chashmap = "2.2.2"
+tree_magic = "0.2.1"
+snafu = "0.6.2"
+bytes = "0.5.3"
+fern = { version = "0.5.9", features = ["colored", "syslog-4"] }
+clap = { version = "2.33.0", features = ["yaml"] }
+warp = { version = "0.2.0", features = ["tls"] }
+log = { version = "0.4.8", features = ["serde"] }
+tokio = { version = "0.2.9", features = ["full"] }

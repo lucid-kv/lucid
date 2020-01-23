@@ -14,9 +14,9 @@ impl Lucid {
         }
     }
 
-    pub fn run(&self) -> Result<(), std::io::Error> {
+    pub async fn run(&self) -> Result<(), std::io::Error> {
         let server = Server::new(self.configuration.clone());
-        server.run();
+        server.run().await;
         Ok(())
     }
 }
