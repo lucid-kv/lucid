@@ -22,16 +22,13 @@ use std::{
 use app_dirs::{AppDirsError, AppInfo};
 use chrono::{DateTime, Duration, Utc};
 use clap::App;
+use fern::colors::{Color, ColoredLevelConfig};
 use fern::Dispatch;
 use jsonwebtoken::Header;
 use log::LevelFilter;
-use fern::colors::{Color, ColoredLevelConfig};
 use rand::Rng;
 use ring::digest;
 use snafu::{ResultExt, Snafu};
-
-#[cfg(not(windows))]
-use syslog4 as syslog;
 
 const APP_INFO: AppInfo = AppInfo {
     name: "lucid",
@@ -62,10 +59,10 @@ const CREDITS: &'static str = "\
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     let logging_colors = ColoredLevelConfig::new()
-    .debug(Color::BrightMagenta)
-    .warn(Color::BrightYellow)
-    .error(Color::BrightRed)
-    .info(Color::BrightCyan);
+        .debug(Color::BrightMagenta)
+        .warn(Color::BrightYellow)
+        .error(Color::BrightRed)
+        .info(Color::BrightCyan);
 
     Dispatch::new()
         .format(move |out, message, record| {
@@ -77,7 +74,7 @@ async fn main() -> Result<(), Error> {
                 message
             ))
         })
-        .chain(std::io::stdout())                       // I don't know if it only broadcast warn/err or all
+        .chain(std::io::stdout()) // I don't know if it only broadcast warn/err or all
         .chain(std::io::stderr())
         .chain(fern::log_file("output.log").unwrap())
         // .chain(syslog::unix(syslog_formatter))       // Commented for now, it don't compile for an unknown reason
@@ -85,7 +82,11 @@ async fn main() -> Result<(), Error> {
         .expect("Couldn't start logger");
     log::set_max_level(LevelFilter::Debug);
 
-    let long_version = format!("{}\n{}\n\nYou can send a tips here: 3BxEYn4RZ3iYETcFpN7nA6VqCY4Hz1tSUK", crate_version!(), CREDITS);
+    let long_version = format!(
+        "{}\n{}\n\nYou can send a tips here: 3BxEYn4RZ3iYETcFpN7nA6VqCY4Hz1tSUK",
+        crate_version!(),
+        CREDITS
+    );
 
     let cli_yaml = load_yaml!("cli.yml");
     let app = App::from_yaml(&cli_yaml)
@@ -158,7 +159,11 @@ async fn main() -> Result<(), Error> {
     }
     if let Some(_) = matches.subcommand_matches("settings") {
         if config_path.exists() {
-            println!("Configuration location: {}\n\n{}", &config_path.to_str().unwrap(), fs::read_to_string(&config_path).context(OpenConfigFile)?);
+            println!(
+                "Configuration location: {}\n\n{}",
+                &config_path.to_str().unwrap(),
+                fs::read_to_string(&config_path).context(OpenConfigFile)?
+            );
         } else {
             return Err(Error::ConfigurationNotFound);
         }
