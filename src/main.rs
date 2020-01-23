@@ -74,8 +74,7 @@ async fn main() -> Result<(), Error> {
                 message
             ))
         })
-        .chain(std::io::stdout()) // I don't know if it only broadcast warn/err or all
-        .chain(std::io::stderr())
+        .chain(std::io::stdout())
         .chain(fern::log_file("output.log").unwrap())
         // .chain(syslog::unix(syslog_formatter))       // Commented for now, it don't compile for an unknown reason
         .apply()
