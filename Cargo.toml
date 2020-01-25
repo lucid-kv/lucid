@@ -14,7 +14,7 @@ build = "src/build.rs"
 
 [package.metadata.winres]
 ProductName = "Lucid KV"
-LegalCopyright = "Copyright © 2019 Lucid - All Rights Reserved"
+LegalCopyright = "Copyright © 2020 Lucid - All Rights Reserved"
 
 [badges]
 github = { repository = "lucid-kv/lucid", branch = "master" }
@@ -41,3 +41,4 @@ clap = { version = "2.33.0", features = ["yaml"] }
 warp = { version = "0.2.0", features = ["tls"] }
 log = { version = "0.4.8", features = ["serde"] }
 tokio = { version = "0.2.9", features = ["full"] }
+serpent = { git = "https://github.com/lucid-kv/block-ciphers" }
