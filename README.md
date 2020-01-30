@@ -18,7 +18,7 @@
 
 ## Introduction
 
-Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
+Lucid is currently in a development stage but we plan to make a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose Persistence, Encryption, SSE streaming, Compression, Replication and more.
 
 ## Getting Started
 
@@ -40,7 +40,7 @@ A demonstration instance is accessible at http://lucid-kv.herokuapp.com (with au
 
 ## Documentation
 
-You can find the official documentation at https://docs.lucid-kv.store.
+You can start quickly [here](https://github.com/lucid-kv/lucid/wiki) or get the complete documentation at https://docs.lucid-kv.store.
 
 ## Works in Progress
 
