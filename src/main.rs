@@ -107,7 +107,6 @@ async fn main() -> Result<(), Error> {
     } else {
         Configuration::default()
     };
-    log::set_max_level(config.logging.level);
 
     let logging_colors = ColoredLevelConfig::new()
         .debug(Color::BrightMagenta)
@@ -143,6 +142,7 @@ async fn main() -> Result<(), Error> {
     }
 
     dispatch.apply().expect("Couldn't start logger");
+    log::set_max_level(config.logging.level);
 
     if let Some(init_matches) = matches.subcommand_matches("init") {
         if config_path.exists() && !init_matches.is_present("force") {
