@@ -57,6 +57,7 @@ impl Default for Configuration {
             },
             logging: Logging {
                 level: LevelFilter::Info,
+                outputs: vec![LogOutput::Stdout { colored: false }],
             },
         }
     }
@@ -109,6 +110,15 @@ pub struct Http {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Logging {
     pub level: LevelFilter,
+    pub outputs: Vec<LogOutput>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase", tag = "type")]
+pub enum LogOutput {
+    File { path: PathBuf },
+    Stdout { colored: bool },
+    Stderr { colored: bool },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
