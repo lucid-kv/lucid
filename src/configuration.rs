@@ -38,7 +38,7 @@ impl Default for Configuration {
                 ssl_certificate_key: String::new(),
             },
             authentication: Authentication {
-                enabled: true,
+                enabled: false,
                 root_token: String::new(),
                 secret_key: String::new(),
             },
