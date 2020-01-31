@@ -10,4 +10,4 @@ Lucid is a KV store using an HTTP API, the server part is build with `warp` and 
 
 ## Community
 
-For any question, you can contact us on @Gitter at https://gitter.im/lucidkv
+For any question, you can contact us on @Gitter at <https://gitter.im/lucidkv>

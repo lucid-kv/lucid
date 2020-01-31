@@ -36,11 +36,11 @@ $ docker pull lucidkv/lucid
 $ docker run -p 7020:7020 -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 ```
 
-A demonstration instance is accessible at http://lucid-kv.herokuapp.com (with authentication disabled).
+A demonstration instance is accessible at <http://lucid-kv.herokuapp.com> (with authentication disabled).
 
 ## Documentation
 
-You can start quickly [here](https://github.com/lucid-kv/lucid/wiki) or get the complete documentation at https://docs.lucid-kv.store.
+You can start quickly [here](https://github.com/lucid-kv/lucid/wiki) or get the complete documentation at <https://docs.lucid-kv.store>.
 
 ## Works in Progress
 
@@ -48,7 +48,7 @@ You can take a look at the roadmap [here](https://github.com/lucid-kv/lucid/issu
 
 ## Command Line Interface
 
-You can take a look at the Lucid command line on at https://asciinema.org/a/277538.
+You can take a look at the Lucid command line on at <https://asciinema.org/a/277538>.
 
 ```
  ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
