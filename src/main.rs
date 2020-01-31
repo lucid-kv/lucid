@@ -115,13 +115,13 @@ async fn main() -> Result<(), Error> {
         .info(Color::BrightCyan);
 
     let mut dispatch = Dispatch::new();
-    for output in config.logging.outputs {
+    for output in &config.logging.outputs {
         dispatch = match output {
             LogOutput::File { path } => {
                 dispatch.chain(create_format_dispatch(None).chain(fern::log_file(path).unwrap()))
             }
             LogOutput::Stdout { colored } => {
-                if colored {
+                if *colored {
                     dispatch.chain(
                         create_format_dispatch(Some(logging_colors)).chain(std::io::stdout()),
                     )
@@ -130,7 +130,7 @@ async fn main() -> Result<(), Error> {
                 }
             }
             LogOutput::Stderr { colored } => {
-                if colored {
+                if *colored {
                     dispatch.chain(
                         create_format_dispatch(Some(logging_colors)).chain(std::io::stderr()),
                     )
@@ -166,10 +166,6 @@ async fn main() -> Result<(), Error> {
     }
     if let Some(_) = matches.subcommand_matches("server") {
         if config_path.exists() {
-            let config: Configuration =
-                serde_yaml::from_reader(File::open(&config_path).context(OpenConfigFile)?)
-                    .context(ReadConfigFile)?;
-            log::set_max_level(config.logging.level); // this has to be executed every time the logging configuration changes
             Lucid::new(config).run().await.context(RunServer)?;
         } else {
             return Err(Error::ConfigurationNotFound);
