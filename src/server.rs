@@ -119,6 +119,8 @@ impl Server {
                 std::process::id()
             );
             info!("Lucid API Endpoint: https://{}/api/", bind_endpoint);
+            info!("SSL Certificate: {}", &configuration.general.ssl_certificate);
+            info!("SSL Private Key: {}", &configuration.general.ssl_certificate_key);
             info!("Use Ctrl+C to stop the server.");
             instance
                 .tls()
