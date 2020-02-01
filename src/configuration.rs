@@ -36,6 +36,7 @@ impl Default for Configuration {
                 use_ssl: true,
                 ssl_certificate: String::new(),
                 ssl_certificate_key: String::new(),
+                show_banner: true
             },
             authentication: Authentication {
                 enabled: false,
@@ -71,6 +72,7 @@ pub struct General {
     pub use_ssl: bool,
     pub ssl_certificate: String,
     pub ssl_certificate_key: String,
+    pub show_banner: bool
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

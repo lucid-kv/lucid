@@ -90,10 +90,6 @@ async fn main() -> Result<(), Error> {
         Err(e) => return Err(Error::ParseCli { source: e }),
     };
 
-    if !matches.is_present("no-banner") {
-        println!("{}", BANNER);
-    }
-
     let config_path = {
         if let Some(config) = matches.value_of("config") {
             Path::new(config).to_path_buf()
@@ -107,6 +103,10 @@ async fn main() -> Result<(), Error> {
     } else {
         Configuration::default()
     };
+
+    if !matches.is_present("no-banner") && config.general.show_banner {
+        println!("{}", BANNER);
+    }
 
     let logging_colors = ColoredLevelConfig::new()
         .debug(Color::BrightMagenta)
