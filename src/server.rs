@@ -74,10 +74,11 @@ impl Server {
                 .or(warp::patch()
                     .and(store.clone())
                     .and(api_kv_key_path)
-                    .and(filters::body::content_length_limit(
-                        configuration.http.request_size_limit,
-                    ))
-                    .and(filters::body::json())
+                    .and(warp::body::bytes().and_then(|body: bytes::Bytes| async move {
+                        std::str::from_utf8(&body)
+                            .map(String::from)
+                            .map_err(|_e| warp::reject::custom(NotUtf8))    // TODO: implement no valid string error
+                    }))
                     .and_then(patch_key)),
         );
 
@@ -209,25 +210,33 @@ async fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Reject
     }
 }
 
-#[derive(Debug, Deserialize)]
-struct PatchValue {
-    operation: String,
-}
 async fn patch_key(
     store: Arc<KvStore>,
     key: String,
-    patch_value: PatchValue,
+    body: String,
 ) -> Result<impl Reply, Rejection> {
     if let Some(_) = store.get(key.clone()) {
-        match patch_value.operation.as_str() {
-            "lock" | "unlock" => {
-                let r = store.switch_lock(key.to_string(), true);
-                println!("{}", r);
-                Ok("")
+        if body.len() == 0 {
+            Err(reject::custom(Error::MissingBody))
+        }
+        else {
+            match body.to_lowercase().as_str() {
+                "lock" => {
+                    store.switch_lock(key.to_string(), true);
+                    Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key was successfully locked.".to_string(),
+                    }))
+                }
+                "unlock" => {
+                    store.switch_lock(key.to_string(), false);
+                    Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key was successfully unlocked.".to_string(),
+                    }))
+                }
+                _ => Err(reject::custom(Error::InvalidOperation {
+                    operation: body,
+                }))
             }
-            _ => Err(reject::custom(Error::InvalidOperation {
-                operation: patch_value.operation,
-            })),
         }
     } else {
         Err(reject::custom(Error::KeyNotFound))
@@ -298,6 +307,10 @@ async fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
         Err(err)
     }
 }
+
+#[derive(Debug)]
+struct NotUtf8;
+impl warp::reject::Reject for NotUtf8 {}
 
 #[derive(Debug, Snafu)]
 enum Error {
