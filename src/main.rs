@@ -42,7 +42,7 @@ const BANNER: &'static str = r###"
  ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
 
 A Fast, Secure and Distributed KV store with an HTTP API.
-Written in Rust by Clint.Network (https://github.com/lucid-kv)
+Written in Rust, Fork us on GitHub (https://github.com/lucid-kv)
 "###;
 
 const CREDITS: &'static str = "\
