@@ -12,4 +12,4 @@ Lucid is a KV store using an HTTP API, the server part is build with `warp` and 
 
 For any question, you can contact us on Discord [here](https://discord.gg/mZz67M6).
 
-[![](https://img.shields.io/badge/Discord-Server-7289DA)](https://discord.gg/mZz67M6)
+[![Discord Server](https://img.shields.io/badge/Discord-Server-7289DA)](https://discord.gg/mZz67M6)
