@@ -219,15 +219,22 @@ async fn patch_key(
     patch_value: PatchValue,
 ) -> Result<impl Reply, Rejection> {
     if let Some(_) = store.get(key.clone()) {
-        match patch_value.operation.as_str() {
-            "lock" | "unlock" => {
-                let r = store.switch_lock(key.to_string(), true);
-                println!("{}", r);
-                Ok("")
+        match patch_value.operation.to_lowercase().as_str() {
+            "lock" => {
+                store.switch_lock(key.to_string(), true);
+                Ok(warp::reply::json(&JsonMessage {
+                    message: "The specified key was successfully locked.".to_string(),
+                }))
+            }
+            "unlock" => {
+                store.switch_lock(key.to_string(), false);
+                Ok(warp::reply::json(&JsonMessage {
+                    message: "The specified key was successfully unlocked.".to_string(),
+                }))
             }
             _ => Err(reject::custom(Error::InvalidOperation {
                 operation: patch_value.operation,
-            })),
+            }))
         }
     } else {
         Err(reject::custom(Error::KeyNotFound))
