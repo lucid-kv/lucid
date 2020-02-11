@@ -72,6 +72,26 @@ impl KvStore
         }
     }
 
+    pub fn increment_or_decrement(&self, key: String, value: f64) -> bool {
+        match &mut self.container.get_mut(&key) {
+            Some(kv_element) => {
+                let byte_to_string = String::from_utf8(kv_element.clone().data).unwrap();    // TODO: handle convert to string error
+                match byte_to_string.trim().parse::<f64>() {
+                    Ok(initial_value) => {
+                        // kv_element.data = (initial_value + value).to_be_bytes().to_vec();
+                        kv_element.updated_at = Utc::now();
+                        kv_element.update_count = kv_element.update_count + 1;
+                        true
+                    },
+                    Err(_) => {
+                        false
+                    }
+                }
+            },
+            None => false
+        }
+    }
+
     // TODO: implement Lock, Unlock, Increment, Decrement, Expire
 
     pub fn drop(&self, key: String) {
