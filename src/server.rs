@@ -119,8 +119,14 @@ impl Server {
                 std::process::id()
             );
             info!("Lucid API Endpoint: https://{}/api/", bind_endpoint);
-            info!("SSL Certificate: {}", &configuration.general.ssl_certificate);
-            info!("SSL Private Key: {}", &configuration.general.ssl_certificate_key);
+            info!(
+                "SSL Certificate: {}",
+                &configuration.general.ssl_certificate
+            );
+            info!(
+                "SSL Private Key: {}",
+                &configuration.general.ssl_certificate_key
+            );
             info!("Use Ctrl+C to stop the server.");
             instance
                 .tls()
@@ -219,11 +225,30 @@ async fn patch_key(
     patch_value: PatchValue,
 ) -> Result<impl Reply, Rejection> {
     if let Some(_) = store.get(key.clone()) {
-        match patch_value.operation.as_str() {
-            "lock" | "unlock" => {
-                let r = store.switch_lock(key.to_string(), true);
-                println!("{}", r);
-                Ok("")
+        match patch_value.operation.to_lowercase().as_str() {
+            "lock" => {
+                store.switch_lock(key.to_string(), true);
+                Ok(warp::reply::json(&JsonMessage {
+                    message: "The specified key was successfully locked.".to_string(),
+                }))
+            }
+            "unlock" => {
+                store.switch_lock(key.to_string(), false);
+                Ok(warp::reply::json(&JsonMessage {
+                    message: "The specified key was successfully unlocked.".to_string(),
+                }))
+            }
+            "increment" => {
+                store.increment_or_decrement(key.to_string(), 1.0);
+                Ok(warp::reply::json(&JsonMessage {
+                    message: "The specified key was successfully incremented.".to_string(),
+                }))
+            }
+            "decrement" => {
+                store.increment_or_decrement(key.to_string(), -1.0);
+                Ok(warp::reply::json(&JsonMessage {
+                    message: "The specified key was successfully decremented.".to_string(),
+                }))
             }
             _ => Err(reject::custom(Error::InvalidOperation {
                 operation: patch_value.operation,
