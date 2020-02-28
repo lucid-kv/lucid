@@ -33,7 +33,7 @@ impl Default for Configuration {
                 bind_address: IpAddr::from(Ipv4Addr::LOCALHOST),
                 port: 7020,
                 port_ssl: 7021,
-                use_ssl: true,
+                use_ssl: false,
                 ssl_certificate: String::new(),
                 ssl_certificate_key: String::new(),
                 show_banner: true
