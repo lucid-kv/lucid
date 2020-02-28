@@ -5,6 +5,10 @@ extern crate serde_derive;
 #[macro_use]
 extern crate log;
 
+extern crate block_modes;
+extern crate hex;
+extern crate serpent;
+
 mod configuration;
 mod kvstore;
 mod lucid;
@@ -72,7 +76,11 @@ async fn main() -> Result<(), Error> {
         .expect("Couldn't start logger");
     log::set_max_level(LevelFilter::Debug);
 
-    let long_version = format!("{}\n{}\n\nYou can send a tips here: 3BxEYn4RZ3iYETcFpN7nA6VqCY4Hz1tSUK", crate_version!(), CREDITS);
+    let long_version = format!(
+        "{}\n{}\n\nYou can send a tips here: 3BxEYn4RZ3iYETcFpN7nA6VqCY4Hz1tSUK",
+        crate_version!(),
+        CREDITS
+    );
 
     let cli_yaml = load_yaml!("cli.yml");
     let app = App::from_yaml(&cli_yaml)
@@ -145,7 +153,11 @@ async fn main() -> Result<(), Error> {
     }
     if let Some(_) = matches.subcommand_matches("settings") {
         if config_path.exists() {
-            println!("Configuration location: {}\n\n{}", &config_path.to_str().unwrap(), fs::read_to_string(&config_path).context(OpenConfigFile)?);
+            println!(
+                "Configuration location: {}\n\n{}",
+                &config_path.to_str().unwrap(),
+                fs::read_to_string(&config_path).context(OpenConfigFile)?
+            );
         } else {
             return Err(Error::ConfigurationNotFound);
         }

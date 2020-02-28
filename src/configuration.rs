@@ -49,6 +49,7 @@ impl Default for Configuration {
             encryption: Encryption {
                 enabled: false,
                 private_key: String::new(),
+                iv: String::new(),
             },
             webui: WebUI { enabled: false },
             store: Store { max_limit: 7340032 },
@@ -89,6 +90,7 @@ pub struct Persistence {
 pub struct Encryption {
     pub enabled: bool,
     pub private_key: String,
+    pub iv: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
