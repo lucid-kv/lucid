@@ -12,13 +12,13 @@
       <a href="https://github.com/lucid-kv/lucid/actions?workflow=Lucid"><img src="https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg" /></a>
       <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Made%20With-Rust-dea584" /></a>
       <a href="https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" /></a>
-      <a href="https://gitter.im/lucidkv/community"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
+      <a href="https://discord.gg/mZz67M6"><img src="https://img.shields.io/badge/Discord-Server-7289DA" /></a>
   </p>
 </p>
 
 ## Introduction
 
-Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features.
+Lucid is currently in a development stage but we plan to make a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose Persistence, Encryption, SSE streaming, Compression, Replication and more.
 
 ## Getting Started
 
@@ -36,11 +36,11 @@ $ docker pull lucidkv/lucid
 $ docker run -p 7020:7020 -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 ```
 
-A demonstration instance is accessible at http://lucid-kv.herokuapp.com (with authentication disabled).
+A demonstration instance is accessible at <http://lucid-kv.herokuapp.com> (with authentication disabled).
 
 ## Documentation
 
-You can find the official documentation at https://docs.lucid-kv.store.
+You can start quickly [here](https://github.com/lucid-kv/lucid/wiki) or get the complete documentation at <https://docs.lucid-kv.store>.
 
 ## Works in Progress
 
@@ -48,7 +48,7 @@ You can take a look at the roadmap [here](https://github.com/lucid-kv/lucid/issu
 
 ## Command Line Interface
 
-You can take a look at the Lucid command line on at https://asciinema.org/a/277538.
+You can take a look at the Lucid command line on at <https://asciinema.org/a/277538>.
 
 ```
  ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗

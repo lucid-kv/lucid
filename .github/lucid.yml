@@ -25,4 +25,7 @@ store:
 http:
   request_size_limit: 8388608
 logging:
-  level: Info
+  level: INFO
+  outputs:
+    - type: stderr
+      colored: true

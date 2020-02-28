@@ -36,9 +36,10 @@ impl Default for Configuration {
                 use_ssl: true,
                 ssl_certificate: String::new(),
                 ssl_certificate_key: String::new(),
+                show_banner: true
             },
             authentication: Authentication {
-                enabled: true,
+                enabled: false,
                 root_token: String::new(),
                 secret_key: String::new(),
             },
@@ -58,6 +59,7 @@ impl Default for Configuration {
             },
             logging: Logging {
                 level: LevelFilter::Info,
+                outputs: vec![LogOutput::Stdout { colored: false }],
             },
         }
     }
@@ -71,6 +73,7 @@ pub struct General {
     pub use_ssl: bool,
     pub ssl_certificate: String,
     pub ssl_certificate_key: String,
+    pub show_banner: bool
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -111,6 +114,15 @@ pub struct Http {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Logging {
     pub level: LevelFilter,
+    pub outputs: Vec<LogOutput>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase", tag = "type")]
+pub enum LogOutput {
+    File { path: PathBuf },
+    Stdout { colored: bool },
+    Stderr { colored: bool },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

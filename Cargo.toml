@@ -1,10 +1,10 @@
 [package]
 name = "lucid"
-description = "A Fast, Secure and Distributed KV store with an HTTP API."
+description = "High performance and distributed KV store w/ REST API."
 version = "0.1.2"
 authors = ["Clint.Network <me@clint.network>", "Jonathan Serra <jonathan@blocs.fr>", "CephalonRho <CephalonRho@gmail.com>", "rigwild <me@rigwild.dev>"]
 edition = "2018"
-keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "http", "swagger", "server-sent-event", "web-ui", "encryption", "persistence", "serpent", "redis"]
+keywords = ["kv", "distributed", "ledger", "kv-store", "kv store", "key-value", "key-value store", "rest", "http", "swagger", "server-sent-event", "web-ui", "encryption", "persistence", "serpent", "redis", "redis-like", "compression"]
 repository = "https://github.com/lucid-kv/lucid"
 readme = "https://github.com/lucid-kv/lucid/blob/master/README.md"
 license = "https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"
@@ -36,8 +36,8 @@ chashmap = "2.2.2"
 tree_magic = "0.2.1"
 snafu = "0.6.2"
 bytes = "0.5.3"
-fern = "0.5.9"
 hex = "0.3.1"
+fern = { version = "0.5.9", features = ["colored", "syslog-4"] }
 clap = { version = "2.33.0", features = ["yaml"] }
 warp = { version = "0.2.0", features = ["tls"] }
 log = { version = "0.4.8", features = ["serde"] }

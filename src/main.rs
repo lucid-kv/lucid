@@ -14,7 +14,7 @@ mod kvstore;
 mod lucid;
 mod server;
 
-use configuration::{Claims, Configuration};
+use configuration::{Claims, Configuration, LogOutput};
 use lucid::Lucid;
 
 use std::{
@@ -26,9 +26,9 @@ use std::{
 use app_dirs::{AppDirsError, AppInfo};
 use chrono::{DateTime, Duration, Utc};
 use clap::App;
+use fern::colors::{Color, ColoredLevelConfig};
 use fern::Dispatch;
 use jsonwebtoken::Header;
-use log::LevelFilter;
 use rand::Rng;
 use ring::digest;
 use snafu::{ResultExt, Snafu};
@@ -46,7 +46,7 @@ const BANNER: &'static str = r###"
  ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
 
 A Fast, Secure and Distributed KV store with an HTTP API.
-Written in Rust by Clint.Network (https://github.com/lucid-kv)
+Written in Rust, Fork us on GitHub (https://github.com/lucid-kv)
 "###;
 
 const CREDITS: &'static str = "\
@@ -61,21 +61,6 @@ const CREDITS: &'static str = "\
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    Dispatch::new()
-        .format(|out, message, record| {
-            out.finish(format_args!(
-                "{} {} [{}] {}",
-                Utc::now().format("%Y/%m/%d %H:%M:%S"),
-                record.level(),
-                record.target(),
-                message
-            ))
-        })
-        .chain(std::io::stdout())
-        .apply()
-        .expect("Couldn't start logger");
-    log::set_max_level(LevelFilter::Debug);
-
     let long_version = format!(
         "{}\n{}\n\nYou can send a tips here: 3BxEYn4RZ3iYETcFpN7nA6VqCY4Hz1tSUK",
         crate_version!(),
@@ -109,10 +94,6 @@ async fn main() -> Result<(), Error> {
         Err(e) => return Err(Error::ParseCli { source: e }),
     };
 
-    if !matches.is_present("no-banner") {
-        println!("{}", BANNER);
-    }
-
     let config_path = {
         if let Some(config) = matches.value_of("config") {
             Path::new(config).to_path_buf()
@@ -120,6 +101,53 @@ async fn main() -> Result<(), Error> {
             Configuration::get_path().context(GetConfigDir)?
         }
     };
+    let config = if config_path.exists() {
+        serde_yaml::from_reader(File::open(&config_path).context(OpenConfigFile)?)
+            .context(ReadConfigFile)?
+    } else {
+        Configuration::default()
+    };
+
+    if !matches.is_present("no-banner") && config.general.show_banner {
+        println!("{}", BANNER);
+    }
+
+    let logging_colors = ColoredLevelConfig::new()
+        .debug(Color::BrightMagenta)
+        .warn(Color::BrightYellow)
+        .error(Color::BrightRed)
+        .info(Color::BrightCyan);
+
+    let mut dispatch = Dispatch::new();
+    for output in &config.logging.outputs {
+        dispatch = match output {
+            LogOutput::File { path } => {
+                dispatch.chain(create_format_dispatch(None).chain(fern::log_file(path).unwrap()))
+            }
+            LogOutput::Stdout { colored } => {
+                if *colored {
+                    dispatch.chain(
+                        create_format_dispatch(Some(logging_colors)).chain(std::io::stdout()),
+                    )
+                } else {
+                    dispatch.chain(create_format_dispatch(None).chain(std::io::stdout()))
+                }
+            }
+            LogOutput::Stderr { colored } => {
+                if *colored {
+                    dispatch.chain(
+                        create_format_dispatch(Some(logging_colors)).chain(std::io::stderr()),
+                    )
+                } else {
+                    dispatch.chain(create_format_dispatch(None).chain(std::io::stderr()))
+                }
+            }
+        };
+    }
+
+    dispatch.apply().expect("Couldn't start logger");
+    log::set_max_level(config.logging.level);
+
     if let Some(init_matches) = matches.subcommand_matches("init") {
         if config_path.exists() && !init_matches.is_present("force") {
             return Err(Error::AlreadyInitialized);
@@ -142,10 +170,6 @@ async fn main() -> Result<(), Error> {
     }
     if let Some(_) = matches.subcommand_matches("server") {
         if config_path.exists() {
-            let config: Configuration =
-                serde_yaml::from_reader(File::open(&config_path).context(OpenConfigFile)?)
-                    .context(ReadConfigFile)?;
-            log::set_max_level(config.logging.level); // this has to be executed every time the logging configuration changes
             Lucid::new(config).run().await.context(RunServer)?;
         } else {
             return Err(Error::ConfigurationNotFound);
@@ -188,6 +212,28 @@ fn issue_jwt(secret_key: &str, expiration: Option<DateTime<Utc>>) -> Result<Stri
     };
     jsonwebtoken::encode(&Header::default(), &lucid_root_claims, secret_key.as_ref())
         .context(EncodeJwt)
+}
+
+fn create_format_dispatch(colors: Option<ColoredLevelConfig>) -> Dispatch {
+    Dispatch::new().format(move |out, message, record| {
+        if let Some(colors) = colors {
+            out.finish(format_args!(
+                "{} {} [{}] {}",
+                Utc::now().format("%Y/%m/%d %H:%M:%S"),
+                colors.color(record.level()),
+                record.target(),
+                message
+            ))
+        } else {
+            out.finish(format_args!(
+                "{} {} [{}] {}",
+                Utc::now().format("%Y/%m/%d %H:%M:%S"),
+                record.level(),
+                record.target(),
+                message
+            ))
+        }
+    })
 }
 
 #[derive(Snafu)]
