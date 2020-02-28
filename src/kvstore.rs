@@ -48,8 +48,6 @@ impl KvStore {
 
     pub fn set(&self, key: String, mut value: Vec<u8>) -> Option<KvElement> {
         // TODO: prepare iterative persistence
-        let mime_type = tree_magic::from_u8(value.as_ref());
-
         if let Some(c) = &self.cipher {
             let cipher = SerpentCbc::new_var(&c.priv_key, &c.iv).unwrap();
             value = cipher.encrypt_vec(&value);
