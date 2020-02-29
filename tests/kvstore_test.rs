@@ -7,7 +7,7 @@ const CIPHER: std::option::Option<[&str; 2]> = Some([
 
 const DATA: [u8; 512] = [42u8; 512];
 
-const KEY = String::from("test_value");
+const KEY: String = String::from("test_value");
 
 fn init_kv() -> KvStore {
     let kv = KvStore::new(CIPHER);
