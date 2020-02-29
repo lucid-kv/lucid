@@ -44,3 +44,10 @@ log = { version = "0.4.8", features = ["serde"] }
 tokio = { version = "0.2.9", features = ["full"] }
 serpent = { git = "https://github.com/RustCrypto/block-ciphers" }
 block-modes = "0.3.3"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "kvstore_bench"
+harness = false
