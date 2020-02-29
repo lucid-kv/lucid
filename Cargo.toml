@@ -1,10 +1,10 @@
 [package]
 name = "lucid"
-description = "A Fast, Secure and Distributed KV store with an HTTP API."
+description = "High performance and distributed KV store w/ REST API."
 version = "0.1.2"
 authors = ["Clint.Network <me@clint.network>", "Jonathan Serra <jonathan@blocs.fr>", "CephalonRho <CephalonRho@gmail.com>", "rigwild <me@rigwild.dev>"]
 edition = "2018"
-keywords = ["kv", "distributed", "ledger", "kv-store", "key-value", "rest", "http", "swagger", "server-sent-event", "web-ui", "encryption", "persistence", "serpent", "redis"]
+keywords = ["kv", "distributed", "ledger", "kv-store", "kv store", "key-value", "key-value store", "rest", "http", "swagger", "server-sent-event", "web-ui", "encryption", "persistence", "serpent", "redis", "redis-like", "compression"]
 repository = "https://github.com/lucid-kv/lucid"
 readme = "https://github.com/lucid-kv/lucid/blob/master/README.md"
 license = "https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"
@@ -14,42 +14,33 @@ build = "src/build.rs"
 
 [package.metadata.winres]
 ProductName = "Lucid KV"
-LegalCopyright = "Copyright © 2019 Lucid - All Rights Reserved"
+LegalCopyright = "Copyright © 2020 Lucid - All Rights Reserved"
 
 [badges]
 github = { repository = "lucid-kv/lucid", branch = "master" }
 
 [build-dependencies]
-winres = "*"
+winres = "0.1.11"
 
 [dependencies]
-nickel = "*"
-serde = "*"
-serde_json = "*"
-serde_derive = "*"
-serde_yaml = "*"
-yaml-rust = "*"
-chrono = "*"
-include_dir = "*"
-jsonwebtoken = "6.0.1"
-app_dirs = "*"
-ring = "*"
-uuid = "*"
-rand = "*"
-chashmap = "*"
-plugin = "*"
-tree_magic = "*"
-byte-unit = "*"
-snafu = "*"
-bytes = "*"
-log = "*"
-fern = "*"
-tokio = "0.1.22"
-
-[dependencies.clap]
-version = "*"
-features = ["yaml"]
-
-[dependencies.warp]
-version = "*"
-features = ["tls"]
+serde = "1.0.104"
+serde_json = "1.0.44"
+serde_derive = "1.0.104"
+serde_yaml = "0.8.11"
+chrono = "0.4.10"
+jsonwebtoken = "7.0.0-alpha.2"
+app_dirs = "1.2.1"
+ring = "0.16.9"
+rand = "0.7.3"
+chashmap = "2.2.2"
+tree_magic = "0.2.1"
+snafu = "0.6.2"
+bytes = "0.5.3"
+hex = "0.3.1"
+fern = { version = "0.5.9", features = ["colored", "syslog-4"] }
+clap = { version = "2.33.0", features = ["yaml"] }
+warp = { version = "0.2.0", features = ["tls"] }
+log = { version = "0.4.8", features = ["serde"] }
+tokio = { version = "0.2.9", features = ["full"] }
+serpent = { git = "https://github.com/RustCrypto/block-ciphers" }
+block-modes = "0.3.3"

@@ -1,4 +1,10 @@
-use std::net::{Ipv4Addr, IpAddr};
+use std::{
+    net::{IpAddr, Ipv4Addr},
+    path::PathBuf,
+};
+
+use app_dirs::{AppDataType, AppDirsError};
+use log::LevelFilter;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Configuration {
@@ -9,22 +15,31 @@ pub struct Configuration {
     pub webui: WebUI,
     pub store: Store,
     pub http: Http,
-    pub logging: Logging
+    pub logging: Logging,
 }
 
 impl Configuration {
-    pub fn default() -> Configuration {
+    pub fn get_path() -> Result<PathBuf, AppDirsError> {
+        let mut path = app_dirs::get_app_root(AppDataType::UserConfig, &crate::APP_INFO)?;
+        path.push("lucid.yml");
+        Ok(path)
+    }
+}
+
+impl Default for Configuration {
+    fn default() -> Configuration {
         Configuration {
             general: General {
                 bind_address: IpAddr::from(Ipv4Addr::LOCALHOST),
                 port: 7020,
                 port_ssl: 7021,
-                use_ssl: true,
+                use_ssl: false,
                 ssl_certificate: String::new(),
-                ssl_certificate_key: String::new()
+                ssl_certificate_key: String::new(),
+                show_banner: true
             },
             authentication: Authentication {
-                enabled: true,
+                enabled: false,
                 root_token: String::new(),
                 secret_key: String::new(),
             },
@@ -35,18 +50,16 @@ impl Configuration {
             encryption: Encryption {
                 enabled: false,
                 private_key: String::new(),
+                iv: String::new(),
             },
-            webui: WebUI {
-                enabled: false
-            },
-            store: Store {
-                max_limit: 7340032
-            },
+            webui: WebUI { enabled: false },
+            store: Store { max_limit: 7340032 },
             http: Http {
-                request_size_limit: 8388608
+                request_size_limit: 8388608,
             },
             logging: Logging {
-                level: "Info".to_string()
+                level: LevelFilter::Info,
+                outputs: vec![LogOutput::Stdout { colored: false }],
             },
         }
     }
@@ -60,6 +73,7 @@ pub struct General {
     pub use_ssl: bool,
     pub ssl_certificate: String,
     pub ssl_certificate_key: String,
+    pub show_banner: bool
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -79,26 +93,36 @@ pub struct Persistence {
 pub struct Encryption {
     pub enabled: bool,
     pub private_key: String,
+    pub iv: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WebUI {
-    pub enabled: bool
+    pub enabled: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Store {
-    pub max_limit: u64
+    pub max_limit: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Http {
-    pub request_size_limit: u64
+    pub request_size_limit: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Logging {
-    pub level: String
+    pub level: LevelFilter,
+    pub outputs: Vec<LogOutput>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase", tag = "type")]
+pub enum LogOutput {
+    File { path: PathBuf },
+    Stdout { colored: bool },
+    Stderr { colored: bool },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

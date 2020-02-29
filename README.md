@@ -1,12 +1,20 @@
-# About Lucid ᵏᵛ
-
-High performance and distributed KV store accessible through an HTTP API. Written in Rust. 🦀
-
-[![Build Status](https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg)](https://github.com/lucid-kv/lucid/actions?workflow=Lucid)
-[![Made with Rust](https://img.shields.io/badge/Made%20With-Rust-dea584)](https://www.rust-lang.org/)
-[![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/lucid-kv/lucid/blob/master/LICENSE.md)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/lucidkv/community)
-[![Twitter](https://img.shields.io/twitter/follow/lucid_kv.svg?style=social)](https://twitter.com/intent/follow?screen_name=lucid_kv)
+<p align="center">
+  <p align="center">
+    <img src="https://github.com/lucid-kv/deploy-templates/blob/master/lucid.png?raw=true" height="100" alt="Lucid KV" />
+  </p>
+  <h3 align="center">
+    About Lucid KV
+  </h3>
+  <p align="center">
+    High performance and distributed KV store w/ REST API. 🦀
+  </p>
+  <p align="center">
+      <a href="https://github.com/lucid-kv/lucid/actions?workflow=Lucid"><img src="https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg" /></a>
+      <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Made%20With-Rust-dea584" /></a>
+      <a href="https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" /></a>
+      <a href="https://discord.gg/mZz67M6"><img src="https://img.shields.io/badge/Discord-Server-7289DA" /></a>
+  </p>
+</p>
 
 ## Introduction
 
@@ -24,27 +32,33 @@ Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/rele
 
 ```
 $ ./lucid init
-$ ./lucid server
+$ ./lucid --config lucid.yml server
 ```
 
 ### Docker Deployment
 
 Or run a node with Docker, but you need to create a [lucid.yml](.github/lucid.yml) file locally before.
+
 ```
 $ docker pull lucidkv/lucid
-$ docker run -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
+$ docker run -p 7020:7020 -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 ```
+
+A demonstration instance is accessible at <http://lucid-kv.herokuapp.com> (with authentication disabled).
 
 ## Documentation
 
-You can find the official documentation at https://docs.lucid-kv.store.
+You can start quickly [here](https://github.com/lucid-kv/lucid/wiki) or get the complete documentation at <https://docs.lucid-kv.store>.
+
+## Works in Progress
+
+You can take a look at the roadmap [here](https://github.com/lucid-kv/lucid/issues/46), we are working on the implementation of persistence and encryption.
 
 ## Command Line Interface
 
-You can take a look at the Lucid command line on at https://asciinema.org/a/277538.
+You can take a look at the Lucid command line on at <https://asciinema.org/a/277538>.
 
 ```
-
  ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
  ██║    ██║   ██║██╔════╝██║██╔══██╗    ██║ ██╔╝██║   ██║
  ██║    ██║   ██║██║     ██║██║  ██║    ██╔═██╗ ╚██╗ ██╔╝
@@ -52,23 +66,21 @@ You can take a look at the Lucid command line on at https://asciinema.org/a/2775
  ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
 
 A Fast, Secure and Distributed KV store with an HTTP API.
-Written in Rust by Clint.Network (twitter.com/clint_network)
-
-USAGE:
-    lucid.exe [SUBCOMMAND]
+Written in Rust, Fork us on GitHub (https://github.com/lucid-kv)
 
 FLAGS:
-    -h, --help       Prints help information
-    -v, --version    Prints version information
+    -h, --help         Prints help information
+        --no-banner    Disable showing the banner on start
+    -V, --version      Prints version information
+
+OPTIONS:
+    -c, --config <config>    Specify the Lucid configuration file
 
 SUBCOMMANDS:
-    cli         Spawn to the command line interface
     help        Prints this message or the help of the given subcommand(s)
     init        Initialize Lucid and generate configuration file
     server      Run a new Lucid server instance
-    settings    Manage Lucid configuration file
-    store       Play with the KV store (get/set)
-    tokens      Manage JWT Tokens (issue, revoke etc.)
+    settings    Manage the Lucid configuration file
 ```
 
 ## Web Interface (UI)

@@ -1,11 +1,11 @@
 ---
 general:
-  bind_address: 127.0.0.1
+  bind_address: 0.0.0.0
   port: 7020
   port_ssl: 7021
   use_ssl: false
-  ssl_certificate: "tls/cert.pem"
-  ssl_certificate_key: "tls/key.rsa"
+  ssl_certificate: 
+  ssl_certificate_key: 
   show_banner: false
 authentication:
   enabled: false
@@ -15,9 +15,8 @@ persistence:
   enabled: false
   location: ""
 encryption:
-  enabled: true
-  private_key: "123456789012345678901234123456789012345678901234"
-  iv: "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"
+  enabled: false
+  private_key: ""
 webui:
   enabled: true
 store:
