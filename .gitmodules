@@ -1,0 +1,3 @@
+[submodule "assets/webui"]
+	path = assets/webui
+	url = https://github.com/lucid-kv/webui
