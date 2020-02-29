@@ -14,8 +14,8 @@ mod kvstore;
 mod lucid;
 mod server;
 
+use self::lucid::Lucid;
 use configuration::{Claims, Configuration, LogOutput};
-use lucid::Lucid;
 
 use std::{
     fmt,
