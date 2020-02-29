@@ -7,11 +7,11 @@ const CIPHER: std::option::Option<[&str; 2]> = Some([
 
 const DATA: [u8; 512] = [42u8; 512];
 
-const KEY: String = String::from("test_value");
+const KEY: &str = "test_value";
 
 fn init_kv() -> KvStore {
     let kv = KvStore::new(CIPHER);
-    kv.set(KEY.clone(), DATA.to_vec());
+    kv.set(KEY.to_string(), DATA.to_vec());
     kv
 }
 
@@ -22,7 +22,7 @@ mod tests {
     #[test]
     fn get_returns_a_value() {
         let kv = init_kv();
-        let value = kv.get(KEY.clone());
+        let value = kv.get(KEY.to_string());
 
         match value {
             Some(v) => assert_eq!(v.data, DATA.to_vec()),
