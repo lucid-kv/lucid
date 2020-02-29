@@ -58,7 +58,7 @@ You can take a look at the Lucid command line on at <https://asciinema.org/a/277
  ╚═════╝ ╚═════╝  ╚═════╝╚═╝╚═════╝     ╚═╝  ╚═╝  ╚═══╝
 
 A Fast, Secure and Distributed KV store with an HTTP API.
-Written in Rust by Clint.Network (twitter.com/clint_network)
+Written in Rust, Fork us on GitHub (https://github.com/lucid-kv)
 
 FLAGS:
     -h, --help         Prints help information
