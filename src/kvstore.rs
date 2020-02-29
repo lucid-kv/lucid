@@ -1,5 +1,11 @@
+use block_modes::block_padding::ZeroPadding;
+use block_modes::{BlockMode, Cbc};
 use chashmap::CHashMap;
 use chrono::{DateTime, Utc};
+
+use serpent::Serpent;
+
+type SerpentCbc = Cbc<Serpent, ZeroPadding>;
 
 #[derive(Debug, Clone)]
 pub struct KvElement {
@@ -14,18 +20,38 @@ pub struct KvElement {
 
 pub struct KvStore {
     container: CHashMap<String, KvElement>,
+    cipher: Option<Cipher>,
+}
+
+pub struct Cipher {
+    priv_key: [u8; 24],
+    iv: [u8; 16],
 }
 
 impl KvStore {
-    pub fn new() -> KvStore {
+    pub fn new(cipher: Option<[&str; 2]>) -> KvStore {
         // TODO: prepare looped persistence
-        KvStore {
+        let mut kv = KvStore {
             container: CHashMap::new(),
+            cipher: None,
+        };
+
+        if let Some(c) = cipher {
+            let (mut priv_key, mut iv) = ([0u8; 24], [0u8; 16]);
+            priv_key[..24].copy_from_slice(&hex::decode(c[0]).unwrap());
+            iv[..16].copy_from_slice(&hex::decode(c[1]).unwrap());
+            kv.cipher = Some(Cipher { priv_key, iv });
         }
+
+        kv
     }
 
-    pub fn set(&self, key: String, value: Vec<u8>) -> Option<KvElement> {
+    pub fn set(&self, key: String, mut value: Vec<u8>) -> Option<KvElement> {
         // TODO: prepare iterative persistence
+        if let Some(c) = &self.cipher {
+            let cipher = SerpentCbc::new_var(&c.priv_key, &c.iv).unwrap();
+            value = cipher.encrypt_vec(&value);
+        }
         match &mut self.container.get_mut(&key) {
             Some(kv_element) => {
                 if !kv_element.locked {
@@ -55,7 +81,15 @@ impl KvStore {
 
     pub fn get(&self, key: String) -> Option<KvElement> {
         match self.container.get(&key) {
-            Some(value) => Some(value.clone()),
+            Some(value) => {
+                let mut cloned_value = value.clone();
+
+                if let Some(c) = &self.cipher {
+                    let cipher = SerpentCbc::new_var(&c.priv_key, &c.iv).unwrap();
+                    cloned_value.data = cipher.decrypt_vec(&value.data).unwrap();
+                }
+                Some(cloned_value)
+            }
             None => None,
         }
     }

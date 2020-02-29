@@ -5,6 +5,10 @@ extern crate serde_derive;
 #[macro_use]
 extern crate log;
 
+extern crate block_modes;
+extern crate hex;
+extern crate serpent;
+
 mod configuration;
 mod kvstore;
 mod lucid;

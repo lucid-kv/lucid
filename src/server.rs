@@ -30,7 +30,16 @@ impl Server {
     }
 
     pub async fn run(&self) {
-        let store = Arc::new(KvStore::new());
+        let configuration = self.configuration.read().unwrap();
+
+        let mut encryption_key = None;
+        if configuration.encryption.enabled {
+            encryption_key = Some([
+                configuration.encryption.private_key.as_str(),
+                configuration.encryption.iv.as_str(),
+            ]);
+        }
+        let store = Arc::new(KvStore::new(encryption_key));
         let store = warp::any().map(move || store.clone());
 
         let config = self.configuration.clone();
@@ -42,8 +51,6 @@ impl Server {
             .untuple_one();
 
         let webui_enabled = config.clone().and_then(check_webui).untuple_one();
-
-        let configuration = self.configuration.read().unwrap();
 
         let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
         let api_kv_key = auth.and(
