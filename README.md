@@ -81,7 +81,7 @@ Lucid wants to propose a web UI to manage data, issue tokens, organize nodes and
 
 ## Development Credits
 
-Lucid is developed by [@clintnetwork](https://twitter.com/clint_network), [@Slals](https://github.com/Slals), [@CephalonRho](https://github.com/CephalonRho), [@rigwild](https://github.com/rigwild) and published under the [MIT License](LICENSE.md).
+Lucid is developed by [@clintnetwork](https://github.com/clintnetwork), [@Slals](https://github.com/Slals), [@CephalonRho](https://github.com/CephalonRho), [@rigwild](https://github.com/rigwild) and published under the [MIT License](LICENSE.md).
 
 | Name / Nickname | Email                 | Role               |
 |-----------------|-----------------------|--------------------|
