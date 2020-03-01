@@ -34,10 +34,18 @@ impl Server {
 
         let mut encryption_key = None;
         if configuration.encryption.enabled {
-            encryption_key = Some([
-                configuration.encryption.private_key.as_str(),
-                configuration.encryption.iv.as_str(),
-            ]);
+            if configuration.encryption.private_key.is_empty() {
+                panic!("The private key must be filled.");
+            }
+            else if configuration.encryption.iv.is_empty() {
+                panic!("The initialization vector must be filled.")
+            }
+            else {
+                encryption_key = Some([
+                    configuration.encryption.private_key.as_str(),
+                    configuration.encryption.iv.as_str(),
+                ]);
+            }
         }
         let store = Arc::new(KvStore::new(encryption_key));
         let store = warp::any().map(move || store.clone());

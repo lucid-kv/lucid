@@ -5,6 +5,7 @@ use std::{
 
 use app_dirs::{AppDataType, AppDirsError};
 use log::LevelFilter;
+use rand::Rng;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Configuration {
@@ -49,8 +50,8 @@ impl Default for Configuration {
             },
             encryption: Encryption {
                 enabled: false,
-                private_key: String::new(),
-                iv: String::new(),
+                private_key: hex::encode(rand::thread_rng().gen::<[u8; 24]>()),
+                iv: hex::encode(rand::thread_rng().gen::<[u8; 16]>()),
             },
             webui: WebUI { enabled: false },
             store: Store { max_limit: 7340032 },
