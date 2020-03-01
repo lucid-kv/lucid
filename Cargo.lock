@@ -727,7 +727,7 @@ dependencies = [
 
 [[package]]
 name = "lucid"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "app_dirs 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "block-modes 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
