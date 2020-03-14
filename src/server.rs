@@ -1,7 +1,4 @@
-use std::{
-    net::SocketAddr,
-    sync::{Arc, RwLock},
-};
+use std::{net::SocketAddr, sync::RwLock};
 
 use bytes::Buf;
 use jsonwebtoken::Validation;
@@ -9,11 +6,22 @@ use snafu::Snafu;
 use warp::{
     self, filters, fs,
     http::{Response, StatusCode},
-    path, reject, Filter, Rejection, Reply,
+    path, reject, Rejection, Reply,
 };
 
 use crate::configuration::{Claims, Configuration};
 use crate::kvstore::KvStore;
+use futures::{Stream, StreamExt};
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use tokio::sync::mpsc;
+use warp::{sse::ServerSentEvent, Filter};
+
+#[derive(Debug)]
+enum Message {
+    UserId(usize),
+    Reply(String),
+}
 
 #[derive(Serialize, Deserialize)]
 struct JsonMessage {
@@ -23,6 +31,8 @@ struct JsonMessage {
 pub struct Server {
     configuration: Arc<RwLock<Configuration>>,
 }
+
+type Events = Arc<Mutex<HashMap<usize, mpsc::UnboundedSender<Message>>>>;
 
 impl Server {
     pub fn new(configuration: Arc<RwLock<Configuration>>) -> Server {
@@ -36,11 +46,9 @@ impl Server {
         if configuration.encryption.enabled {
             if configuration.encryption.private_key.is_empty() {
                 panic!("The private key must be filled.");
-            }
-            else if configuration.encryption.iv.is_empty() {
+            } else if configuration.encryption.iv.is_empty() {
                 panic!("The initialization vector must be filled.")
-            }
-            else {
+            } else {
                 encryption_key = Some([
                     configuration.encryption.private_key.as_str(),
                     configuration.encryption.iv.as_str(),
@@ -49,6 +57,9 @@ impl Server {
         }
         let store = Arc::new(KvStore::new(encryption_key));
         let store = warp::any().map(move || store.clone());
+
+        let events = Arc::new(Mutex::new(HashMap::new()));
+        let events = warp::any().map(move || events.clone());
 
         let config = self.configuration.clone();
         let config = warp::any().map(move || config.clone());
@@ -69,6 +80,7 @@ impl Server {
                 .or(warp::put()
                     .and(store.clone())
                     .and(config.clone())
+                    .and(events.clone())
                     .and(api_kv_key_path)
                     .and(filters::body::content_length_limit(
                         configuration.http.request_size_limit,
@@ -111,8 +123,17 @@ impl Server {
             .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
             .allow_any_origin();
 
+        let sse = warp::path("notifications")
+            .and(warp::get())
+            .and(events)
+            .map(|events| {
+                let stream = sse_event_stream(events);
+                warp::sse::reply(warp::sse::keep_alive().stream(stream))
+            });
+
         let routes = api_kv_key
             .or(webui)
+            .or(sse)
             .or(robots)
             .recover(process_error)
             .with(warp::reply::with::header(
@@ -187,6 +208,7 @@ async fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejecti
 async fn put_key(
     store: Arc<KvStore>,
     config: Arc<RwLock<Configuration>>,
+    events: Events,
     key: String,
     body: impl Buf,
 ) -> Result<impl Reply, Rejection> {
@@ -197,6 +219,10 @@ async fn put_key(
             max_limit: config.read().unwrap().store.max_limit,
         }))
     } else {
+        events
+            .lock()
+            .unwrap()
+            .retain(|_, tx| tx.send(Message::Reply(String::from("Hey"))).is_ok());
         if let Some(_) = store.set(key, body.bytes().to_vec()) {
             Ok(warp::reply::json(&JsonMessage {
                 message: "The specified key was successfully updated.".to_string(),
@@ -337,6 +363,22 @@ async fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
     } else {
         Err(err)
     }
+}
+
+fn sse_event_stream(
+    events: Events,
+) -> impl Stream<Item = Result<impl ServerSentEvent + Send + 'static, warp::Error>> + Send + 'static
+{
+    let (tx, rx) = mpsc::unbounded_channel();
+
+    tx.send(Message::UserId(5)).unwrap();
+
+    events.lock().unwrap().insert(5, tx);
+
+    rx.map(|msg| match msg {
+        Message::UserId(my_id) => Ok((warp::sse::event("user"), warp::sse::data(my_id)).into_a()),
+        Message::Reply(reply) => Ok(warp::sse::data(reply).into_b()),
+    })
 }
 
 #[derive(Debug, Snafu)]
