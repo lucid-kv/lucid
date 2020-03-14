@@ -13,14 +13,16 @@ use crate::configuration::{Claims, Configuration};
 use crate::kvstore::KvStore;
 use futures::{Stream, StreamExt};
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::{
+    atomic::{AtomicUsize, Ordering},
+    Arc, Mutex,
+};
 use tokio::sync::mpsc;
 use warp::{sse::ServerSentEvent, Filter};
 
 #[derive(Debug)]
-enum Message {
-    UserId(usize),
-    Reply(String),
+struct Message {
+    data: String
 }
 
 #[derive(Serialize, Deserialize)]
@@ -33,6 +35,8 @@ pub struct Server {
 }
 
 type Events = Arc<Mutex<HashMap<usize, mpsc::UnboundedSender<Message>>>>;
+
+static NEXT_EVENT_ID: AtomicUsize = AtomicUsize::new(1);
 
 impl Server {
     pub fn new(configuration: Arc<RwLock<Configuration>>) -> Server {
@@ -219,10 +223,13 @@ async fn put_key(
             max_limit: config.read().unwrap().store.max_limit,
         }))
     } else {
-        events
-            .lock()
-            .unwrap()
-            .retain(|_, tx| tx.send(Message::Reply(String::from("Hey"))).is_ok());
+        // TODO: handle non-ascii data
+        if let Ok(byte_to_string) = String::from_utf8((&body).bytes().to_vec()) {
+            events
+                .lock()
+                .unwrap()
+                .retain(|_, tx| tx.send(Message { data: byte_to_string.clone() }).is_ok());
+        }
         if let Some(_) = store.set(key, body.bytes().to_vec()) {
             Ok(warp::reply::json(&JsonMessage {
                 message: "The specified key was successfully updated.".to_string(),
@@ -333,6 +340,20 @@ async fn check_webui(config: Arc<RwLock<Configuration>>) -> Result<(), Rejection
     }
 }
 
+fn sse_event_stream(
+    events: Events,
+) -> impl Stream<Item = Result<impl ServerSentEvent + Send + 'static, warp::Error>> + Send + 'static
+{
+    let my_id = NEXT_EVENT_ID.fetch_add(1, Ordering::Relaxed);
+
+    let (tx, rx) = mpsc::unbounded_channel();
+
+    tx.send(Message { data: String::from("lol") }).unwrap();
+    events.lock().unwrap().insert(my_id, tx);
+
+    rx.map(|msg: Message| Ok(warp::sse::data(msg.data)))
+}
+
 async fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
     if let Some(err) = err.find::<Error>() {
         let code = match err {
@@ -363,22 +384,6 @@ async fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
     } else {
         Err(err)
     }
-}
-
-fn sse_event_stream(
-    events: Events,
-) -> impl Stream<Item = Result<impl ServerSentEvent + Send + 'static, warp::Error>> + Send + 'static
-{
-    let (tx, rx) = mpsc::unbounded_channel();
-
-    tx.send(Message::UserId(5)).unwrap();
-
-    events.lock().unwrap().insert(5, tx);
-
-    rx.map(|msg| match msg {
-        Message::UserId(my_id) => Ok((warp::sse::event("user"), warp::sse::data(my_id)).into_a()),
-        Message::Reply(reply) => Ok(warp::sse::data(reply).into_b()),
-    })
 }
 
 #[derive(Debug, Snafu)]
