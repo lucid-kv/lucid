@@ -79,7 +79,7 @@ impl Server {
         let sse_enabled = config.clone().and_then(check_sse).untuple_one();
 
         let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
-        let api_kv_key = auth.and(
+        let api_kv_key = auth.clone().and(
             warp::get()
                 .and(store.clone())
                 .and(api_kv_key_path)
@@ -133,6 +133,7 @@ impl Server {
         let sse = warp::path("notifications")
             .and(warp::get())
             .and(events)
+            .and(auth)
             .and(sse_enabled)
             .map(|events| {
                 let stream = sse_event_stream(events);
