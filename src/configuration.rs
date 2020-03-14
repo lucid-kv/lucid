@@ -38,7 +38,7 @@ impl Default for Configuration {
                 use_ssl: false,
                 ssl_certificate: String::new(),
                 ssl_certificate_key: String::new(),
-                show_banner: true
+                show_banner: true,
             },
             authentication: Authentication {
                 enabled: false,
@@ -54,9 +54,7 @@ impl Default for Configuration {
                 private_key: hex::encode(rand::thread_rng().gen::<[u8; 24]>()),
                 iv: hex::encode(rand::thread_rng().gen::<[u8; 16]>()),
             },
-            sse: ServerSentEvent {
-                enabled: false,
-            },
+            sse: ServerSentEvent { enabled: false },
             webui: WebUI { enabled: false },
             store: Store { max_limit: 7340032 },
             http: Http {
@@ -78,7 +76,7 @@ pub struct General {
     pub use_ssl: bool,
     pub ssl_certificate: String,
     pub ssl_certificate_key: String,
-    pub show_banner: bool
+    pub show_banner: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
