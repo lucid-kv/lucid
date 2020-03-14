@@ -21,8 +21,9 @@ use tokio::sync::mpsc;
 use warp::{sse::ServerSentEvent, Filter};
 
 #[derive(Debug)]
-struct Message {
-    data: String
+struct SseMessage {
+    key: String,
+    value: String
 }
 
 #[derive(Serialize, Deserialize)]
@@ -34,7 +35,7 @@ pub struct Server {
     configuration: Arc<RwLock<Configuration>>,
 }
 
-type Events = Arc<Mutex<HashMap<usize, mpsc::UnboundedSender<Message>>>>;
+type Events = Arc<Mutex<HashMap<usize, mpsc::UnboundedSender<SseMessage>>>>;
 
 static NEXT_EVENT_ID: AtomicUsize = AtomicUsize::new(1);
 
@@ -228,7 +229,7 @@ async fn put_key(
             events
                 .lock()
                 .unwrap()
-                .retain(|_, tx| tx.send(Message { data: byte_to_string.clone() }).is_ok());
+                .retain(|_, tx| tx.send(SseMessage { key: key.clone(), value: byte_to_string.clone() }).is_ok());
         }
         if let Some(_) = store.set(key, body.bytes().to_vec()) {
             Ok(warp::reply::json(&JsonMessage {
@@ -348,10 +349,10 @@ fn sse_event_stream(
 
     let (tx, rx) = mpsc::unbounded_channel();
 
-    tx.send(Message { data: String::from("lol") }).unwrap();
+    tx.send(SseMessage {  key: String::from("lol"), value: String::from("lol") }).unwrap();
     events.lock().unwrap().insert(my_id, tx);
 
-    rx.map(|msg: Message| Ok(warp::sse::data(msg.data)))
+    rx.map(|msg: SseMessage| Ok((warp::sse::event(msg.key), warp::sse::data(msg.value))))
 }
 
 async fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
