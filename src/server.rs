@@ -76,6 +76,8 @@ impl Server {
 
         let webui_enabled = config.clone().and_then(check_webui).untuple_one();
 
+        let sse_enabled = config.clone().and_then(check_sse).untuple_one();
+
         let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
         let api_kv_key = auth.and(
             warp::get()
@@ -131,6 +133,7 @@ impl Server {
         let sse = warp::path("notifications")
             .and(warp::get())
             .and(events)
+            .and(sse_enabled)
             .map(|events| {
                 let stream = sse_event_stream(events);
                 warp::sse::reply(warp::sse::keep_alive().stream(stream))
@@ -335,6 +338,15 @@ async fn verify_auth(
 async fn check_webui(config: Arc<RwLock<Configuration>>) -> Result<(), Rejection> {
     let config = config.read().unwrap();
     if config.webui.enabled {
+        Ok(())
+    } else {
+        Err(reject::not_found())
+    }
+}
+
+async fn check_sse(config: Arc<RwLock<Configuration>>) -> Result<(), Rejection> {
+    let config = config.read().unwrap();
+    if config.sse.enabled {
         Ok(())
     } else {
         Err(reject::not_found())
