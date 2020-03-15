@@ -363,9 +363,9 @@ fn sse_event_stream(
     let (tx, rx) = mpsc::unbounded_channel();
 
     tx.send(SseMessage {  key: String::from("lol"), value: String::from("lol") }).unwrap();
-    events.lock().unwrap().insert(my_id, tx);
+    events.lock().unwrap().insert(0, tx);
 
-    rx.map(|msg: SseMessage| Ok((warp::sse::event(msg.key), warp::sse::data(msg.value))))
+    rx.map(move |msg: SseMessage| Ok((warp::sse::id(my_id), warp::sse::event(msg.key), warp::sse::data(msg.value))))
 }
 
 async fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
