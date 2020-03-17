@@ -99,7 +99,8 @@ impl Server {
         let webui = warp::path::end()
             .and(fs::file("webui/dist/index.html"))
             .or(fs::dir("webui/dist"))
-            .and(webui_enabled);
+            .and(webui_enabled)
+            .with(warp::log("lucid::server::webui"));
 
         let robots = warp::path("robots.txt")
             .and(path::end())
