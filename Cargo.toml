@@ -39,7 +39,7 @@ bytes = "0.5.3"
 hex = "0.3.1"
 fern = { version = "0.5.9", features = ["colored", "syslog-4"] }
 clap = { version = "2.33.0", features = ["yaml"] }
-warp = { git = "https://github.com/seanmonstar/warp", features = ["tls", "compression"] }
+warp = { git = "https://github.com/seanmonstar/warp", rev ="63c506a", features = ["tls", "compression"] }
 log = { version = "0.4.8", features = ["serde"] }
 tokio = { version = "0.2.9", features = ["full"] }
 serpent = { git = "https://github.com/RustCrypto/block-ciphers" }
