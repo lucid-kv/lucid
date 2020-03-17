@@ -138,7 +138,8 @@ impl Server {
             .map(|events| {
                 let stream = sse_event_stream(events);
                 warp::sse::reply(warp::sse::keep_alive().stream(stream))
-            });
+            })
+            .with(warp::log("lucid::server::sse"));
 
         let routes = api_kv_key
             .or(webui)
