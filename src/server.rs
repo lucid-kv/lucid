@@ -105,7 +105,7 @@ impl Server {
             .and(path::end())
             .and(warp::get().map(|| "User-agent: *\nDisallow: /"));
 
-        let log = warp::log("lucid::Server");
+        let log = warp::log("lucid::server");
 
         let cors = warp::cors()
             .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
