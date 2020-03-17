@@ -106,8 +106,6 @@ impl Server {
             .and(path::end())
             .and(warp::get().map(|| "User-agent: *\nDisallow: /"));
 
-        let log = warp::log("lucid::server");
-
         let cors = warp::cors()
             .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
             .allow_any_origin();
@@ -121,7 +119,7 @@ impl Server {
                 format!("Lucid v{}", crate_version!()),
             ))
             .with(cors)
-            .with(log);
+            .with(warp::log("lucid::server"));
 
         let instance = warp::serve(routes);
         if configuration.general.use_ssl {
