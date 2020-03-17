@@ -20,6 +20,8 @@
 
 Lucid is currently in a development stage but we plan to make a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose Persistence, Encryption, SSE streaming, Compression, Replication and more.
 
+[Read the complete Medium article →](https://medium.com/@clintnetwork/lucid-an-http-key-value-store-c0e734586e26)
+
 ## Getting Started
 
 Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/releases) page and run these commands:
