@@ -14,8 +14,8 @@ mod kvstore;
 mod lucid;
 mod server;
 
+use self::lucid::Lucid;
 use configuration::{Claims, Configuration, LogOutput};
-use lucid::Lucid;
 
 use std::{
     fmt,
@@ -145,7 +145,7 @@ async fn main() -> Result<(), Error> {
         };
     }
 
-    dispatch.apply().expect("Couldn't start logger");
+    dispatch.apply().expect("Couldn't start logger.");
     log::set_max_level(config.logging.level);
 
     if let Some(init_matches) = matches.subcommand_matches("init") {
@@ -242,9 +242,9 @@ pub enum Error {
     ParseCli { source: clap::Error },
     #[snafu(display("{}", source))]
     RunServer { source: std::io::Error },
-    #[snafu(display("Configuration file not found"))]
+    #[snafu(display("Configuration file not found."))]
     ConfigurationNotFound,
-    #[snafu(display("The Lucid node has already been initialized"))]
+    #[snafu(display("The Lucid node has already been initialized."))]
     AlreadyInitialized,
     #[snafu(display("Unable to get the Lucid configuration directory: {}", source))]
     GetConfigDir { source: AppDirsError },
