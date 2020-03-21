@@ -98,8 +98,7 @@ impl Server {
 
         const WELCOME_PAGE: &'static str = include_str!("../assets/welcome.html");
 
-        let webui = warp::path::end()
-            .and(fs::file("assets/webui/dist/index.html"))
+        let webui = fs::file("assets/webui/dist/index.html")
             .or(fs::dir("assets/webui/dist"))
             .and(webui_enabled)
             .or(warp::get().map(move || warp::reply::html(WELCOME_PAGE)))
