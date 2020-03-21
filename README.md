@@ -28,7 +28,7 @@ Get the latest binary from the [releases](https://github.com/lucid-kv/lucid/rele
 
 ```
 $ ./lucid init
-$ ./lucid --config lucid.yml server
+$ ./lucid server
 ```
 
 ### Docker Deployment
