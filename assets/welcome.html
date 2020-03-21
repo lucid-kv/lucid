@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="dns-prefetch" href="//fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin></lien>
+<link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" integrity="sha256-46qynGAkLSFpVbEBog43gvNhfrOj+BmwXdxFgVK/Kvc=" crossorigin="anonymous" />
+<link rel="preload" href="https://avatars3.githubusercontent.com/u/56896360" as="image">
+<meta name="title" content="Lucid KV">
+<meta name="description" content="Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features. 🦀">
+<meta name="keywords" content="lucid,kv,lucid kv,key-value,kv store,store,key-value store,lucid kv store,http,rest api,http kv store,key-value as a service">
+<meta name="robots" content="index, follow">
+<meta name="language" content="English">
+<meta name="author" content="https://github.com/lucid-kv">
+<meta name="twitter:site" content="lucid_kv" />
+<meta name="twitter:title" content="Lucid KV" />
+<meta name="twitter:description" content="Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features. 🦀" />
+<meta name="twitter:image" content="https://lucid-kv.store/preview.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="og:title" content="Lucid KV" />
+<meta property="og:description" content="Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and a lot of features. 🦀" />
+<meta property="og:image" content="https://image" />
+<meta property="og:url" content="https://lucid-kv.store" />
+<meta property="og:site_name" content="Lucid KV" />
+<meta property="og:type" content="article" />
+<meta name="theme-color" content="#1d1b26">
+<link rel="icon" type="image/png" href="https://avatars3.githubusercontent.com/u/56896360" />
+<title>Lucid KV | High performance and distributed KV store w/ REST API. 🦀</title>
+<style>
+body {
+    background-color: #FFFFFF;
+    font-family: "Inter UI", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #1d1b26;
+    text-align: left;
+}
+
+.showcase {
+    font-family: 'Noto Sans', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 95vh;
+}
+
+.showcase img {
+    height: 30vh;
+    -webkit-filter: drop-shadow(5px 5px 5px rgba(17, 24, 20, .21));
+    filter: drop-shadow(5px 5px 5px rgba(17, 24, 20, .21));
+    animation: float 6s ease-in-out infinite;
+}
+
+.showcase h1 {
+    font-weight: 900;
+    font-size: 60pt;
+    margin: 20px 20px 0;
+}
+
+.showcase h2 {
+    font-size: 30pt;
+    margin: 0;
+    font-weight: 400;
+}
+
+.showcase p {
+    font-size: 17pt;
+    text-align: center;
+}
+
+.showcase div {
+    margin-top: 30px;
+}
+
+.btn {
+    border: 1px solid #1d1b26;
+    padding: 12px 15px;
+    color: #1d1b26;
+    text-decoration: none;
+    border-radius: 3px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.btn.fill {
+    background-color: #1d1b26;
+    color: #FFFFFF;
+}
+
+.showcase .btn:not(.fill)
+{
+    margin-left: 10px;
+}
+
+@keyframes float {
+    0% {
+        -webkit-transform: translatey(0px);
+        transform: translatey(0px);
+    }
+
+    50% {
+        -webkit-transform: translatey(-20px);
+        transform: translatey(-20px);
+    }
+
+    100% {
+        -webkit-transform: translatey(0px);
+        transform: translatey(0px);
+    }
+}
+
+@media (max-width: 991px) {
+    .showcase {
+        height: 100vh;
+    }
+
+    .showcase img {
+        height: initial;
+        width: 60vw;
+    }
+
+    .showcase h1 {
+        font-size: 40pt;
+    }
+
+    .showcase p {
+        font-size: 12pt;
+        padding: 0 20px;
+    }
+
+    .showcase div {
+        display: flex;
+        margin-top: initial;
+        flex-direction: column;
+    }
+
+    .showcase .btn:not(.fill)
+    {
+        margin-left: initial;
+    }
+}
+</style>
+</head>
+<body>
+<div class="showcase">
+    <a href="https://github.com/lucid-kv/lucid" target="_blank">
+        <img src="https://avatars3.githubusercontent.com/u/56896360" alt="lucid-kv logo" />
+    </a>
+    <h1>Lucid KV</h1>
+    <p>Lucid is an high performance and distributed KV store<br />accessible through an HTTP API. 🦀</p>
+    <div>
+        <a class="btn fill" href="https://medium.com/@clintnetwork/lucid-an-http-key-value-store-c0e734586e26"><i class="fas fa-info-circle"></i>&nbsp; Read About Lucid KV</a>
+        <a class="btn " href="https://docs.lucid-kv.store/"><i class="fas fa-book"></i>&nbsp; Official Documentation</a>
+    </div>
+</div>
+</body>
+</html>
