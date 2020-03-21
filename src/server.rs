@@ -102,7 +102,8 @@ impl Server {
             .and(fs::file("assets/webui/dist/index.html"))
             .or(fs::dir("assets/webui/dist"))
             .and(webui_enabled)
-            .or(warp::get().map(|| warp::reply::html(WELCOME_PAGE)));
+            .or(warp::get().map(|| warp::reply::html(WELCOME_PAGE)))
+            .and(warp::path::end());
 
         let robots = warp::path("robots.txt")
             .and(path::end())
