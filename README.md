@@ -20,13 +20,6 @@
 
 Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and more.
 
-<a href="#azure_deploy" target="_blank">
-  <img src="http://azuredeploy.net/deploybutton.png" height="32" />
-</a>
-<a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/lucid/tree/deploy-buttons" target="_blank">
-  <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
-</a>
-
 [Read the complete Medium article →](https://medium.com/@clintnetwork/lucid-an-http-key-value-store-c0e734586e26)
 
 ## Getting Started
@@ -48,6 +41,10 @@ $ docker run -p 7020:7020 -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 ```
 
 A demonstration instance is accessible at <http://lucid-kv.herokuapp.com> (with authentication disabled).
+
+<a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/lucid/tree/deploy-buttons" target="_blank">
+  <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
+</a>
 
 ## Documentation
 
