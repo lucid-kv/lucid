@@ -42,7 +42,7 @@ $ docker run -p 7020:7020 -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 
 A demonstration instance is accessible at <http://lucid-kv.herokuapp.com> (with authentication disabled).
 
-<a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/lucid/tree/deploy-buttons" target="_blank">
+<a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/lucid" target="_blank">
   <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
 </a>
 
