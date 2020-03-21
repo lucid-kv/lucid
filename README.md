@@ -9,10 +9,10 @@
     High performance and distributed KV store w/ REST API. 🦀
   </p>
   <p align="center">
-      <a href="https://github.com/lucid-kv/lucid/actions?workflow=Lucid"><img src="https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg" /></a>
-      <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Made%20With-Rust-dea584" /></a>
-      <a href="https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" /></a>
-      <a href="https://discord.gg/mZz67M6"><img src="https://img.shields.io/badge/Discord-Server-7289DA" /></a>
+    <a href="https://github.com/lucid-kv/lucid/actions?workflow=Lucid"><img src="https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg" /></a>
+    <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Made%20With-Rust-dea584" /></a>
+    <a href="https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" /></a>
+    <a href="https://discord.gg/mZz67M6"><img src="https://img.shields.io/badge/Discord-Server-7289DA" /></a>
   </p>
 </p>
 
@@ -21,9 +21,10 @@
 Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and more.
 
 <a href="#azure_deploy" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png" height="32" />
-</a><a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/deploy-templates" target="_blank">
-    <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
+  <img src="http://azuredeploy.net/deploybutton.png" height="32" />
+</a>
+<a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/lucid/tree/deploy-buttons" target="_blank">
+  <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
 </a>
 
 [Read the complete Medium article →](https://medium.com/@clintnetwork/lucid-an-http-key-value-store-c0e734586e26)
