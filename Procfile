@@ -1,0 +1,1 @@
+web: ./target/release/lucid init && sed -i -E "s/(port: )[0-9]+$/\1$PORT/" ~/.config/lucid/lucid.yml && sed -i -E "s/(bind_address: ).*$/\10.0.0.0/" ~/.config/lucid/lucid.yml && ./target/release/lucid server

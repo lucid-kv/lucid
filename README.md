@@ -9,16 +9,16 @@
     High performance and distributed KV store w/ REST API. 🦀
   </p>
   <p align="center">
-      <a href="https://github.com/lucid-kv/lucid/actions?workflow=Lucid"><img src="https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg" /></a>
-      <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Made%20With-Rust-dea584" /></a>
-      <a href="https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" /></a>
-      <a href="https://discord.gg/mZz67M6"><img src="https://img.shields.io/badge/Discord-Server-7289DA" /></a>
+    <a href="https://github.com/lucid-kv/lucid/actions?workflow=Lucid"><img src="https://github.com/lucid-kv/lucid/workflows/Lucid/badge.svg" /></a>
+    <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Made%20With-Rust-dea584" /></a>
+    <a href="https://github.com/lucid-kv/lucid/blob/master/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" /></a>
+    <a href="https://discord.gg/mZz67M6"><img src="https://img.shields.io/badge/Discord-Server-7289DA" /></a>
   </p>
 </p>
 
 ## Introduction
 
-Lucid is currently in a development stage but we plan to make a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose Persistence, Encryption, SSE streaming, Compression, Replication and more.
+Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and more.
 
 [Read the complete Medium article →](https://medium.com/@clintnetwork/lucid-an-http-key-value-store-c0e734586e26)
 
@@ -31,7 +31,9 @@ $ ./lucid init
 $ ./lucid --config lucid.yml server
 ```
 
-Or run a node with Docker, but you need to create a [lucid.yml](.github/docker.yml) file locally before.
+### Docker Deployment
+
+Or run a node with Docker, but you need to create a [lucid.yml](.github/lucid.yml) file locally before.
 
 ```
 $ docker pull lucidkv/lucid
@@ -39,6 +41,10 @@ $ docker run -p 7020:7020 -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 ```
 
 A demonstration instance is accessible at <http://lucid-kv.herokuapp.com> (with authentication disabled).
+
+<a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/lucid/tree/deploy-buttons" target="_blank">
+  <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
+</a>
 
 ## Documentation
 
