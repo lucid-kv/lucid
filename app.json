@@ -1,0 +1,11 @@
+{
+  "name": "Lucid",
+  "description": "High performance and distributed KV store w/ REST API",
+  "repository": "https://github.com/lucid-kv/lucid",
+  "logo": "https://avatars3.githubusercontent.com/u/56896360",
+  "website": "https://lucid-kv.store/",
+  "keywords": ["kv", "distributed", "ledger", "kv-store", "kv store", "key-value", "key-value store", "rest", "http", "swagger", "server-sent-event", "web-ui", "encryption", "persistence", "serpent", "redis", "redis-like", "compression"],
+  "buildpacks": [{
+    "url": "emk/rust"
+  }]
+}

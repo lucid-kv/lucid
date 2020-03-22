@@ -1,6 +1,6 @@
 use std::{net::SocketAddr, sync::RwLock};
 
-use bytes::Buf;
+use bytes::{Bytes, Buf};
 use jsonwebtoken::Validation;
 use snafu::Snafu;
 use warp::{
@@ -95,7 +95,7 @@ impl Server {
                     .and(filters::body::content_length_limit(
                         configuration.store.max_limit,
                     ))
-                    .and(warp::body::aggregate())
+                    .and(warp::body::bytes())
                     .and_then(put_key))
                 .or(warp::delete()
                     .and(store.clone())
@@ -115,10 +115,13 @@ impl Server {
                     .and_then(patch_key)),
         );
 
-        let webui = warp::path::end()
-            .and(fs::file("webui/dist/index.html"))
-            .or(fs::dir("webui/dist"))
-            .and(webui_enabled);
+        const WELCOME_PAGE: &'static str = include_str!("../assets/welcome.html");
+
+        let webui = fs::file("assets/webui/dist/index.html")
+            .or(fs::dir("assets/webui/dist"))
+            .and(webui_enabled)
+            .or(warp::get().map(move || warp::reply::html(WELCOME_PAGE)))
+            .and(warp::path::end());
 
         let robots = warp::path("robots.txt")
             .and(path::end())
@@ -220,7 +223,7 @@ async fn put_key(
     config: Arc<RwLock<Configuration>>,
     events: Events,
     key: String,
-    body: impl Buf,
+    body: Bytes,
 ) -> Result<impl Reply, Rejection> {
     if body.remaining() == 0 {
         Err(reject::custom(Error::MissingBody))
@@ -236,7 +239,7 @@ async fn put_key(
                 .unwrap()
                 .retain(|_, tx| tx.send(SseMessage { key: key.clone(), value: byte_to_string.clone() }).is_ok());
         }
-        if let Some(_) = store.set(key, body.bytes().to_vec()) {
+        if let Some(_) = store.set(key, body.to_vec()) {
             Ok(warp::reply::json(&JsonMessage {
                 message: "The specified key was successfully updated.".to_string(),
             }))
