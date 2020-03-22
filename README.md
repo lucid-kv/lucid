@@ -40,7 +40,7 @@ $ docker pull lucidkv/lucid
 $ docker run -p 7020:7020 -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 ```
 
-A demonstration instance is accessible at <http://demo.lucid-kv.store/> (with authentication disabled).
+A demonstration instance is accessible at <http://demo.lucid-kv.store/> or you can deploy your own node:
 
 <a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/lucid" target="_blank">
   <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
