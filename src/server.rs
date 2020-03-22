@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use bytes::Buf;
+use bytes::{Bytes, Buf};
 use jsonwebtoken::Validation;
 use snafu::Snafu;
 use warp::{
@@ -76,7 +76,7 @@ impl Server {
                     .and(filters::body::content_length_limit(
                         configuration.store.max_limit,
                     ))
-                    .and(warp::body::aggregate())
+                    .and(warp::body::bytes())
                     .and_then(put_key))
                 .or(warp::delete()
                     .and(store.clone())
@@ -191,7 +191,7 @@ async fn put_key(
     store: Arc<KvStore>,
     config: Arc<RwLock<Configuration>>,
     key: String,
-    body: impl Buf,
+    body: Bytes,
 ) -> Result<impl Reply, Rejection> {
     if body.remaining() == 0 {
         Err(reject::custom(Error::MissingBody))
@@ -200,7 +200,7 @@ async fn put_key(
             max_limit: config.read().unwrap().store.max_limit,
         }))
     } else {
-        if let Some(_) = store.set(key, body.bytes().to_vec()) {
+        if let Some(_) = store.set(key, body.to_vec()) {
             Ok(warp::reply::json(&JsonMessage {
                 message: "The specified key was successfully updated.".to_string(),
             }))
