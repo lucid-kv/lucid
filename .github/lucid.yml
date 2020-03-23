@@ -15,14 +15,15 @@ persistence:
   enabled: false
   location: ""
 encryption:
-  enabled: true
+  enabled: false
   private_key: "123456789012345678901234123456789012345678901234"
   iv: "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"
 webui:
-  enabled: true
+  enabled: false
 store:
   max_limit: 7340032
 http:
+  compression: false
   request_size_limit: 8388608
 logging:
   level: INFO
