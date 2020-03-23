@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use bytes::{Bytes, Buf};
+use bytes::{Buf, Bytes};
 use jsonwebtoken::Validation;
 use snafu::Snafu;
 use warp::{
@@ -36,11 +36,9 @@ impl Server {
         if configuration.encryption.enabled {
             if configuration.encryption.private_key.is_empty() {
                 panic!("The private key must be filled.");
-            }
-            else if configuration.encryption.iv.is_empty() {
+            } else if configuration.encryption.iv.is_empty() {
                 panic!("The initialization vector must be filled.")
-            }
-            else {
+            } else {
                 encryption_key = Some([
                     configuration.encryption.private_key.as_str(),
                     configuration.encryption.iv.as_str(),
@@ -48,84 +46,8 @@ impl Server {
             }
         }
         let store = Arc::new(KvStore::new(encryption_key));
-        let store = warp::any().map(move || store.clone());
 
-        let config = self.configuration.clone();
-        let config = warp::any().map(move || config.clone());
-
-        let auth = warp::header::optional::<String>("authorization")
-            .and(config.clone())
-            .and_then(verify_auth)
-            .untuple_one();
-
-        let webui_enabled = config.clone().and_then(check_webui).untuple_one();
-
-        let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
-        let api_kv_key = auth.and(
-            warp::get()
-                .and(store.clone())
-                .and(api_kv_key_path)
-                .and_then(get_key)
-                .or(warp::put()
-                    .and(store.clone())
-                    .and(config.clone())
-                    .and(api_kv_key_path)
-                    .and(filters::body::content_length_limit(
-                        configuration.http.request_size_limit,
-                    ))
-                    .and(filters::body::content_length_limit(
-                        configuration.store.max_limit,
-                    ))
-                    .and(warp::body::bytes())
-                    .and_then(put_key))
-                .or(warp::delete()
-                    .and(store.clone())
-                    .and(api_kv_key_path)
-                    .and_then(delete_key))
-                .or(warp::head()
-                    .and(store.clone())
-                    .and(api_kv_key_path)
-                    .and_then(find_key))
-                .or(warp::patch()
-                    .and(store.clone())
-                    .and(api_kv_key_path)
-                    .and(filters::body::content_length_limit(
-                        configuration.http.request_size_limit,
-                    ))
-                    .and(filters::body::json())
-                    .and_then(patch_key)),
-        );
-
-        const WELCOME_PAGE: &'static str = include_str!("../assets/welcome.html");
-
-        let webui = fs::file("assets/webui/dist/index.html")
-            .or(fs::dir("assets/webui/dist"))
-            .and(webui_enabled)
-            .or(warp::get().map(move || warp::reply::html(WELCOME_PAGE)))
-            .and(warp::path::end());
-
-        let robots = warp::path("robots.txt")
-            .and(path::end())
-            .and(warp::get().map(|| "User-agent: *\nDisallow: /"));
-
-        let log = warp::log("lucid::Server");
-
-        let cors = warp::cors()
-            .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
-            .allow_any_origin();
-
-        let routes = api_kv_key
-            .or(webui)
-            .or(robots)
-            .recover(process_error)
-            .with(warp::reply::with::header(
-                "Server",
-                format!("Lucid v{}", crate_version!()),
-            ))
-            .with(cors)
-            .with(log);
-
-        let instance = warp::serve(routes);
+        let instance = warp::serve(routes_filter(store, self.configuration.clone()));
         if configuration.general.use_ssl {
             let bind_endpoint = SocketAddr::from((
                 configuration.general.bind_address,
@@ -175,6 +97,90 @@ impl Server {
                 .await;
         }
     }
+}
+
+fn routes_filter(
+    store: Arc<KvStore>,
+    config: Arc<RwLock<Configuration>>,
+) -> impl Filter<Extract = impl Reply> + Clone + Send + Sync + 'static {
+    let configuration = config.read().unwrap();
+
+    let store = warp::any().map(move || store.clone());
+
+    let config = config.clone();
+    let config = warp::any().map(move || config.clone());
+
+    let auth = warp::header::optional::<String>("authorization")
+        .and(config.clone())
+        .and_then(verify_auth)
+        .untuple_one();
+
+    let webui_enabled = config.clone().and_then(check_webui).untuple_one();
+
+    let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
+    let api_kv_key = auth.and(
+        warp::get()
+            .and(store.clone())
+            .and(api_kv_key_path)
+            .and_then(get_key)
+            .or(warp::put()
+                .and(store.clone())
+                .and(config.clone())
+                .and(api_kv_key_path)
+                .and(filters::body::content_length_limit(
+                    configuration.http.request_size_limit,
+                ))
+                .and(filters::body::content_length_limit(
+                    configuration.store.max_limit,
+                ))
+                .and(warp::body::bytes())
+                .and_then(put_key))
+            .or(warp::delete()
+                .and(store.clone())
+                .and(api_kv_key_path)
+                .and_then(delete_key))
+            .or(warp::head()
+                .and(store.clone())
+                .and(api_kv_key_path)
+                .and_then(find_key))
+            .or(warp::patch()
+                .and(store.clone())
+                .and(api_kv_key_path)
+                .and(filters::body::content_length_limit(
+                    configuration.http.request_size_limit,
+                ))
+                .and(filters::body::json())
+                .and_then(patch_key)),
+    );
+
+    const WELCOME_PAGE: &'static str = include_str!("../assets/welcome.html");
+
+    let webui = fs::file("assets/webui/dist/index.html")
+        .or(fs::dir("assets/webui/dist"))
+        .and(webui_enabled)
+        .or(warp::get().map(move || warp::reply::html(WELCOME_PAGE)))
+        .and(warp::path::end());
+
+    let robots = warp::path("robots.txt")
+        .and(path::end())
+        .and(warp::get().map(|| "User-agent: *\nDisallow: /"));
+
+    let log = warp::log("lucid::Server");
+
+    let cors = warp::cors()
+        .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
+        .allow_any_origin();
+
+    api_kv_key
+        .or(webui)
+        .or(robots)
+        .recover(process_error)
+        .with(warp::reply::with::header(
+            "Server",
+            format!("Lucid v{}", crate_version!()),
+        ))
+        .with(cors)
+        .with(log)
 }
 
 async fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
