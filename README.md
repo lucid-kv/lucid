@@ -18,7 +18,7 @@
 
 ## Introduction
 
-Lucid is currently in a development stage but we want to achieve a fast, secure and distributed key-value store accessible through an HTTP API, we also want to propose persistence, encryption, WebSocket streaming, replication and more.
+Lucid is an high performance, secure and distributed key-value store accessible through an HTTP API, that is built arround a modulable configuration to enable features on the fly, like persistence, encryption SSE, compression, replication, and more.
 
 [Read the complete Medium article →](https://medium.com/@clintnetwork/lucid-an-http-key-value-store-c0e734586e26)
 
@@ -40,7 +40,7 @@ $ docker pull lucidkv/lucid
 $ docker run -p 7020:7020 -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 ```
 
-A demonstration instance is accessible at <http://demo.lucid-kv.store/> or you can deploy your own node:
+A demonstration node is accessible at <http://demo.lucid-kv.store/>, or deploy your own:
 
 <a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/lucid" target="_blank">
   <img src="https://www.herokucdn.com/deploy/button.svg" height="32"/>
@@ -85,7 +85,7 @@ SUBCOMMANDS:
 
 ## Web Interface (UI)
 
-Lucid wants to propose a web UI to manage data, issue tokens, organize nodes and configure instances.
+Lucid wants to propose a Web UI to manage data, issue tokens, organize nodes and configure instances.
 
 ## Development Credits
 
