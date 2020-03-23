@@ -3,9 +3,14 @@ use std::{
     path::PathBuf,
 };
 
-use app_dirs::{AppDataType, AppDirsError};
+use app_dirs::{AppDataType, AppDirsError, AppInfo};
 use log::LevelFilter;
 use rand::Rng;
+
+const APP_INFO: AppInfo = AppInfo {
+    name: "lucid",
+    author: "LucidKV",
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Configuration {
@@ -21,7 +26,7 @@ pub struct Configuration {
 
 impl Configuration {
     pub fn get_path() -> Result<PathBuf, AppDirsError> {
-        let mut path = app_dirs::get_app_root(AppDataType::UserConfig, &crate::APP_INFO)?;
+        let mut path = app_dirs::get_app_root(AppDataType::UserConfig, &APP_INFO)?;
         path.push("lucid.yml");
         Ok(path)
     }
@@ -37,7 +42,7 @@ impl Default for Configuration {
                 use_ssl: false,
                 ssl_certificate: String::new(),
                 ssl_certificate_key: String::new(),
-                show_banner: true
+                show_banner: true,
             },
             authentication: Authentication {
                 enabled: false,
@@ -74,7 +79,7 @@ pub struct General {
     pub use_ssl: bool,
     pub ssl_certificate: String,
     pub ssl_certificate_key: String,
-    pub show_banner: bool
+    pub show_banner: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

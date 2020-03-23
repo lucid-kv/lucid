@@ -23,7 +23,7 @@ use std::{
     path::Path,
 };
 
-use app_dirs::{AppDirsError, AppInfo};
+use app_dirs::AppDirsError;
 use chrono::{DateTime, Duration, Utc};
 use clap::{App, ArgMatches};
 use fern::colors::{Color, ColoredLevelConfig};
@@ -32,11 +32,6 @@ use jsonwebtoken::Header;
 use rand::Rng;
 use ring::digest;
 use snafu::{ResultExt, Snafu};
-
-const APP_INFO: AppInfo = AppInfo {
-    name: "lucid",
-    author: "LucidKV",
-};
 
 const BANNER: &'static str = r###"
  ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
