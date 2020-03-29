@@ -99,10 +99,10 @@ impl Server {
     }
 }
 
-fn routes_filter(
+pub fn routes_filter(
     store: Arc<KvStore>,
     config: Arc<RwLock<Configuration>>,
-) -> impl Filter<Extract = impl Reply> + Clone + Send + Sync + 'static {
+) -> impl Filter<Extract = (impl Reply,)> + Clone + Send + Sync + 'static {
     let configuration = config.read().unwrap();
 
     let store = warp::any().map(move || store.clone());
