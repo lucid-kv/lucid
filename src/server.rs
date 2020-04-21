@@ -165,8 +165,6 @@ pub fn routes_filter(
         .and(path::end())
         .and(warp::get().map(|| "User-agent: *\nDisallow: /"));
 
-    let log = warp::log("lucid::Server");
-
     let cors = warp::cors()
         .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
         .allow_any_origin();
@@ -180,7 +178,7 @@ pub fn routes_filter(
             format!("Lucid v{}", crate_version!()),
         ))
         .with(cors)
-        .with(log)
+        .with(warp::log("lucid::server"))
 }
 
 async fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
