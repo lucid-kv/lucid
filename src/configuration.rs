@@ -61,6 +61,7 @@ impl Default for Configuration {
             webui: WebUI { enabled: false },
             store: Store { max_limit: 7340032 },
             http: Http {
+                compression: true,
                 request_size_limit: 8388608,
             },
             logging: Logging {
@@ -114,6 +115,7 @@ pub struct Store {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Http {
+    pub compression: bool,
     pub request_size_limit: u64,
 }
 
