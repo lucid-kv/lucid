@@ -1,4 +1,4 @@
-use std::sync::{Arc, RwLock};
+use std::{collections::HashMap, sync::{Arc, RwLock, Mutex}};
 
 use hyper::StatusCode;
 use serde_json::Value;
@@ -8,8 +8,9 @@ use lucid::{configuration::Configuration, kvstore::KvStore, server::routes_filte
 
 fn create_routes_filter() -> impl Filter<Extract = (impl Reply,)> + Clone + Send + Sync + 'static {
     let store = Arc::new(KvStore::new(None));
+    let events = Arc::new(Mutex::new(HashMap::new()));
     let config = Arc::new(RwLock::new(Configuration::default()));
-    routes_filter(store.clone(), config.clone())
+    routes_filter(store, events, config)
 }
 
 #[cfg(test)]
