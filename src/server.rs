@@ -1,6 +1,6 @@
 use std::{net::SocketAddr, sync::RwLock};
 
-use bytes::{Bytes, Buf};
+use bytes::{Buf, Bytes};
 use jsonwebtoken::Validation;
 use snafu::Snafu;
 use warp::{
@@ -21,7 +21,7 @@ use tokio::sync::mpsc;
 use warp::{sse::ServerSentEvent, Filter};
 
 #[derive(Debug)]
-struct SseMessage {
+pub struct SseMessage {
     key: String,
     value: String
 }
@@ -61,102 +61,9 @@ impl Server {
             }
         }
         let store = Arc::new(KvStore::new(encryption_key));
-        let store = warp::any().map(move || store.clone());
-
         let events = Arc::new(Mutex::new(HashMap::new()));
-        let events = warp::any().map(move || events.clone());
 
-        let config = self.configuration.clone();
-        let config = warp::any().map(move || config.clone());
-
-        let auth = warp::header::optional::<String>("authorization")
-            .and(config.clone())
-            .and_then(verify_auth)
-            .untuple_one();
-
-        let webui_enabled = config.clone().and_then(check_webui).untuple_one();
-
-        let sse_enabled = config.clone().and_then(check_sse).untuple_one();
-
-        let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
-        let api_kv_key = auth.clone().and(
-            warp::get()
-                .and(store.clone())
-                .and(api_kv_key_path)
-                .and_then(get_key)
-                .or(warp::put()
-                    .and(store.clone())
-                    .and(config.clone())
-                    .and(events.clone())
-                    .and(api_kv_key_path)
-                    .and(filters::body::content_length_limit(
-                        configuration.http.request_size_limit,
-                    ))
-                    .and(filters::body::content_length_limit(
-                        configuration.store.max_limit,
-                    ))
-                    .and(warp::body::bytes())
-                    .and_then(put_key))
-                .or(warp::delete()
-                    .and(store.clone())
-                    .and(api_kv_key_path)
-                    .and_then(delete_key))
-                .or(warp::head()
-                    .and(store.clone())
-                    .and(api_kv_key_path)
-                    .and_then(find_key))
-                .or(warp::patch()
-                    .and(store.clone())
-                    .and(api_kv_key_path)
-                    .and(filters::body::content_length_limit(
-                        configuration.http.request_size_limit,
-                    ))
-                    .and(filters::body::json())
-                    .and_then(patch_key)),
-        );
-
-        const WELCOME_PAGE: &'static str = include_str!("../assets/welcome.html");
-
-        let webui = fs::file("assets/webui/dist/index.html")
-            .or(fs::dir("assets/webui/dist"))
-            .and(webui_enabled)
-            .or(warp::get().map(move || warp::reply::html(WELCOME_PAGE)))
-            .and(warp::path::end());
-
-        let robots = warp::path("robots.txt")
-            .and(path::end())
-            .and(warp::get().map(|| "User-agent: *\nDisallow: /"));
-
-        let log = warp::log("lucid::Server");
-
-        let cors = warp::cors()
-            .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
-            .allow_any_origin();
-
-        let sse = warp::path("notifications")
-            .and(warp::get())
-            .and(events)
-            .and(auth)
-            .and(sse_enabled)
-            .map(|events| {
-                let stream = sse_event_stream(events);
-                warp::sse::reply(warp::sse::keep_alive().stream(stream))
-            })
-            .with(warp::log("lucid::server::sse"));
-
-        let routes = api_kv_key
-            .or(webui)
-            .or(sse)
-            .or(robots)
-            .recover(process_error)
-            .with(warp::reply::with::header(
-                "Server",
-                format!("Lucid v{}", crate_version!()),
-            ))
-            .with(cors)
-            .with(log);
-
-        let instance = warp::serve(routes);
+        let instance = warp::serve(routes_filter(store, events, self.configuration.clone()));
         if configuration.general.use_ssl {
             let bind_endpoint = SocketAddr::from((
                 configuration.general.bind_address,
@@ -208,6 +115,105 @@ impl Server {
     }
 }
 
+pub fn routes_filter(
+    store: Arc<KvStore>,
+    events: Events,
+    config: Arc<RwLock<Configuration>>,
+) -> impl Filter<Extract = (impl Reply,)> + Clone + Send + Sync + 'static {
+    let configuration = config.read().unwrap();
+
+    let store = warp::any().map(move || store.clone());
+    let events = warp::any().map(move || events.clone());
+
+    let config = config.clone();
+    let config = warp::any().map(move || config.clone());
+
+    let auth = warp::header::optional::<String>("authorization")
+        .and(config.clone())
+        .and_then(verify_auth)
+        .untuple_one();
+
+    let webui_enabled = config.clone().and_then(check_webui).untuple_one();
+
+    let sse_enabled = config.clone().and_then(check_sse).untuple_one();
+
+    let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
+    let api_kv_key = auth.clone().and(
+        warp::get()
+            .and(store.clone())
+            .and(api_kv_key_path)
+            .and_then(get_key)
+            .or(warp::put()
+                .and(store.clone())
+                .and(events.clone())
+                .and(config.clone())
+                .and(api_kv_key_path)
+                .and(filters::body::content_length_limit(
+                    configuration.http.request_size_limit,
+                ))
+                .and(filters::body::content_length_limit(
+                    configuration.store.max_limit,
+                ))
+                .and(warp::body::bytes())
+                .and_then(put_key))
+            .or(warp::delete()
+                .and(store.clone())
+                .and(api_kv_key_path)
+                .and_then(delete_key))
+            .or(warp::head()
+                .and(store.clone())
+                .and(api_kv_key_path)
+                .and_then(find_key))
+            .or(warp::patch()
+                .and(store.clone())
+                .and(api_kv_key_path)
+                .and(filters::body::content_length_limit(
+                    configuration.http.request_size_limit,
+                ))
+                .and(filters::body::json())
+                .and_then(patch_key)),
+    );
+
+    const WELCOME_PAGE: &'static str = include_str!("../assets/welcome.html");
+
+    let webui = fs::file("assets/webui/dist/index.html")
+        .or(fs::dir("assets/webui/dist"))
+        .and(webui_enabled)
+        .or(warp::get().map(move || warp::reply::html(WELCOME_PAGE)))
+        .and(warp::path::end());
+
+    let robots = warp::path("robots.txt")
+        .and(path::end())
+        .and(warp::get().map(|| "User-agent: *\nDisallow: /"));
+
+    let cors = warp::cors()
+        .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
+        .allow_any_origin();
+
+    let sse = warp::path("notifications")
+        .and(warp::get())
+        .and(events)
+        .and(auth)
+        .and(sse_enabled)
+        .map(|events| {
+            let stream = sse_event_stream(events);
+            warp::sse::reply(warp::sse::keep_alive().stream(stream))
+        })
+        .with(warp::log("lucid::server::sse"));
+
+    api_kv_key
+        .or(webui)
+        .or(sse)
+        .or(robots)
+        .recover(process_error)
+        .with(warp::reply::with::header(
+            "Server",
+            format!("Lucid v{}", crate_version!()),
+        ))
+        .with(cors)
+        .with(warp::log("lucid::server"))
+}
+
 async fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
     if let Some(value) = store.get(key) {
         Ok(Response::builder()
@@ -220,8 +226,8 @@ async fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejecti
 
 async fn put_key(
     store: Arc<KvStore>,
-    config: Arc<RwLock<Configuration>>,
     events: Events,
+    config: Arc<RwLock<Configuration>>,
     key: String,
     body: Bytes,
 ) -> Result<impl Reply, Rejection> {

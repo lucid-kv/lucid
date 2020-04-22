@@ -23,20 +23,15 @@ use std::{
     path::Path,
 };
 
-use app_dirs::{AppDirsError, AppInfo};
+use app_dirs::AppDirsError;
 use chrono::{DateTime, Duration, Utc};
-use clap::App;
+use clap::{App, ArgMatches};
 use fern::colors::{Color, ColoredLevelConfig};
 use fern::Dispatch;
 use jsonwebtoken::Header;
 use rand::Rng;
 use ring::digest;
 use snafu::{ResultExt, Snafu};
-
-const APP_INFO: AppInfo = AppInfo {
-    name: "lucid",
-    author: "LucidKV",
-};
 
 const BANNER: &'static str = r###"
  ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
@@ -147,7 +142,17 @@ async fn main() -> Result<(), Error> {
 
     dispatch.apply().expect("Couldn't start logger.");
     log::set_max_level(config.logging.level);
+    if let Err(e) = start(matches, config, &config_path).await {
+        error!("fatal: {}", e);
+    }
+    Ok(())
+}
 
+async fn start(
+    matches: ArgMatches<'_>,
+    config: Configuration,
+    config_path: &Path,
+) -> Result<(), Error> {
     if let Some(init_matches) = matches.subcommand_matches("init") {
         if config_path.exists() && !init_matches.is_present("force") {
             return Err(Error::AlreadyInitialized);
