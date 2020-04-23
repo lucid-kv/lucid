@@ -18,6 +18,7 @@ pub struct Configuration {
     pub authentication: Authentication,
     pub persistence: Persistence,
     pub encryption: Encryption,
+    pub sse: ServerSentEvent,
     pub webui: WebUI,
     pub store: Store,
     pub http: Http,
@@ -58,6 +59,7 @@ impl Default for Configuration {
                 private_key: hex::encode(rand::thread_rng().gen::<[u8; 24]>()),
                 iv: hex::encode(rand::thread_rng().gen::<[u8; 16]>()),
             },
+            sse: ServerSentEvent { enabled: false },
             webui: WebUI { enabled: false },
             store: Store { max_limit: 7340032 },
             http: Http {
@@ -104,6 +106,11 @@ pub struct Encryption {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WebUI {
+    pub enabled: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ServerSentEvent {
     pub enabled: bool,
 }
 

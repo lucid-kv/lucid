@@ -37,11 +37,12 @@ tree_magic = "0.2.1"
 snafu = "0.6.2"
 bytes = "0.5.3"
 hex = "0.3.1"
+futures = "0.3.4"
 fern = { version = "0.5.9", features = ["colored", "syslog-4"] }
 clap = { version = "2.33.0", features = ["yaml"] }
 warp = { version = "0.2.0", features = ["tls"] }
 log = { version = "0.4.8", features = ["serde"] }
-tokio = { version = "0.2.9", features = ["full"] }
+tokio = { version = "0.2.9", features = ["full", "sync"] }
 serpent = { git = "https://github.com/RustCrypto/block-ciphers" }
 block-modes = "0.3.3"
 hyper = "0.13.4"
