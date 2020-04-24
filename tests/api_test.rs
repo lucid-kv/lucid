@@ -1,16 +1,24 @@
-use std::{collections::HashMap, sync::{Arc, RwLock, Mutex}};
+use std::sync::{Arc, RwLock};
 
 use hyper::StatusCode;
 use serde_json::Value;
+use tokio::sync::broadcast;
 use warp::{Filter, Reply};
 
-use lucid::{configuration::Configuration, kvstore::KvStore, server::routes_filter};
+use lucid::{
+    configuration::{Configuration, ServerSentEvent},
+    kvstore::KvStore,
+    server::routes_filter,
+};
 
 fn create_routes_filter() -> impl Filter<Extract = (impl Reply,)> + Clone + Send + Sync + 'static {
     let store = Arc::new(KvStore::new(None));
-    let events = Arc::new(Mutex::new(HashMap::new()));
-    let config = Arc::new(RwLock::new(Configuration::default()));
-    routes_filter(store, events, config)
+    let event_tx = Arc::new(broadcast::channel(512).0);
+    let config = Arc::new(RwLock::new(Configuration {
+        sse: ServerSentEvent { enabled: true },
+        ..Default::default()
+    }));
+    routes_filter(store, event_tx, config)
 }
 
 #[cfg(test)]
@@ -114,5 +122,21 @@ mod tests {
 
         let delete_response = delete_reply.into_response();
         assert_eq!(delete_response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn sse_notifications() {
+        let routes = create_routes_filter();
+        let sse_reply = warp::test::request()
+            .method("GET")
+            .path("/notifications")
+            .filter(&routes)
+            .await
+            .unwrap();
+
+        let sse_response = sse_reply.into_response();
+        assert_eq!(sse_response.status(), StatusCode::OK);
+
+        // TODO: parse body and check if the events are correct
     }
 }

@@ -3,27 +3,28 @@ use std::{net::SocketAddr, sync::RwLock};
 use bytes::{Buf, Bytes};
 use jsonwebtoken::Validation;
 use snafu::Snafu;
+use std::sync::{
+    atomic::{AtomicUsize, Ordering},
+    Arc,
+};
+use tokio::{
+    stream::{Stream, StreamExt},
+    sync::broadcast,
+};
 use warp::{
     self, filters, fs,
     http::{Response, StatusCode},
     path, reject, Rejection, Reply,
 };
+use warp::{sse::ServerSentEvent, Filter};
 
 use crate::configuration::{Claims, Configuration};
 use crate::kvstore::KvStore;
-use futures::{Stream, StreamExt};
-use std::collections::HashMap;
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc, Mutex,
-};
-use tokio::sync::mpsc;
-use warp::{sse::ServerSentEvent, Filter};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SseMessage {
     key: String,
-    value: String
+    value: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -34,8 +35,6 @@ struct JsonMessage {
 pub struct Server {
     configuration: Arc<RwLock<Configuration>>,
 }
-
-type Events = Arc<Mutex<HashMap<usize, mpsc::UnboundedSender<SseMessage>>>>;
 
 static NEXT_EVENT_ID: AtomicUsize = AtomicUsize::new(1);
 
@@ -61,9 +60,9 @@ impl Server {
             }
         }
         let store = Arc::new(KvStore::new(encryption_key));
-        let events = Arc::new(Mutex::new(HashMap::new()));
+        let event_tx = Arc::new(broadcast::channel(512).0);
 
-        let instance = warp::serve(routes_filter(store, events, self.configuration.clone()));
+        let instance = warp::serve(routes_filter(store, event_tx, self.configuration.clone()));
         if configuration.general.use_ssl {
             let bind_endpoint = SocketAddr::from((
                 configuration.general.bind_address,
@@ -117,13 +116,13 @@ impl Server {
 
 pub fn routes_filter(
     store: Arc<KvStore>,
-    events: Events,
+    event_tx: Arc<broadcast::Sender<SseMessage>>,
     config: Arc<RwLock<Configuration>>,
 ) -> impl Filter<Extract = (impl Reply,)> + Clone + Send + Sync + 'static {
     let configuration = config.read().unwrap();
 
     let store = warp::any().map(move || store.clone());
-    let events = warp::any().map(move || events.clone());
+    let event_tx = warp::any().map(move || event_tx.clone());
 
     let config = config.clone();
     let config = warp::any().map(move || config.clone());
@@ -145,7 +144,7 @@ pub fn routes_filter(
             .and_then(get_key)
             .or(warp::put()
                 .and(store.clone())
-                .and(events.clone())
+                .and(event_tx.clone())
                 .and(config.clone())
                 .and(api_kv_key_path)
                 .and(filters::body::content_length_limit(
@@ -192,11 +191,11 @@ pub fn routes_filter(
 
     let sse = warp::path("notifications")
         .and(warp::get())
-        .and(events)
+        .and(event_tx)
         .and(auth)
         .and(sse_enabled)
-        .map(|events| {
-            let stream = sse_event_stream(events);
+        .map(|event_tx: Arc<broadcast::Sender<SseMessage>>| {
+            let stream = sse_event_stream(event_tx.subscribe());
             warp::sse::reply(warp::sse::keep_alive().stream(stream))
         })
         .with(warp::log("lucid::server::sse"));
@@ -226,7 +225,7 @@ async fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejecti
 
 async fn put_key(
     store: Arc<KvStore>,
-    events: Events,
+    event_tx: Arc<broadcast::Sender<SseMessage>>,
     config: Arc<RwLock<Configuration>>,
     key: String,
     body: Bytes,
@@ -240,10 +239,10 @@ async fn put_key(
     } else {
         // TODO: handle non-ascii data
         if let Ok(byte_to_string) = String::from_utf8((&body).bytes().to_vec()) {
-            events
-                .lock()
-                .unwrap()
-                .retain(|_, tx| tx.send(SseMessage { key: key.clone(), value: byte_to_string.clone() }).is_ok());
+            let _ = event_tx.send(SseMessage {
+                key: key.clone(),
+                value: byte_to_string,
+            });
         }
         if let Some(_) = store.set(key, body.to_vec()) {
             Ok(warp::reply::json(&JsonMessage {
@@ -365,17 +364,23 @@ async fn check_sse(config: Arc<RwLock<Configuration>>) -> Result<(), Rejection> 
 }
 
 fn sse_event_stream(
-    events: Events,
+    event_rx: broadcast::Receiver<SseMessage>,
 ) -> impl Stream<Item = Result<impl ServerSentEvent + Send + 'static, warp::Error>> + Send + 'static
 {
     let my_id = NEXT_EVENT_ID.fetch_add(1, Ordering::Relaxed);
 
-    let (tx, rx) = mpsc::unbounded_channel();
-
-    tx.send(SseMessage {  key: String::from("lol"), value: String::from("lol") }).unwrap();
-    events.lock().unwrap().insert(0, tx);
-
-    rx.map(move |msg: SseMessage| Ok((warp::sse::id(my_id), warp::sse::event(msg.key), warp::sse::data(msg.value))))
+    event_rx.filter_map(move |msg| match msg {
+        Ok(msg) => Some(Ok((
+            warp::sse::id(my_id),
+            warp::sse::event(msg.key),
+            warp::sse::data(msg.value),
+        ))),
+        Err(broadcast::RecvError::Lagged(lag)) => {
+            warn!("SSE stream lagged, {} events lost", lag);
+            None
+        }
+        Err(broadcast::RecvError::Closed) => unreachable!(),
+    })
 }
 
 async fn process_error(err: Rejection) -> Result<impl Reply, Rejection> {
