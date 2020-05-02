@@ -3,10 +3,7 @@ use std::{net::SocketAddr, sync::RwLock};
 use bytes::{Buf, Bytes};
 use jsonwebtoken::Validation;
 use snafu::Snafu;
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
-};
+use std::sync::Arc;
 use tokio::{
     stream::{Stream, StreamExt},
     sync::broadcast,
@@ -35,8 +32,6 @@ struct JsonMessage {
 pub struct Server {
     configuration: Arc<RwLock<Configuration>>,
 }
-
-static NEXT_EVENT_ID: AtomicUsize = AtomicUsize::new(1);
 
 impl Server {
     pub fn new(configuration: Arc<RwLock<Configuration>>) -> Server {
@@ -367,14 +362,8 @@ fn sse_event_stream(
     event_rx: broadcast::Receiver<SseMessage>,
 ) -> impl Stream<Item = Result<impl ServerSentEvent + Send + 'static, warp::Error>> + Send + 'static
 {
-    let my_id = NEXT_EVENT_ID.fetch_add(1, Ordering::Relaxed);
-
     event_rx.filter_map(move |msg| match msg {
-        Ok(msg) => Some(Ok((
-            warp::sse::id(my_id),
-            warp::sse::event(msg.key),
-            warp::sse::data(msg.value),
-        ))),
+        Ok(msg) => Some(Ok((warp::sse::event(msg.key), warp::sse::data(msg.value)))),
         Err(broadcast::RecvError::Lagged(lag)) => {
             warn!("SSE stream lagged, {} events lost", lag);
             None
