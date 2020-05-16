@@ -14,6 +14,8 @@ authentication:
 persistence:
   enabled: false
   location: ""
+sse:
+  enabled: true
 encryption:
   enabled: false
   private_key: "123456789012345678901234123456789012345678901234"
