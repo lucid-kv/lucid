@@ -27,7 +27,7 @@ serde = "1.0.104"
 serde_json = "1.0.44"
 serde_derive = "1.0.104"
 serde_yaml = "0.8.11"
-chrono = "0.4.10"
+chrono = { version = "0.4.10", features = ["serde"] }
 jsonwebtoken = "7.0.0-alpha.2"
 app_dirs = "1.2.1"
 ring = "0.16.9"
