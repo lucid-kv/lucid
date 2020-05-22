@@ -1,0 +1,17 @@
+# Lucid KV docker-compose.yml
+# https://github.com/lucid-kv/lucid
+
+version: '3'
+
+services:
+    lucid:
+        image: lucidkv/lucid
+        ports:
+          - 80:7020
+        command:
+          - /bin/bash
+          - -c
+          - |
+            lucid --no-banner init
+            sed -iE 's/127.0.0.1/0.0.0.0/' ~/.config/lucid/lucid.yml
+            lucid server
