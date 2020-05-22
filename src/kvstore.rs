@@ -1,18 +1,23 @@
 use block_modes::block_padding::ZeroPadding;
 use block_modes::{BlockMode, Cbc};
 use chashmap::CHashMap;
+use chrono::serde::ts_seconds::serialize as ts_seconds;
 use chrono::{DateTime, Utc};
 
 use serpent::Serpent;
 
 type SerpentCbc = Cbc<Serpent, ZeroPadding>;
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct KvElement {
+    #[serde(skip_serializing)]
     pub data: Vec<u8>,
     pub mime_type: String,
+    #[serde(serialize_with = "ts_seconds")]
     pub created_at: DateTime<Utc>,
+    #[serde(serialize_with = "ts_seconds")]
     pub updated_at: DateTime<Utc>,
+    #[serde(serialize_with = "ts_seconds")]
     pub expire_at: DateTime<Utc>,
     pub update_count: i32,
     pub locked: bool,
@@ -46,7 +51,7 @@ impl KvStore {
         kv
     }
 
-    pub fn set(&self, key: String, mut value: Vec<u8>) -> Option<KvElement> {
+    pub fn set(&self, key: String, mut value: Vec<u8>, mime_type: String) -> Option<KvElement> {
         // TODO: prepare iterative persistence
         if let Some(c) = &self.cipher {
             let cipher = SerpentCbc::new_var(&c.priv_key, &c.iv).unwrap();
@@ -55,7 +60,6 @@ impl KvStore {
         match &mut self.container.get_mut(&key) {
             Some(kv_element) => {
                 if !kv_element.locked {
-                    let mime_type = tree_magic::from_u8(value.as_ref());
                     kv_element.data = value;
                     kv_element.mime_type = mime_type;
                 }
