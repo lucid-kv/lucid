@@ -159,7 +159,8 @@ pub fn routes_filter(
         .or(fs::dir("assets/webui/dist"))
         .and(webui_enabled)
         .or(warp::get().map(move || warp::reply::html(WELCOME_PAGE)))
-        .and(warp::path::end());
+        .and(warp::path::end())
+        .with(warp::log("lucid::server::webui"));
 
     let robots = warp::path("robots.txt")
         .and(path::end())
