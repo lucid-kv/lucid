@@ -48,3 +48,7 @@ subcommands:
       about: "Manage the Lucid configuration file"
       author: *author
       template: *template
+  - dump:
+      about: Dump or restore any data of a node
+      author: *author
+      template: *template
