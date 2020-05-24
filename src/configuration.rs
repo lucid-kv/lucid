@@ -12,7 +12,8 @@ const APP_INFO: AppInfo = AppInfo {
     author: "LucidKV",
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Configuration {
     pub general: General,
     pub authentication: Authentication,
@@ -33,46 +34,7 @@ impl Configuration {
     }
 }
 
-impl Default for Configuration {
-    fn default() -> Configuration {
-        Configuration {
-            general: General {
-                bind_address: IpAddr::from(Ipv4Addr::LOCALHOST),
-                port: 7020,
-                port_ssl: 7021,
-                use_ssl: false,
-                ssl_certificate: String::new(),
-                ssl_certificate_key: String::new(),
-                show_banner: true,
-            },
-            authentication: Authentication {
-                enabled: false,
-                root_token: String::new(),
-                secret_key: String::new(),
-            },
-            persistence: Persistence {
-                enabled: false,
-                location: String::new(),
-            },
-            encryption: Encryption {
-                enabled: false,
-                private_key: hex::encode(rand::thread_rng().gen::<[u8; 24]>()),
-                iv: hex::encode(rand::thread_rng().gen::<[u8; 16]>()),
-            },
-            sse: ServerSentEvent { enabled: false },
-            webui: WebUI { enabled: false },
-            store: Store { max_limit: 7340032 },
-            http: Http {
-                request_size_limit: 8388608,
-            },
-            logging: Logging {
-                level: LevelFilter::Info,
-                outputs: vec![LogOutput::Stdout { colored: false }],
-            },
-        }
-    }
-}
-
+#[serde(default)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct General {
     pub bind_address: IpAddr,
@@ -84,6 +46,21 @@ pub struct General {
     pub show_banner: bool,
 }
 
+impl Default for General {
+    fn default() -> Self {
+        Self {
+            bind_address: IpAddr::from(Ipv4Addr::LOCALHOST),
+            port: 7020,
+            port_ssl: 7021,
+            use_ssl: false,
+            ssl_certificate: String::new(),
+            ssl_certificate_key: String::new(),
+            show_banner: true,
+        }
+    }
+}
+
+#[serde(default)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Authentication {
     pub enabled: bool,
@@ -91,12 +68,33 @@ pub struct Authentication {
     pub secret_key: String,
 }
 
+impl Default for Authentication {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            root_token: String::new(),
+            secret_key: String::new(),
+        }
+    }
+}
+
+#[serde(default)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Persistence {
     pub enabled: bool,
     pub location: String,
 }
 
+impl Default for Persistence {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            location: String::new(),
+        }
+    }
+}
+
+#[serde(default)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Encryption {
     pub enabled: bool,
@@ -104,30 +102,80 @@ pub struct Encryption {
     pub iv: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct WebUI {
-    pub enabled: bool,
+impl Default for Encryption {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            private_key: hex::encode(rand::thread_rng().gen::<[u8; 24]>()),
+            iv: hex::encode(rand::thread_rng().gen::<[u8; 16]>()),
+        }
+    }
 }
 
+#[serde(default)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServerSentEvent {
     pub enabled: bool,
 }
 
+impl Default for ServerSentEvent {
+    fn default() -> Self {
+        Self { enabled: false }
+    }
+}
+
+#[serde(default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WebUI {
+    pub enabled: bool,
+}
+
+impl Default for WebUI {
+    fn default() -> Self {
+        Self { enabled: false }
+    }
+}
+
+#[serde(default)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Store {
     pub max_limit: u64,
 }
 
+impl Default for Store {
+    fn default() -> Self {
+        Self { max_limit: 7340032 }
+    }
+}
+
+#[serde(default)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Http {
     pub request_size_limit: u64,
 }
 
+impl Default for Http {
+    fn default() -> Self {
+        Self {
+            request_size_limit: 8388608,
+        }
+    }
+}
+
+#[serde(default)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Logging {
     pub level: LevelFilter,
     pub outputs: Vec<LogOutput>,
+}
+
+impl Default for Logging {
+    fn default() -> Self {
+        Self {
+            level: LevelFilter::Info,
+            outputs: vec![LogOutput::Stdout { colored: false }],
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
