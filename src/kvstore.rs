@@ -99,6 +99,9 @@ impl KvStore {
     pub fn switch_lock(&self, key: String, to_lock: bool) -> bool {
         match &mut self.container.get_mut(&key) {
             Some(kv_element) => {
+                if kv_element.locked == to_lock {
+                    return false;
+                }
                 kv_element.locked = to_lock;
                 true
             }

@@ -307,16 +307,24 @@ async fn patch_key(
     if let Some(_) = store.get(key.clone()) {
         match patch_value.operation.to_lowercase().as_str() {
             "lock" => {
-                store.switch_lock(key.to_string(), true);
-                Ok(warp::reply::json(&JsonMessage {
-                    message: "The specified key was successfully locked.".to_string(),
-                }))
+                match store.switch_lock(key.to_string(), true) {
+                    true => Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key was successfully locked.".to_string(),
+                    })),
+                    false => Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key is already locked.".to_string(),
+                    }))
+                }
             }
             "unlock" => {
-                store.switch_lock(key.to_string(), false);
-                Ok(warp::reply::json(&JsonMessage {
-                    message: "The specified key was successfully unlocked.".to_string(),
-                }))
+                match store.switch_lock(key.to_string(), false) {
+                    true => Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key was successfully unlocked.".to_string(),
+                    })),
+                    false => Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key is not currently locked.".to_string(),
+                    }))
+                }
             }
             "increment" => {
                 store.increment_or_decrement(key.to_string(), 1.0);
