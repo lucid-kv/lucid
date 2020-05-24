@@ -55,7 +55,7 @@ impl Server {
             }
         }
         let store = Arc::new(KvStore::new(encryption_key));
-        let event_tx = Arc::new(broadcast::channel(512).0);
+        let event_tx = Arc::new(broadcast::channel(512).0);     // TODO: Specify in configuration (maybe?)
 
         let instance = warp::serve(routes_filter(store, event_tx, self.configuration.clone()));
         if configuration.general.use_ssl {
@@ -165,7 +165,7 @@ pub fn routes_filter(
                     configuration.http.request_size_limit,
                 ))
                 .and(filters::body::json())
-                .and_then(patch_key)),
+                .and_then(patch_key))
     );
 
     const WELCOME_PAGE: &'static str = include_str!("../assets/welcome.html");
@@ -184,6 +184,7 @@ pub fn routes_filter(
         .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
         .allow_any_origin();
 
+    // TODO: prevent anonymous requests when auth is enabled
     let sse = warp::path("notifications")
         .and(warp::get())
         .and(event_tx)
@@ -192,8 +193,7 @@ pub fn routes_filter(
         .map(|event_tx: Arc<broadcast::Sender<SseMessage>>| {
             let stream = sse_event_stream(event_tx.subscribe());
             warp::sse::reply(warp::sse::keep_alive().stream(stream))
-        })
-        .with(warp::log("lucid::server::sse"));
+        });
 
     api_kv_key
         .or(webui)
@@ -206,6 +206,7 @@ pub fn routes_filter(
         ))
         .with(cors)
         .with(warp::log("lucid::server"))
+        // TODO: refactor log names
 }
 
 async fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
