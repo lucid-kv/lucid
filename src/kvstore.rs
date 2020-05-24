@@ -122,8 +122,6 @@ impl KvStore {
         }
     }
 
-    // TODO: implement Lock, Unlock, Increment, Decrement, Expire
-
     pub fn drop(&self, key: String) {
         self.container.remove(&key);
     }
