@@ -11,7 +11,7 @@ const KEY: &str = "test_value";
 
 fn init_kv() -> KvStore {
     let kv = KvStore::new(CIPHER);
-    kv.set(KEY.to_string(), DATA.to_vec());
+    kv.set(KEY.to_string(), DATA.to_vec(), None);
     kv
 }
 
