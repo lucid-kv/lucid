@@ -327,16 +327,24 @@ async fn patch_key(
                 }
             }
             "increment" => {
-                store.increment_or_decrement(key.to_string(), 1.0);
-                Ok(warp::reply::json(&JsonMessage {
-                    message: "The specified key was successfully incremented.".to_string(),
-                }))
+                match store.increment_or_decrement(key.to_string(), 1.0) {
+                    true => Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key was successfully incremented.".to_string(),
+                    })),
+                    false => Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key is not a valid numeric value.".to_string(),
+                    }))
+                }
             }
             "decrement" => {
-                store.increment_or_decrement(key.to_string(), -1.0);
-                Ok(warp::reply::json(&JsonMessage {
-                    message: "The specified key was successfully decremented.".to_string(),
-                }))
+                match store.increment_or_decrement(key.to_string(), _1.0) {
+                    true => Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key was successfully decremented.".to_string(),
+                    })),
+                    false => Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key is not a valid numeric value.".to_string(),
+                    }))
+                }
             }
             _ => Err(reject::custom(Error::InvalidOperation {
                 operation: patch_value.operation,
