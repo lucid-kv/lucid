@@ -233,19 +233,31 @@ async fn put_key(
             max_limit: config.read().unwrap().store.max_limit,
         }))
     } else {
-        // TODO: handle non-ascii data
-        if let Ok(byte_to_string) = String::from_utf8((&body).bytes().to_vec()) {
-            let _ = event_tx.send(SseMessage {
-                key: key.clone(),
-                value: byte_to_string,
-            });
-        }
-        if let Some(_) = store.set(key, body.to_vec()) {
-            Ok(warp::reply::json(&JsonMessage {
-                message: "The specified key was successfully updated.".to_string(),
-            }))
-        } else {
-            Ok(warp::reply::json(&JsonMessage {
+        match store.set(key.clone(), body.to_vec()) {
+            Some(kv_element) => {
+                if kv_element.locked {
+                    Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key cannot be updated, it is currently locked.".to_string(),
+                    }))
+                }
+                else {
+                    if config.read().unwrap().sse.enabled {
+                        // TODO: Send an SSE fallaback message
+                        match String::from_utf8((&body).bytes().to_vec()) {
+                            Ok(byte_to_string) => {
+                                event_tx.send(SseMessage { key: key.clone(), value: byte_to_string, })
+                                .map_err(|error| error!("Unable to broadcast this key: {:?}", &error.0.key))
+                                .ok();
+                            },
+                            Err(error) => warn!("Unable to broadcast binary data, {}", error)
+                        }
+                    }
+                    Ok(warp::reply::json(&JsonMessage {
+                        message: "The specified key was successfully updated.".to_string(),
+                    }))
+                }
+            },
+            None => Ok(warp::reply::json(&JsonMessage {
                 message: "The specified key was successfully created.".to_string(),
             }))
         }
