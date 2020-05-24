@@ -187,6 +187,9 @@ pub fn routes_filter(
         .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
         .allow_any_origin();
 
+    let health = path!("health")
+        .map(|| StatusCode::OK);
+
     // TODO: prevent anonymous requests when auth is enabled
     let sse = warp::path("notifications")
         .and(warp::get())
@@ -202,6 +205,7 @@ pub fn routes_filter(
         .or(webui)
         .or(sse)
         .or(robots)
+        .or(health)
         .recover(process_error)
         .with(warp::reply::with::header(
             "Server",
