@@ -55,7 +55,7 @@ impl Server {
             }
         }
         let store = Arc::new(KvStore::new(encryption_key));
-        let event_tx = Arc::new(broadcast::channel(512).0);     // TODO: Specify in configuration (maybe?)
+        let event_tx = Arc::new(broadcast::channel(512).0); // TODO: Specify in configuration (maybe?)
 
         let instance = warp::serve(routes_filter(store, event_tx, self.configuration.clone()));
         if configuration.general.use_ssl {
@@ -168,7 +168,7 @@ pub fn routes_filter(
                     configuration.http.request_size_limit,
                 ))
                 .and(filters::body::json())
-                .and_then(patch_key))
+                .and_then(patch_key)),
     );
 
     const WELCOME_PAGE: &'static str = include_str!("../assets/welcome.html");
@@ -209,7 +209,7 @@ pub fn routes_filter(
         ))
         .with(cors)
         .with(warp::log("lucid::server"))
-        // TODO: refactor log names
+    // TODO: refactor log names
 }
 
 async fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
@@ -241,29 +241,35 @@ async fn put_key(
             Some(kv_element) => {
                 if kv_element.locked {
                     Ok(warp::reply::json(&JsonMessage {
-                        message: "The specified key cannot be updated, it is currently locked.".to_string(),
+                        message: "The specified key cannot be updated, it is currently locked."
+                            .to_string(),
                     }))
-                }
-                else {
+                } else {
                     if config.read().unwrap().sse.enabled {
                         // TODO: Send an SSE fallaback message for binary data
                         match String::from_utf8((&body).bytes().to_vec()) {
                             Ok(byte_to_string) => {
-                                event_tx.send(SseMessage { key: key.clone(), value: byte_to_string, })
-                                .map_err(|error| error!("Unable to broadcast this key: {:?}", &error.0.key))
-                                .ok();
-                            },
-                            Err(error) => warn!("Unable to broadcast binary data, {}", error)
+                                event_tx
+                                    .send(SseMessage {
+                                        key: key.clone(),
+                                        value: byte_to_string,
+                                    })
+                                    .map_err(|error| {
+                                        error!("Unable to broadcast this key: {:?}", &error.0.key)
+                                    })
+                                    .ok();
+                            }
+                            Err(error) => warn!("Unable to broadcast binary data, {}", error),
                         }
                     }
                     Ok(warp::reply::json(&JsonMessage {
                         message: "The specified key was successfully updated.".to_string(),
                     }))
                 }
-            },
+            }
             None => Ok(warp::reply::json(&JsonMessage {
                 message: "The specified key was successfully created.".to_string(),
-            }))
+            })),
         }
     }
 }

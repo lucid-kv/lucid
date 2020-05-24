@@ -54,7 +54,7 @@ impl KvStore {
         }
         let mime_type = match mime {
             Some(gived_mimetype) => gived_mimetype,
-            None => tree_magic::from_u8(value.as_ref()).to_string()
+            None => tree_magic::from_u8(value.as_ref()).to_string(),
         };
         match &mut self.container.get_mut(&key) {
             Some(kv_element) => {

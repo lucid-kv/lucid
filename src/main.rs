@@ -206,15 +206,20 @@ fn generate_secret_key() -> String {
 }
 
 fn issue_jwt(secret_key: &str, expiration: Option<DateTime<Utc>>) -> Result<String, Error> {
-    jsonwebtoken::encode(&Header::default(), &Claims {
-        sub: String::from("Lucid Root Token"),
-        iss: String::from("http://localhost:7021/"), // TODO: check issuer, maybe set the proper uri
-        iat: Utc::now().timestamp(),
-        exp: match expiration {
-            Some(exp) => exp.timestamp(),
-            None => (Utc::now() + Duration::weeks(52 * 3)).timestamp(),
+    jsonwebtoken::encode(
+        &Header::default(),
+        &Claims {
+            sub: String::from("Lucid Root Token"),
+            iss: String::from("http://localhost:7021/"), // TODO: check issuer, maybe set the proper uri
+            iat: Utc::now().timestamp(),
+            exp: match expiration {
+                Some(exp) => exp.timestamp(),
+                None => (Utc::now() + Duration::weeks(52 * 3)).timestamp(),
+            },
         },
-    }, secret_key.as_ref()).context(EncodeJwt)
+        secret_key.as_ref(),
+    )
+    .context(EncodeJwt)
 }
 
 fn create_format_dispatch(colors: Option<ColoredLevelConfig>) -> Dispatch {
