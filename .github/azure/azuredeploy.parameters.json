@@ -1,0 +1,57 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subscriptionId": {
+            "value": ""
+        },
+        "name": {
+            "value": "my-lucid-node"
+        },
+        "location": {
+            "value": "East US"
+        },
+        "hostingEnvironment": {
+            "value": ""
+        },
+        "hostingPlanName": {
+            "value": "ASP-lucidkv-acc5"
+        },
+        "serverFarmResourceGroup": {
+            "value": "lucid-kv"
+        },
+        "alwaysOn": {
+            "value": false
+        },
+        "sku": {
+            "value": "Free"
+        },
+        "skuCode": {
+            "value": "F1"
+        },
+        "workerSize": {
+            "value": "0"
+        },
+        "workerSizeId": {
+            "value": "0"
+        },
+        "numberOfWorkers": {
+            "value": "1"
+        },
+        "linuxFxVersion": {
+            "value": "COMPOSE|IyBMdWNpZCBLViBkb2NrZXItY29tcG9zZS55bWwKIyBodHRwczovL2dpdGh1Yi5jb20vbHVjaWQta3YvbHVjaWQKCnZlcnNpb246ICczJwoKc2VydmljZXM6CiAgICBsdWNpZDoKICAgICAgICBpbWFnZTogbHVjaWRrdi9sdWNpZAogICAgICAgIHBvcnRzOgogICAgICAgICAgLSA4MDo3MDIwCiAgICAgICAgY29tbWFuZDoKICAgICAgICAgIC0gL2Jpbi9iYXNoCiAgICAgICAgICAtIC1jCiAgICAgICAgICAtIHwKICAgICAgICAgICAgbHVjaWQgLS1uby1iYW5uZXIgaW5pdAogICAgICAgICAgICBzZWQgLWlFICdzLzEyNy4wLjAuMS8wLjAuMC4wLycgfi8uY29uZmlnL2x1Y2lkL2x1Y2lkLnltbAogICAgICAgICAgICBsdWNpZCBzZXJ2ZXIK"
+        },
+        "dockerRegistryUrl": {
+            "value": "https://index.docker.io"
+        },
+        "dockerRegistryUsername": {
+            "value": ""
+        },
+        "dockerRegistryPassword": {
+            "value": null
+        },
+        "dockerRegistryStartupCommand": {
+            "value": ""
+        }
+    }
+}
