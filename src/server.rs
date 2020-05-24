@@ -131,6 +131,8 @@ pub fn routes_filter(
 
     let sse_enabled = config.clone().and_then(check_sse).untuple_one();
 
+    let mime = warp::header::optional::<String>("content-type");
+
     let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
     let api_kv_key = auth.clone().and(
         warp::get()
@@ -149,6 +151,7 @@ pub fn routes_filter(
                     configuration.store.max_limit,
                 ))
                 .and(warp::body::bytes())
+                .and(mime.clone())
                 .and_then(put_key))
             .or(warp::delete()
                 .and(store.clone())
@@ -225,6 +228,7 @@ async fn put_key(
     config: Arc<RwLock<Configuration>>,
     key: String,
     body: Bytes,
+    mime: Option<String>,
 ) -> Result<impl Reply, Rejection> {
     if body.remaining() == 0 {
         Err(reject::custom(Error::MissingBody))
@@ -233,7 +237,7 @@ async fn put_key(
             max_limit: config.read().unwrap().store.max_limit,
         }))
     } else {
-        match store.set(key.clone(), body.to_vec()) {
+        match store.set(key.clone(), body.to_vec(), mime) {
             Some(kv_element) => {
                 if kv_element.locked {
                     Ok(warp::reply::json(&JsonMessage {
@@ -242,7 +246,7 @@ async fn put_key(
                 }
                 else {
                     if config.read().unwrap().sse.enabled {
-                        // TODO: Send an SSE fallaback message
+                        // TODO: Send an SSE fallaback message for binary data
                         match String::from_utf8((&body).bytes().to_vec()) {
                             Ok(byte_to_string) => {
                                 event_tx.send(SseMessage { key: key.clone(), value: byte_to_string, })

@@ -46,16 +46,19 @@ impl KvStore {
         kv
     }
 
-    pub fn set(&self, key: String, mut value: Vec<u8>) -> Option<KvElement> {
+    pub fn set(&self, key: String, mut value: Vec<u8>, mime: Option<String>) -> Option<KvElement> {
         // TODO: prepare iterative persistence
         if let Some(c) = &self.cipher {
             let cipher = SerpentCbc::new_var(&c.priv_key, &c.iv).unwrap();
             value = cipher.encrypt_vec(&value);
         }
+        let mime_type = match mime {
+            Some(gived_mimetype) => gived_mimetype,
+            None => tree_magic::from_u8(value.as_ref()).to_string()
+        };
         match &mut self.container.get_mut(&key) {
             Some(kv_element) => {
                 if !kv_element.locked {
-                    let mime_type = tree_magic::from_u8(value.as_ref());
                     kv_element.data = value;
                     kv_element.mime_type = mime_type;
                 }
@@ -64,7 +67,6 @@ impl KvStore {
                 Some(kv_element.to_owned())
             }
             None => {
-                let mime_type = tree_magic::from_u8(value.as_ref());
                 let kv_element = KvElement {
                     data: value,
                     mime_type,
