@@ -43,7 +43,7 @@ clap = { version = "2.33.0", features = ["yaml"] }
 warp = { version = "0.2.3", features = ["tls"] }
 log = { version = "0.4.8", features = ["serde"] }
 tokio = { version = "0.2.9", features = ["full", "sync"] }
-serpent = { git = "https://github.com/RustCrypto/block-ciphers" }
+serpent = "0.0.1"
 block-modes = "0.3.3"
 hyper = "0.13.4"
 
