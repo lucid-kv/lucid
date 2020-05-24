@@ -337,7 +337,7 @@ async fn patch_key(
                 }
             }
             "decrement" => {
-                match store.increment_or_decrement(key.to_string(), _1.0) {
+                match store.increment_or_decrement(key.to_string(), -1.0) {
                     true => Ok(warp::reply::json(&JsonMessage {
                         message: "The specified key was successfully decremented.".to_string(),
                     })),
