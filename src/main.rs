@@ -109,9 +109,9 @@ async fn main() -> Result<(), Error> {
 
     let logging_colors = ColoredLevelConfig::new()
         .debug(Color::BrightMagenta)
+        .info(Color::BrightCyan)
         .warn(Color::BrightYellow)
-        .error(Color::BrightRed)
-        .info(Color::BrightCyan);
+        .error(Color::BrightRed);
 
     let mut dispatch = Dispatch::new();
     for output in &config.logging.outputs {
