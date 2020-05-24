@@ -181,7 +181,7 @@ pub fn routes_filter(
 
     let robots = warp::path("robots.txt")
         .and(path::end())
-        .and(warp::get().map(|| "User-agent: *\nDisallow: /"));
+        .and(warp::get().map(|| "User-agent: *\nDisallow: /api"));
 
     let cors = warp::cors()
         .allow_methods(vec!["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"])
