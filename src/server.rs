@@ -302,6 +302,7 @@ async fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Reject
 #[derive(Debug, Deserialize)]
 struct PatchValue {
     operation: String,
+    value: Option<String>,
 }
 async fn patch_key(
     store: Arc<KvStore>,
@@ -348,6 +349,34 @@ async fn patch_key(
                     false => Ok(warp::reply::json(&JsonMessage {
                         message: "The specified key is not a valid numeric value.".to_string(),
                     }))
+                }
+            }
+            "ttl" => {
+                match patch_value.value {
+                    Some(value) => {
+                        if let Ok(ttl) = value.parse::<i64>() {
+                            match store.set_expiration(key.clone(), ttl) {
+                                Some(expiration_date) => {
+                                    Ok(warp::reply::json(&JsonMessage {
+                                        message: format!("The expiration is successsfully setup, the key will expire at {}.", expiration_date).to_string(),
+                                    }))
+                                }
+                                None => Ok(warp::reply::json(&JsonMessage {
+                                    message: "Unable to set the expiration for the specified key.".to_string(),
+                                }))
+                            }
+                        }
+                        else {
+                            Ok(warp::reply::json(&JsonMessage {
+                                message: "Unrecognized value for expiration, you need to use a numeric value.".to_string(),
+                            }))
+                        }
+                    }
+                    None => {
+                        Ok(warp::reply::json(&JsonMessage {
+                            message: "Missing value for expiration.".to_string(),
+                        }))
+                    }
                 }
             }
             _ => Err(reject::custom(Error::InvalidOperation {
