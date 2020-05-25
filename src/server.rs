@@ -133,7 +133,9 @@ pub fn routes_filter(
 
     let mime = warp::header::optional::<String>("content-type");
 
-    let api_kv_key_path = path!("api" / "kv" / String).and(path::end());
+    let api_kv_key_path = path!("api" / "kv" / String)
+        .and(path::end());
+
     let api_kv_key = auth.clone().and(
         warp::get()
             .and(store.clone())
@@ -190,7 +192,6 @@ pub fn routes_filter(
     let health = path!("health")
         .map(|| StatusCode::OK);
 
-    // TODO: prevent anonymous requests when auth is enabled
     let sse = warp::path("notifications")
         .and(warp::get())
         .and(event_tx)
@@ -213,17 +214,6 @@ pub fn routes_filter(
         ))
         .with(cors)
         .with(warp::log("lucid::server"))
-    // TODO: refactor log names
-}
-
-async fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
-    if let Some(value) = store.get(key) {
-        Ok(Response::builder()
-            .header("Content-Type", value.mime_type)
-            .body(value.data))
-    } else {
-        Err(reject::custom(Error::KeyNotFound))
-    }
 }
 
 async fn put_key(
@@ -277,26 +267,35 @@ async fn put_key(
     }
 }
 
-async fn delete_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
-    if let Some(_) = store.get(key.clone()) {
-        (*store).drop(key);
-        Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
-            message: "The specified key and it's data was successfully deleted.".to_string(),
-        }), StatusCode::NO_CONTENT))
-    } else {
-        Err(reject::custom(Error::KeyNotFound))
+async fn get_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
+    match store.get(key) {
+        Some(value) => Ok(Response::builder()
+            .header("Content-Type", value.mime_type)
+            .body(value.data)),
+        None => Err(reject::custom(Error::KeyNotFound))
     }
 }
 
 async fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
-    if let Some(value) = store.get(key) {
-        Ok(Response::builder()
+    match store.get(key) {
+        Some(value) => Ok(Response::builder()
             .status(StatusCode::OK)
             .header("Content-Type", value.mime_type)
             .body("")
-            .unwrap())
-    } else {
-        Err(reject::custom(Error::KeyNotFound))
+            .unwrap()),
+        None => Err(reject::custom(Error::KeyNotFound))
+    }
+}
+
+async fn delete_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
+    match store.get(key.clone()) {
+        Some(_) => {
+            (*store).drop(key);
+            Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
+                message: "The specified key and it's data was successfully deleted.".to_string(),
+            }), StatusCode::NO_CONTENT))
+        }
+        None => Err(reject::custom(Error::KeyNotFound))
     }
 }
 
