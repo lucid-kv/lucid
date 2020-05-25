@@ -291,8 +291,10 @@ async fn delete_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Reje
 async fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
     if let Some(value) = store.get(key) {
         Ok(Response::builder()
+            .status(StatusCode::OK)
             .header("Content-Type", value.mime_type)
-            .body(value.data))
+            .body("")
+            .unwrap())
     } else {
         Err(reject::custom(Error::KeyNotFound))
     }
