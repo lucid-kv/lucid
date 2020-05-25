@@ -37,7 +37,7 @@ mod tests {
             .unwrap();
 
         let response = reply.into_response();
-        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.status(), StatusCode::CREATED);
 
         let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
         assert!(serde_json::from_slice::<Value>(&body).is_ok());
@@ -68,7 +68,7 @@ mod tests {
             .unwrap();
 
         let set_response = set_reply.into_response();
-        assert_eq!(set_response.status(), StatusCode::OK);
+        assert_eq!(set_response.status(), StatusCode::CREATED);
 
         let get_reply = warp::test::request()
             .path("/api/kv/foo")
@@ -111,7 +111,7 @@ mod tests {
             .unwrap();
 
         let set_response = set_reply.into_response();
-        assert_eq!(set_response.status(), StatusCode::OK);
+        assert_eq!(set_response.status(), StatusCode::CREATED);
 
         let delete_reply = warp::test::request()
             .method("DELETE")
@@ -121,7 +121,7 @@ mod tests {
             .unwrap();
 
         let delete_response = delete_reply.into_response();
-        assert_eq!(delete_response.status(), StatusCode::OK);
+        assert_eq!(delete_response.status(), StatusCode::NO_CONTENT);
     }
 
     #[tokio::test]
