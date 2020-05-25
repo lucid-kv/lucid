@@ -1,7 +1,7 @@
 use block_modes::block_padding::ZeroPadding;
 use block_modes::{BlockMode, Cbc};
 use chashmap::CHashMap;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 
 use serpent::Serpent;
 
@@ -124,6 +124,19 @@ impl KvStore {
                 }
             }
             None => false,
+        }
+    }
+
+    pub fn set_expiration(&self, key: String, ttl: i64) -> Option<DateTime<Utc>> {
+        match &mut self.container.get_mut(&key) {
+            Some(kv_element) => {
+                let expiration_date = Utc::now() + Duration::seconds(ttl);
+                kv_element.expire_at = expiration_date;
+                kv_element.updated_at = Utc::now();
+                kv_element.update_count = kv_element.update_count + 1;
+                Some(expiration_date)
+            }
+            None => None,
         }
     }
 
