@@ -244,10 +244,9 @@ async fn put_key(
         match store.set(key.clone(), body.to_vec(), mime) {
             Some(kv_element) => {
                 if kv_element.locked {
-                    Ok(warp::reply::json(&JsonMessage {
-                        message: "The specified key cannot be updated, it is currently locked."
-                            .to_string(),
-                    }))
+                    Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
+                        message: "The specified key cannot be updated, it is currently locked.".to_string(),
+                    }), StatusCode::FORBIDDEN))
                 } else {
                     if config.read().unwrap().sse.enabled {
                         // TODO: Send an SSE fallaback message for binary data
@@ -266,14 +265,14 @@ async fn put_key(
                             Err(error) => warn!("Unable to broadcast binary data, {}", error),
                         }
                     }
-                    Ok(warp::reply::json(&JsonMessage {
+                    Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
                         message: "The specified key was successfully updated.".to_string(),
-                    }))
+                    }), StatusCode::OK))
                 }
             }
-            None => Ok(warp::reply::json(&JsonMessage {
+            None => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
                 message: "The specified key was successfully created.".to_string(),
-            })),
+            }), StatusCode::CREATED))
         }
     }
 }
@@ -281,9 +280,9 @@ async fn put_key(
 async fn delete_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Rejection> {
     if let Some(_) = store.get(key.clone()) {
         (*store).drop(key);
-        Ok(warp::reply::json(&JsonMessage {
-            message: "The specified key and it's data was successfully deleted".to_string(),
-        }))
+        Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
+            message: "The specified key and it's data was successfully deleted.".to_string(),
+        }), StatusCode::NO_CONTENT))
     } else {
         Err(reject::custom(Error::KeyNotFound))
     }
@@ -313,42 +312,42 @@ async fn patch_key(
         match patch_value.operation.to_lowercase().as_str() {
             "lock" => {
                 match store.switch_lock(key.to_string(), true) {
-                    true => Ok(warp::reply::json(&JsonMessage {
+                    true => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
                         message: "The specified key was successfully locked.".to_string(),
-                    })),
-                    false => Ok(warp::reply::json(&JsonMessage {
+                    }), StatusCode::OK)),
+                    false => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
                         message: "The specified key is already locked.".to_string(),
-                    }))
+                    }), StatusCode::CONFLICT))
                 }
             }
             "unlock" => {
                 match store.switch_lock(key.to_string(), false) {
-                    true => Ok(warp::reply::json(&JsonMessage {
+                    true => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
                         message: "The specified key was successfully unlocked.".to_string(),
-                    })),
-                    false => Ok(warp::reply::json(&JsonMessage {
+                    }), StatusCode::OK)),
+                    false => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
                         message: "The specified key is not currently locked.".to_string(),
-                    }))
+                    }), StatusCode::CONFLICT))
                 }
             }
             "increment" => {
                 match store.increment_or_decrement(key.to_string(), 1.0) {
-                    true => Ok(warp::reply::json(&JsonMessage {
+                    true => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
                         message: "The specified key was successfully incremented.".to_string(),
-                    })),
-                    false => Ok(warp::reply::json(&JsonMessage {
+                    }), StatusCode::OK)),
+                    false => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
                         message: "The specified key is not a valid numeric value.".to_string(),
-                    }))
+                    }), StatusCode::BAD_REQUEST))
                 }
             }
             "decrement" => {
                 match store.increment_or_decrement(key.to_string(), -1.0) {
-                    true => Ok(warp::reply::json(&JsonMessage {
+                    true => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
                         message: "The specified key was successfully decremented.".to_string(),
-                    })),
-                    false => Ok(warp::reply::json(&JsonMessage {
+                    }), StatusCode::OK)),
+                    false => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
                         message: "The specified key is not a valid numeric value.".to_string(),
-                    }))
+                    }), StatusCode::BAD_REQUEST))
                 }
             }
             "ttl" => {
@@ -356,27 +355,23 @@ async fn patch_key(
                     Some(value) => {
                         if let Ok(ttl) = value.parse::<i64>() {
                             match store.set_expiration(key.clone(), ttl) {
-                                Some(expiration_date) => {
-                                    Ok(warp::reply::json(&JsonMessage {
-                                        message: format!("The expiration is successsfully setup, the key will expire at {}.", expiration_date).to_string(),
-                                    }))
-                                }
-                                None => Ok(warp::reply::json(&JsonMessage {
+                                Some(expiration_date) => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
+                                    message: format!("The expiration is successsfully setup, the key will expire at {}.", expiration_date).to_string(),
+                                }), StatusCode::OK)),
+                                None => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
                                     message: "Unable to set the expiration for the specified key.".to_string(),
-                                }))
+                                }), StatusCode::BAD_REQUEST))
                             }
                         }
                         else {
-                            Ok(warp::reply::json(&JsonMessage {
-                                message: "Unrecognized value for expiration, you need to use a numeric value.".to_string(),
-                            }))
+                            Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
+                                message: "Unrecognized value for expiration, you need to use a numeric value without decimal.".to_string(),
+                            }), StatusCode::BAD_REQUEST))
                         }
                     }
-                    None => {
-                        Ok(warp::reply::json(&JsonMessage {
-                            message: "Missing value for expiration.".to_string(),
-                        }))
-                    }
+                    None => Ok(warp::reply::with_status(warp::reply::json(&JsonMessage {
+                        message: "Missing value for expiration.".to_string(),
+                    }), StatusCode::BAD_REQUEST))
                 }
             }
             _ => Err(reject::custom(Error::InvalidOperation {
