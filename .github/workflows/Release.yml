@@ -26,6 +26,24 @@ jobs:
           command: build
           args: --release
 
+      - uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+#      - name: Upload Release Asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: "https://github.com/lucid-kv/lucid/releases/tag/Nightly" 
+#          asset_path: ./my-artifact.zip
+#          asset_name: my-artifact.zip
+#          asset_content_type: application/zip
+
+
 #    - name: Create a Release
 #      uses: actions/create-release@v1
 #      with:
