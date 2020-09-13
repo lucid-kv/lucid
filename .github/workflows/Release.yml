@@ -5,7 +5,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  build:
+  release:
     name: Release
     runs-on: ubuntu-latest
 #    strategy:
