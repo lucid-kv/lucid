@@ -9,5 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: "Build on Windows"
+    - name: Install latest stable toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: stable
+          target: x86_64-pc-windows-gnu
+          override: true
+          components: rustfmt, clippy
+    - name: Build on Windows
       run: cargo build --target x86_64-pc-windows-gnu
+
+
