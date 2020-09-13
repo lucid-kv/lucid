@@ -16,7 +16,20 @@ jobs:
           target: x86_64-pc-windows-gnu
           override: true
           components: rustfmt, clippy
-    - name: Build on Windows
-      run: cargo build --target x86_64-pc-windows-gnu
 
+#    - name: Build on Windows
+#      run: cargo build --target x86_64-pc-windows-gnu
+      
+    - name: Run cargo build
+      uses: actions-rs/cargo@v1
+      with:
+        command: check
+
+#    - name: Create a Release
+#      uses: actions/create-release@v1
+#      with:
+#        tag_name: "Release 0.1.4 [Auto]"
+#        release_name: "Release 0.1.4 [Auto]"
+#        body: "Automatic release from Github Action"
+#        prerelease: true
 
