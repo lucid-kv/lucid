@@ -43,7 +43,7 @@ $ docker run -p 7020:7020 -v lucid.yml:/etc/lucid/lucid.yml lucidkv/lucid
 A demonstration node is accessible at <http://demo.lucid-kv.store/>, or deploy your own:
 
 <a href="https://heroku.com/deploy?template=https://github.com/lucid-kv/lucid" target="_blank"><img src="https://www.herokucdn.com/deploy/button.svg" height="32"/></a>
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Flucid-kv%2Flucid%2Fazure-deploy-button%2F.github%2Fazure%2Fazuredeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton" height="32"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Flucid-kv%2Flucid%2Fmaster%2F.github%2Fazure%2Fazuredeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton" height="32"/></a>
 
 ## Documentation
 
