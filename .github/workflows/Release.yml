@@ -18,13 +18,13 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: stable-x86_64-pc-windows-gnu
+          target: ${{ matrix.target }}
           override: true
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
           command: build
-          args: --release --target=stable-x86_64-pc-windows-gnu
+          args: --release --target=${{ matrix.target }}
 
 #    - name: Create a Release
 #      uses: actions/create-release@v1
