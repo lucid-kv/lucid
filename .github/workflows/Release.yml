@@ -8,23 +8,23 @@ jobs:
   build:
     name: Release
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target:
-          - x86_64-unknown-linux-gnu
-          - stable-x86_64-pc-windows-gnu
+#    strategy:
+#      matrix:
+#        target:
+#          - x86_64-unknown-linux-gnu
+#          - stable-x86_64-pc-windows-gnu
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: ${{ matrix.target }}
+          target: stable-x86_64-pc-windows-gnu
           override: true
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
           command: build
-          args: --release --target=${{ matrix.target }}
+          args: --release --target=stable-x86_64-pc-windows-gnu
 
 #    - name: Create a Release
 #      uses: actions/create-release@v1
