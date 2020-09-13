@@ -52,7 +52,7 @@ You can start quickly [here](https://github.com/lucid-kv/lucid/wiki) or get the 
 
 ## Works in Progress
 
-You can take a look at the roadmap [here](https://github.com/lucid-kv/lucid/issues/46), we are working on the implementation of persistence and encryption.
+You can take a look at the roadmap [here](https://github.com/lucid-kv/lucid/issues/64), we are working on the implementation of persistence and encryption.
 
 ## Command Line Interface
 
