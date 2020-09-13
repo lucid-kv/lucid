@@ -1,7 +1,7 @@
 name: Release
 on:
   push:
-    branches: [ master ]
+    branches: [ master, automatic-release ]
 env:
   CARGO_TERM_COLOR: always
 jobs:
