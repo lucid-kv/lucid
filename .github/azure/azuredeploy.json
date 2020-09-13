@@ -1,0 +1,170 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "siteName": {
+      "defaultValue": "lucid-kv",
+      "type": "String"
+    },
+    "serverPlan": {
+      "defaultValue": "lucid-kv-plan",
+      "type": "String",
+      "metadata": {
+        "description": "Name of the App Service Plan"
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2018-02-01",
+      "name": "[parameters('serverPlan')]",
+      "location": "West Europe",
+      "sku": {
+        "name": "F1",
+        "tier": "Free",
+        "size": "F1",
+        "family": "F",
+        "capacity": 1
+      },
+      "kind": "linux",
+      "properties": {
+        "perSiteScaling": false,
+        "maximumElasticWorkerCount": 1,
+        "isSpot": false,
+        "reserved": true,
+        "isXenon": false,
+        "hyperV": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-11-01",
+      "name": "[parameters('siteName')]",
+      "location": "West Europe",
+      "kind": "app,linux,container",
+      "dependsOn": [
+          "[resourceId('Microsoft.Web/serverfarms', parameters('serverPlan'))]"
+      ],
+      "properties": {
+        "enabled": true,
+        "hostNameSslStates": [
+          {
+            "name": "[concat(parameters('siteName'), '.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          },
+          {
+            "name": "[concat(parameters('siteName'), '.scm.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Repository"
+          }
+        ],
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverPlan'))]",
+        "reserved": true,
+        "isXenon": false,
+        "hyperV": false,
+        "siteConfig": {},
+        "scmSiteAlsoStopped": false,
+        "clientAffinityEnabled": false,
+        "clientCertEnabled": false,
+        "hostNamesDisabled": false,
+        "containerSize": 0,
+        "dailyMemoryTimeQuota": 0,
+        "httpsOnly": false,
+        "redundancyMode": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('siteName'), '/web')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('siteName'))]"
+      ],
+      "properties": {
+        "numberOfWorkers": 1,
+        "defaultDocuments": [
+          "Default.htm",
+          "Default.html",
+          "Default.asp",
+          "index.htm",
+          "index.html",
+          "iisstart.htm",
+          "default.aspx",
+          "index.php",
+          "hostingstart.html"
+        ],
+        "netFrameworkVersion": "v4.0",
+        "linuxFxVersion": 
+"COMPOSE|IyBMdWNpZCBLViBkb2NrZXItY29tcG9zZS55bWwKIyBodHRwczovL2dpdGh1Yi5jb20vbHVjaWQta3YvbHVjaWQKCnZlcnNpb246ICczJwoKc2VydmljZXM6CiAgICBsdWNpZDoKICAgICAgICBpbWFnZTogbHVjaWRrdi9sdWNpZAogICAgICAgIHBvcnRzOgogICAgICAgICAgLSA4MDo3MDIwCiAgICAgICAgY29tbWFuZDoKICAgICAgICAgIC0gL2Jpbi9iYXNoCiAgICAgICAgICAtIC1jCiAgICAgICAgICAtIHwKICAgICAgICAgICAgbHVjaWQgLS1uby1iYW5uZXIgaW5pdAogICAgICAgICAgICBzZWQgLWlFICdzLzEyNy4wLjAuMS8wLjAuMC4wLycgfi8uY29uZmlnL2x1Y2lkL2x1Y2lkLnltbAogICAgICAgICAgICBzZWQgLWlFICdzLzczNDAwMzIvMTAwMDAwMDAwMC8nIH4vLmNvbmZpZy9sdWNpZC9sdWNpZC55bWwKICAgICAgICAgICAgc2VkIC1pRSAncy84Mzg4NjA4LzEwMDAwMDAwMDAvJyB+Ly5jb25maWcvbHVjaWQvbHVjaWQueW1sCiAgICAgICAgICAgIGNhdCB+Ly5jb25maWcvbHVjaWQvbHVjaWQueW1sCiAgICAgICAgICAgIGx1Y2lkIHNlcnZlcgo=",
+        "requestTracingEnabled": false,
+        "remoteDebuggingEnabled": false,
+        "remoteDebuggingVersion": "VS2019",
+        "httpLoggingEnabled": false,
+        "logsDirectorySizeLimit": 35,
+        "detailedErrorLoggingEnabled": false,
+        "publishingUsername": "$lucid-kv",
+        "azureStorageAccounts": {},
+        "scmType": "None",
+        "use32BitWorkerProcess": true,
+        "webSocketsEnabled": false,
+        "alwaysOn": false,
+        "managedPipelineMode": "Integrated",
+        "virtualApplications": [
+          {
+            "virtualPath": "/",
+            "physicalPath": "site\\wwwroot",
+            "preloadEnabled": false
+          }
+        ],
+        "loadBalancing": "LeastRequests",
+        "experiments": {
+          "rampUpRules": []
+        },
+        "autoHealEnabled": false,
+        "localMySqlEnabled": false,
+        "ipSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictionsUseMain": false,
+        "http20Enabled": false,
+        "minTlsVersion": "1.2",
+        "ftpsState": "AllAllowed",
+        "reservedInstanceCount": 0
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/hostNameBindings",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('siteName'), '/', parameters('siteName'), '.azurewebsites.net')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('siteName'))]"
+      ],
+      "properties": {
+        "siteName": "lucid-kv",
+        "hostNameType": "Verified"
+      }
+    }
+  ]
+}
