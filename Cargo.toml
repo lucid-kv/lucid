@@ -13,8 +13,10 @@ categories = ["command-line-interface", "web-programming::http-server", "web-pro
 build = "src/build.rs"
 
 [package.metadata.winres]
+OriginalFilename = "lucid.exe"
 ProductName = "Lucid KV"
-LegalCopyright = "Copyright © 2020 Lucid - All Rights Reserved"
+FileDescription = "High performance and distributed KV store w/ REST API."
+LegalCopyright = "Copyright © 2020 Lucid KV - All Rights Reserved"
 
 [badges]
 github = { repository = "lucid-kv/lucid", branch = "master" }
