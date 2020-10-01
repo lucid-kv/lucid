@@ -281,6 +281,7 @@ async fn find_key(store: Arc<KvStore>, key: String) -> Result<impl Reply, Reject
         Some(value) => Ok(Response::builder()
             .status(StatusCode::OK)
             .header("Content-Type", value.mime_type)
+            .header("Content-Length", value.data.len())
             .header("Last-Modified", value.updated_at.format("%a, %d %b %Y %T GMT").to_string())
             .body("")
             .unwrap()),
