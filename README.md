@@ -18,7 +18,7 @@
 
 ## Introduction
 
-Lucid is an high performance, secure and distributed key-value store accessible through an HTTP API, that is built arround a modulable configuration to enable features on the fly, like persistence, encryption SSE, compression, replication, and more.
+Lucid is a high performance, secure and distributed key-value store accessible through an HTTP API, that is built around a modular configuration to enable features on the fly, like persistence, encryption SSE, compression, replication, and more.
 
 [Read the complete Medium article →](https://medium.com/@clintnetwork/lucid-an-http-key-value-store-c0e734586e26)
 
@@ -47,7 +47,7 @@ A demonstration node is accessible at <http://demo.lucid-kv.store> or deploy you
 
 ## Documentation
 
-You can start quickly [here](https://github.com/lucid-kv/lucid/wiki) or get the complete documentation at <https://docs.lucid-kv.store>.
+You can quickly start [here](https://github.com/lucid-kv/lucid/wiki) or get the complete documentation at <https://docs.lucid-kv.store>.
 
 ## Works in Progress
 
@@ -55,7 +55,7 @@ You can take a look at the roadmap [here](https://github.com/lucid-kv/lucid/issu
 
 ## Command Line Interface
 
-You can take a look at the Lucid command line on at <https://asciinema.org/a/277538>.
+You can take a look at the Lucid command line at <https://asciinema.org/a/277538>.
 
 ```
  ██╗    ██╗   ██╗ ██████╗██╗██████╗     ██╗  ██╗██╗   ██╗
