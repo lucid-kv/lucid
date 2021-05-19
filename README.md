@@ -47,7 +47,7 @@ A demonstration node is accessible at <https://lucid-kv.herokuapp.com/> or deplo
 
 ## Documentation
 
-You can quickly start [here](https://github.com/lucid-kv/lucid/wiki) or get the complete documentation at <https://docs.lucid-kv.store>.
+You can quickly start [here](https://github.com/lucid-kv/lucid/wiki) or get the complete documentation at <https://clintnetwork.gitbook.io/lucid/>.
 
 ## Works in Progress
 
