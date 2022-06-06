@@ -47,7 +47,7 @@ log = { version = "0.4.8", features = ["serde"] }
 tokio = { version = "0.2.9", features = ["full", "sync"] }
 serpent = "0.0.1"
 block-modes = "0.3.3"
-hyper = "0.13.4"
+hyper = "0.14.5"
 
 [dev-dependencies]
 criterion = "0.3"
