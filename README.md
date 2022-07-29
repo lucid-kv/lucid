@@ -20,7 +20,7 @@
 
 Lucid is a high performance, secure and distributed key-value store accessible through an HTTP API, that is built around a modular configuration to enable features on the fly, like persistence, encryption SSE, compression, replication, and more.
 
-[Read the complete Medium article →](https://medium.com/@clintnetwork/lucid-an-http-key-value-store-c0e734586e26)
+[Read the complete Medium article →](https://medium.com/@clint21/lucid-an-http-key-value-store-c0e734586e26)
 
 ## Getting Started
 
@@ -88,14 +88,14 @@ Lucid wants to propose a Web UI to manage data, issue tokens, organize nodes and
 
 ## Development Credits
 
-Lucid is developed by [@clintnetwork](https://github.com/clintnetwork), [@Slals](https://github.com/Slals), [@CephalonRho](https://github.com/CephalonRho), [@rigwild](https://github.com/rigwild) and published under the [MIT License](LICENSE.md).
+Lucid is developed by [@thisisclint21](https://github.com/thisisclint21), [@Slals](https://github.com/Slals), [@CephalonRho](https://github.com/CephalonRho), [@rigwild](https://github.com/rigwild) and published under the [MIT License](LICENSE.md).
 
-| Name / Nickname | Email                 | Role               |
+| Name / Nickname | Twitter               | Role               |
 |-----------------|-----------------------|--------------------|
-| Clint Mourlevat | me@clint.network      | Lucid Founder      |
-| Jonathan Serra  | jonathan@blocs.fr     | Core Development   |
-| CephalonRho     | CephalonRho@gmail.com | Core Development   |
-| Rigwild         | me@rigwild.dev        | Web UI Development |
+| clint21.eth ⚡️   | @thisisclint21        | Lucid Founder      |
+| CephalonRho     | @cephalonrho          | Core Development   |
+| Jonathan Serra  | @_blocs               | Core Development   |
+| Rigwild         | @rigwild_             | Web UI Development |
 
 ## Contribute to Lucid
 
